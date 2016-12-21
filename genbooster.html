@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>dierk/genbooster - generate MTG boosters from a seed</title>
+</head>
+<body onload="start();">
+
+<script src="./genbooster_bundle.js"></script>
+
+<script>
+function get_args() {
+	var rv = {};
+
+	var args = window.location.href.replace(/^.*#/, '');
+	args.split(/;/).forEach(function(arg) {
+		var kv = arg.split(/=/, 2);
+		rv[kv[0]] = kv[1];
+	});
+
+	return rv;
+}
+
+function append_cards(cards) {
+	var el = document.getElementById('cards');
+	for(var i in cards) {
+		var c = cards[i];
+		var usable = true;
+
+		if('usableForDeckBuilding' in c) {
+			usable = c.usableForDeckBuilding;
+		}
+
+		if(usable)
+			el.insertAdjacentHTML('beforeend', c.title + "\n");
+	}
+
+	el.insertAdjacentHTML('beforeend', "\n");
+}
+
+function generate_some(gb, num, set, product) {
+	for(var i = 0; i < num; i++) {
+		var res = gb.run(set, product);
+		append_cards(res);
+	}
+}
+
+function start() {
+	var args = get_args();
+	var seed = args.seed;
+	var setstr = args.sets;
+
+	var rng = new window.prng_aes(seed);
+	var gb = new window.genbooster(rng);
+
+	var setlist = setstr.split(',');
+	for(var i in setlist) {
+		var match = setlist[i].match(/^(\d+)(...)\.(.*)$/);
+		if(!match) {
+			throw "error";
+		}
+
+		var num = match[1];
+		var set = match[2];
+		var product = match[3];
+
+		generate_some(gb, num, set, product);
+	}
+}
+
+</script>
+
+<pre id="cards"></pre>
+
+</body>
+</html>

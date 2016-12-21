@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>dierk - secure multiparty random number generator</title>
+<style>
+label {
+	font-weight: bold;
+}
+ul {
+	list-style-type: none;
+}
+li {
+	margin-bottom: 1em;
+}
+#debug {
+	color: gray;
+}
+</style>
+</head>
+<body onload="prefill();">
+
+<script src="./dierk_bundle.js"></script>
+
+<script>
+var dierk = new window.dierk();
+
+function get_args() {
+	var rv = {};
+
+	var args = window.location.href.replace(/^.*#/, '');
+	args.split(/;/).forEach(function(arg) {
+		var kv = arg.split(/=/, 2);
+		rv[kv[0]] = kv[1];
+	});
+
+	return rv;
+}
+
+function set_args(args) {
+	var rv = '';
+
+	var argstrs = [];
+	for(var k in args) {
+		argstrs.push(k + '=' + args[k]);
+	}
+
+	window.location.href = '#' + argstrs.join(';');
+}
+
+function fill_keys(keys) {
+	var all = '';
+	['ownpub', 'genpub', 'genprv', 'ownprv'].forEach(function(e) {
+		all += keys[e] + "\n";
+	});
+	document.getElementById('keys').textContent = all;
+	document.getElementById('pubes').textContent = 
+		keys.ownpub + "\n" + keys.genpub + "\n";
+	document.getElementById('privs').textContent = 
+		keys.ownprv + "\n" + keys.genprv + "\n";
+	document.getElementById('genprv').textContent = keys.genprv;
+	document.getElementById('ownprv').textContent = keys.ownprv;
+
+	document.getElementById('init').disabled = true;
+	document.getElementById('nick').disabled = true;
+}
+
+function prefill() {
+	var args = get_args();
+
+	var totp = 0;
+	args.players.split(/,/).forEach(function(pl) {
+		document.getElementById('nick').innerHTML += 
+			'<option value="' + pl + '">' + pl + '</option>';
+		totp++;
+	});
+
+	if(args['nick']) {
+		var nick_el = document.getElementById('nick');
+		nick_el.value = args.nick;
+		nick_change(nick_el);
+
+		if(args['keys']) {
+			var keystrs = args['keys'].split(',');
+			var keys = dierk.sign_all_mine(keystrs, args.nick);
+			fill_keys(keys);
+		}
+	}
+
+	document.getElementById('totkeys').textContent =
+		' (there should be at least ' + ((totp - 1) * 3)+ ' keys here)';
+}
+
+function init() {
+	var g = dierk.gen(document.getElementById('nick').value);
+	fill_keys(g);
+
+	var a = get_args();
+	a['keys'] = g['ownprv'] + ',' + g['genprv'];
+
+	set_args(a);
+}
+
+function verify() {
+	var args = get_args();
+	var players = args.players.split(',');
+	var all_data = [
+		document.getElementById('all_inputs').value,
+		document.getElementById('keys').textContent
+	];
+	var r = dierk.process(all_data, players);
+
+	document.getElementById('result').textContent = JSON.stringify(r, null, 2);
+	var step11 = document.getElementById('step11');
+
+	if(Object.keys(r.result).length == 0) {
+		step11.innerHTML = '<li>(no results)</li>';
+	} else {
+		step11.innerHTML = '';
+	}
+
+	for(var k in r.result) {
+		var booster_args = 'seed=' + r.result[k] + ';sets=' + args.sets;
+
+		step11.innerHTML += '<li><label>' + k + '</label>: ' +
+			r.result[k] + ' <a href="genbooster.html#' + booster_args +
+			'" target="_blank">(generate cards)</a></li>';
+	}
+}
+
+function nick_change(el) {
+	if(el.value) {
+		document.getElementById('init').disabled = false;
+		document.getElementById('verify').disabled = false;
+		var a = get_args();
+		a['nick'] = el.value;
+		set_args(a);
+	} else {
+		document.getElementById('init').disabled = true;
+		document.getElementById('verify').disabled = true;
+	}
+}
+
+</script>
+
+<ul>
+	<li><label>step 1: </label>tell me who you are:
+		<select id="nick" onchange="nick_change(this);">
+		<option value="">---</option>
+		</select> 
+	</li>
+	<li><label>step 2: </label>initialize keys:
+		<input type="button" id="init" value="initialize" 
+			onclick="init();" disabled />
+	</li>
+	<li><label>step 3: </label>bookmark this page, you'll need it later
+		(make sure you completed step 2 above first, otherwise
+		 the bookmarked link won't contain the keys)
+	</li>
+	<li><label>step 4: </label>write down or save
+		these <em>private</em>
+		keys somewhere safe, you'll need them later:
+		<pre id="privs">(initialize them first!)</pre>
+		Do NOT send those out to anyone yet!
+	</li>
+	<li><label>step 5: </label>send these <em>public</em> keys to everyone:
+		<pre id="pubes">(initialize them first!)</pre>
+	</li>
+	<li><label>step 6: </label>wait for everyone else to send your their 
+		public keys. do NOT proceed to step 7 until you have them all!
+	</li>
+	<li><label>step 7: </label>when you've received public keys from everyone,
+		you're ready to send out your generation private key to everyone
+		so they can generate their numbers:
+		<pre id="genprv">(initialize it first!)</pre>
+	</li>
+	<li><label>step 8: </label>wait for everyone to send you their genprv keys
+	</li>
+	<li><label>step 9: </label>enter all the keys you've received in 
+		steps 6 and 8, one per line<span id="totkeys"></span>: <br />
+		<textarea id="all_inputs" cols="60" rows="10"></textarea> <br />
+		(you can also add keys you've got from step 12 here to see
+		 other players' numbers)
+
+	</li>
+	<li><label>step 10: </label>verify everything and generate your random
+		number: <input id="verify" type="button"
+			value="verify/generate" onclick="verify();" />
+	</li>
+	<li><label>step 11: </label>here are your random numbers:
+		<ul id="step11">
+		 <li>(no results yet)</li>
+		</ul>
+	</li>
+	<li><label>step 12: </label>to prove that your random number was
+		generated correctly, use your ownprv key:
+		<pre id="ownprv">(initialize it first!)</pre>
+		(this will reveal your random number to everyone!)
+	</li>
+</ul>
+
+<div id="debug">
+<label>Your keys:</label>
+<pre id="keys">don't exist yet</pre>
+
+<label>Debug:</label>
+<pre id="result"></pre>
+</div>
+
+</body>
+</html>
