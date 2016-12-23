@@ -2,10 +2,13 @@
 <html>
 <head>
 <title>dierk/genbooster - generate MTG boosters from a seed</title>
+<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/christianbach/tablesorter/master/themes/blue/style.css">
 </head>
 <body onload="start();">
 
 <script src="./genbooster_bundle.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdn.rawgit.com/christianbach/tablesorter/master/jquery.tablesorter.min.js"></script>
 
 <script>
 function get_args() {
@@ -20,8 +23,24 @@ function get_args() {
 	return rv;
 }
 
+function card2row(c) {
+	return '<tr><td>' + c.title + '</td>' +
+		'<td>' + c.set + '</td>' +
+		'<td>' + c.cost + '</td>' +
+		'<td>' + c.cmc + '</td>' +
+		'<td>' + c.colour + '</td>' +
+		'<td>' + c.type + '</td>' +
+		'<td>' + c.subtype + '</td>' +
+		'<td>' + c.rarity + '</td>' +
+		'<td>' + c.power + '</td>' +
+		'<td>' + c.toughness + '</td>' +
+		'</tr>';
+}
+
 function append_cards(cards) {
-	var el = document.getElementById('cards');
+	var pre_el = document.getElementById('cards_pre');
+	var table_el = document.getElementById('cards_table_body');
+
 	for(var i in cards) {
 		var c = cards[i];
 		var usable = true;
@@ -30,11 +49,17 @@ function append_cards(cards) {
 			usable = c.usableForDeckBuilding;
 		}
 
-		if(usable)
-			el.insertAdjacentHTML('beforeend', c.title + "\n");
+		if(('token' in c) && (c.token == true || c.token == 'true')) {
+			usable = false;
+		}
+
+		if(usable) {
+			pre_el.insertAdjacentHTML('beforeend', c.title + "\n");
+			table_el.insertAdjacentHTML('beforeend', card2row(c));
+		}
 	}
 
-	el.insertAdjacentHTML('beforeend', "\n");
+	pre_el.insertAdjacentHTML('beforeend', "\n");
 }
 
 function generate_some(gb, num, set, product) {
@@ -67,9 +92,34 @@ function start() {
 	}
 }
 
+$(document).ready(function() {
+	$('#cards_table').tablesorter();
+});
+
 </script>
 
-<pre id="cards"></pre>
+<p>Scroll down for a copy&amp;pasteable list of names only</p>
+<p>Hold SHIFT to sort on multiple columns</p>
+<table id="cards_table" class="tablesorter">
+<thead>
+<tr>
+	<th>Name</th>
+	<th>Set</th>
+	<th>Cost</th>
+	<th>CMC</th>
+	<th>Colour</th>
+	<th>Type</th>
+	<th>Subtype</th>
+	<th>Rarity</th>
+	<th>Power</th>
+	<th>Toughness</th>
+</tr>
+</thead>
+<tbody id="cards_table_body">
+</tbody>
+</table>
+
+<pre id="cards_pre"></pre>
 
 </body>
 </html>
