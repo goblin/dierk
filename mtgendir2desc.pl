@@ -5,57 +5,73 @@ use warnings;
 
 use JSON;
 
-# give it the location of the wwwroot directory in the mtgen project
+# give it the location of the source directory of the mtgen project
 # as an argument
 my $mtgen_dir = shift @ARGV;
+$mtgen_dir .= '/src/mtgen';
 
 undef $/;
 
 my %retval;
 
-my $sets = load_sets($mtgen_dir);
+my $sets_json = load_sets_json("$mtgen_dir/wwwroot");
 
-opendir(my $dh, $mtgen_dir) or die "can't opendir $mtgen_dir: $!";
-foreach my $dir (readdir $dh) {
-	if(-d "$mtgen_dir/$dir" 
-			&& -f "$mtgen_dir/$dir/packs.json"
-			&& -f "$mtgen_dir/$dir/products.json") {
-		my $data = process_dir("$mtgen_dir/$dir", $dir, $sets);
-		$retval{$dir} = $data if($data);
+my $set_meta_dir = "$mtgen_dir/Views/Set";
+
+opendir(my $dh, $set_meta_dir) or die "can't opendir $set_meta_dir: $!";
+foreach my $file (readdir $dh) {
+	if($file =~ /\.json$/ && -f "$set_meta_dir/$file") {
+		my $set = $file;
+		$set =~ s/\.json$//;
+		my $data = process_set("$set_meta_dir/$file", "$mtgen_dir", $set, $sets_json);
+		$retval{$set} = $data if($data);
 	}
 }
 close($dh);
 
 print to_json(\%retval, { pretty => 1 });
 
-sub process_dir {
-	my ($dir, $code, $sets) = @_;
+sub load_json_file {
+	my ($fname) = @_;
+	
+	open(my $fh, $fname) or
+		die "can't open $fname: $!";
+	
+	my $contents = <$fh>;
+	# some files contain the UTF8 BOM, don't want it
+	$contents =~ s/^\xef\xbb\xbf//; 
+	my $data = from_json($contents);
 
-	my $packs = get_packs($dir);
+	close($fh);
+
+	return $data;
+}
+
+sub process_set {
+	my ($meta_file, $mtgen_dir, $setcode, $sets_json) = @_;
+	my $dir = "$mtgen_dir/wwwroot/$setcode";
+
+	my $meta_json = load_json_file($meta_file);
+# XXX: finished here
+
+	my ($packs, $defs) = get_packs_and_defs($dir, $meta_json);
 
 	if(scalar(keys %$packs) == 0) {
 		return undef;
 	}
 
 	return { 
-		cards => get_cards($dir, get_cardfiles($dir)),
+		cards => get_cards($dir, get_cardfiles($meta_json)),
 		packs => $packs,
-		date => get_packdate($code, $sets),
+		defs => $defs,
+		date => get_packdate($setcode, $sets_json),
 	};
 }
 
 sub get_cardfiles {
-	my ($dir) = @_;
+	my ($meta_json) = @_;
 
-	my @rv;
-
-	opendir(my $dh, $dir) or die "can't open subdir $dir: $!";
-	foreach my $file (readdir $dh) {
-		if($file =~ /^(cards.*\.json)$/) {
-			push @rv, $1;
-		}
-	}
-	closedir($dh);
+	my @rv = @{ $meta_json->{CardFiles} };
 
 	return [ sort @rv ];
 }
@@ -65,74 +81,35 @@ sub get_cards {
 
 	my @cards;
 	foreach my $cardf (@$cardfiles) {
-		open(my $cfh, "$dir/$cardf") or die "can't open $dir/$cardf: $!";
-		my $card_data = <$cfh>;
-		# some cardsfiles contain the UTF8 BOM, don't want it
-		$card_data =~ s/^\xef\xbb\xbf//; 
-
-		push @cards, @{ from_json($card_data) };
-		close($cfh);
+		push @cards, @{ load_json_file("$dir/$cardf") };
 	}
 
 	return \@cards;
 }
 
-sub get_packs {
-	my ($dir) = @_;
+sub get_packs_and_defs {
+	my ($dir, $meta_json) = @_;
+	
+	my (%packs, @defs);
 
-	open(my $prodh, "$dir/products.json") or 
-		die "can't open $dir/products.json: $!";
-	my $products = from_json(<$prodh>);
-	close($prodh);
-
-	my %packs;
-	foreach my $prod (@{ $products->{products} }) {
-		my $vis = 1;
-		if(exists($prod->{isVisible}) && !$prod->{isVisible}) {
-			$vis = 0;
+	foreach my $packfile (map { load_json_file("$dir/$_") } @{ $meta_json->{PackFiles} }) {
+		foreach my $pack (@{ $packfile->{packs}}) {
+			$packs{$pack->{packName}} = $pack;
 		}
-		if($prod->{isGenerated} 
-				&& $vis
-				&& scalar(@{ $prod->{packs} }) == 1) {
-			my $packname = $prod->{packs}->[0]->{packName};
-			$packs{$packname} = {
-				prod_desc => $prod->{productDesc},
-				pack => get_pack($dir, $packname),
-			};
+		foreach my $def (@{ $packfile->{defs} }) {
+			die "oops" if(exists($def->{querySet}));
+			die "oops2" unless(exists($def->{query}));
+			push @defs, $def;
 		}
 	}
 
-	return \%packs;
+	return (\%packs, \@defs);
 }
 
-sub get_pack {
-	my ($dir, $name) = @_;
-
-	open(my $packh, "$dir/packs.json") or
-		die "can't open $dir/packs.json: $!";
-	my $packs = from_json(<$packh>);
-	close($packh);
-
-	foreach my $pack (@{ $packs->{packs}}) {
-		if($pack->{packName} eq $name) {
-			return {
-				defs => $packs->{defs},
-				pack => $pack
-			};
-		}
-	}
-	return undef;
-}
-
-sub load_sets {
+sub load_sets_json {
 	my ($dir) = @_;
 
-	open(my $seth, "$dir/sets.json") or
-		die "can't open $dir/sets.json: $!";
-	my $sets = from_json(<$seth>);
-	close($seth);
-
-	return $sets;
+	return load_json_file("$dir/sets.json");
 }
 
 sub get_packdate {
