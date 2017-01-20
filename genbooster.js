@@ -86,29 +86,19 @@ function execute_query(defs, query) {
 
 genbooster.prototype.generate_defs = function(setname, packname) {
 	var set = this.set_descs[setname];
-	var pack = this.set_descs[setname].packs[packname];
 
-	if('defs' in pack) {
+	if('resolved_defs' in set) {
 		// generated earlier
 		return;
 	}
 
-	var defs = {};
-	var deflist = pack.pack.defs;
-	var first_def = deflist.shift();
+	var resolved_defs = {'*': this.set_descs[setname].cards};
 
-	if(!first_def.query.match("^from\\[\\*\\]\\?set='?" + setname + "'?$")) {
-		throw "unknown first def query: " + first_def.query;
-	}
-	ensure_all_cards_are_from_set(set.cards, setname);
-
-	defs[first_def.defName] = set.cards;
-
-	deflist.forEach(function(def) {
-		defs[def.defName] = execute_query(defs, def.query);
+	set.defs.forEach(function (def) {
+		resolved_defs[def.defName] = execute_query(resolved_defs, def.query);
 	});
 
-	pack['defs'] = defs;
+	set['resolved_defs'] = resolved_defs;
 };
 
 function cards_from_query(defs, rng, query) {
@@ -217,9 +207,9 @@ function generate_cards(defs, rng, queries) {
 genbooster.prototype.run = function(setname, packname) {
 	this.generate_defs(setname, packname);
 	return generate_cards(
-		this.set_descs[setname].packs[packname].defs,
+		this.set_descs[setname].resolved_defs,
 		this.rng,
-		this.set_descs[setname].packs[packname].pack.pack.cards
+		this.set_descs[setname].packs[packname].cards
 	);
 };
 
