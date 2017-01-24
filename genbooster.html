@@ -3,8 +3,45 @@
 <head>
 <title>dierk/genbooster - generate MTG boosters from a seed</title>
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/christianbach/tablesorter/master/themes/blue/style.css">
+<style>
+body {
+	background-color: #1f1e1e;
+	color: white;
+}
+table#cards_table {
+	background-color: gray;
+}
+table#cards_table td {
+	background-color: #1f1e1e;
+	color: white;
+}
+table#cards_table th {
+	color: black;
+}
+table#cards_table tr.clicked td {
+	background-color: #303030;
+}
+
+table#cards_table tr .popup {
+	display: none;
+}
+table#cards_table tr:hover .popup {
+	display: block;
+	position: absolute; 
+	left: 15em; 
+	background: black; 
+/*    width: 40em;*/
+	color: lightgray;
+	padding: 1em;       
+	margin-top: 0em;
+}
+
+</style>
+<meta charset="UTF-8">
 </head>
 <body onload="start();">
+
+<p id="loading"> Loading, please be patient... </p>
 
 <script src="./genbooster_bundle.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -23,21 +60,87 @@ function get_args() {
 	return rv;
 }
 
-function card2row(c) {
-	return '<tr><td>' + c.title + '</td>' +
+function mana_escape(text) {
+	var res = text || '--';
+	res = res.toString();
+
+	res = res.
+		replace(/\n/g, '<br />').
+		replace(/\{T\}/g, '{tap}').
+		replace(/\{(.|tap)\}/g, '<img src="http://gatherer.wizards.com/Handlers/Image.ashx?size=small&name=$1&type=symbol" alt="{$1}"></img>');
+
+	return res;
+}
+
+function me(text) {
+	return mana_escape(text);
+}
+
+function get_popup_for_card(c) {
+	var rulings_head = '';
+	var rulings_disp = 'none';
+	if(c.mtgjson.rulings) {
+		rulings_head = 'Rulings:';
+		rulings_disp = 'inline-block';
+	}
+
+	var rv = '<div style="display: inline-block; float: left;"><img src="' + 
+		c.src + '"></img></div><div style="display: ' + rulings_disp + '; float: left; max-width: 40em;">' +
+		rulings_head + '<ul>';
+
+	for(var r in c.mtgjson.rulings) {
+		rv += '<li>' + me(c.mtgjson.rulings[r].text) + '</li>';
+	}
+	
+	rv += '</div></ul>';
+	return '<div style="display: inline-block;">' + rv + '</div>';
+}
+
+function row_click(where) {
+	if(where.className == 'clicked') {
+		where.className = '';
+	} else {
+		where.className = 'clicked';
+	}
+}
+
+function card2row(c, set_descs) {
+	var popup = get_popup_for_card(c);
+
+	var first_row = '<b>' + c.title + '</b><br />' + me(c.mtgjson.text);
+
+	if(c.mtgjson.layout == 'double-faced') {
+		var other_name = c.mtgjson.names[1];
+		first_row += '<br /><b>' + other_name + '</b>';
+		var back;
+
+		var search = set_descs[c.set].cards;
+		for(var i in search) {
+			if(search[i].title == other_name) {
+				back = search[i];
+			}
+		}
+
+		first_row += '<br />' + me(back.mtgjson.text);
+		popup += get_popup_for_card(back);
+	}
+
+	first_row += '<div class="popup">' + popup + '</div>';
+
+	return '<tr onclick="row_click(this);"><td>' + first_row + '</td>' +
 		'<td>' + c.set + '</td>' +
-		'<td>' + c.cost + '</td>' +
-		'<td>' + c.cmc + '</td>' +
+		'<td>' + me(c.mtgjson.manaCost) + '</td>' +
+		'<td>' + me(c.mtgjson.cmc) + '</td>' +
 		'<td>' + c.colour + '</td>' +
 		'<td>' + c.type + '</td>' +
-		'<td>' + c.subtype + '</td>' +
+		'<td>' + me(c.subtype) + '</td>' +
 		'<td>' + c.rarity + '</td>' +
-		'<td>' + c.power + '</td>' +
-		'<td>' + c.toughness + '</td>' +
+		'<td>' + me(c.power) + '</td>' +
+		'<td>' + me(c.toughness) + '</td>' +
 		'</tr>';
 }
 
-function append_cards(cards) {
+function append_cards(cards, set_descs) {
 	var pre_el = document.getElementById('cards_pre');
 	var table_el = document.getElementById('cards_table_body');
 
@@ -55,7 +158,7 @@ function append_cards(cards) {
 
 		if(usable) {
 			pre_el.insertAdjacentHTML('beforeend', c.title + "\n");
-			table_el.insertAdjacentHTML('beforeend', card2row(c));
+			table_el.insertAdjacentHTML('beforeend', card2row(c, set_descs));
 		}
 	}
 
@@ -65,7 +168,7 @@ function append_cards(cards) {
 function generate_some(gb, num, set, product) {
 	for(var i = 0; i < num; i++) {
 		var res = gb.run(set, product);
-		append_cards(res);
+		append_cards(res, gb.set_descs);
 	}
 }
 
@@ -90,6 +193,23 @@ function start() {
 
 		generate_some(gb, num, set, product);
 	}
+
+	document.getElementById('loading').style.display = 'none';
+}
+
+function getdeck() {
+	var deck = document.getElementById('deck');
+	var tbl = document.getElementById('cards_table');
+	var res = '';
+
+	for(var i in tbl.rows) {
+		var row = tbl.rows[i];
+		if(row.className == 'clicked') {
+			res += row.childNodes[0].childNodes[0].textContent + "\n";
+		}
+	}
+
+	deck.innerHTML = res;
 }
 
 $(document).ready(function() {
@@ -98,8 +218,12 @@ $(document).ready(function() {
 
 </script>
 
-<p>Scroll down for a copy&amp;pasteable list of names only</p>
-<p>Hold SHIFT to sort on multiple columns</p>
+<p>Scroll down for a copy&amp;pasteable list of names only (won't sort, will stay only on the generated names).</p>
+<p>Hold SHIFT to sort the table on multiple columns.</p>
+<p>Click table rows to toggle whether the card is meant to go in the deck. After you're done, click the [get deck] button
+and copy&amp;paste your deck somewhere.</p>
+<textarea rows="4" cols="60" id="deck"></textarea>
+<input type="button" onclick="getdeck();" value="get deck" />
 <table id="cards_table" class="tablesorter">
 <thead>
 <tr>

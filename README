@@ -1,10 +1,11 @@
 Dierk - secure multiparty random number (or MTG deck) generator
 
 You need the mtgen package from https://github.com/copperdogma/mtgen
+You'll also need the AllSets-x.json from mtgjson.net.
 
 After checking out, run this:
 
-$ ./mtgendir2desc.pl ../mtgen > set_descs.json
+$ ./mtgendir2desc.pl ../mtgen ../AllSets-x.json > set_descs.json
 $ npm install
 $ ./node_modules/.bin/browserify genbooster.js -o genbooster_bundle.js
 $ ./node_modules/.bin/browserify dierk.js -o dierk_bundle.js

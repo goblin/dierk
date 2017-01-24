@@ -3,14 +3,6 @@ function genbooster(rng) {
 	this.rng = rng;
 }
 
-function ensure_all_cards_are_from_set(cards, setname) {
-	cards.forEach(function(c) {
-		if(!('set' in c) || c.set != setname) {
-			throw "card " + c.title + " not in set " + setname;
-		}
-	});
-}
-
 function term_matches(term, val) {
 	// TODO: original mtgen mentions something about "certain characters need to be converted" if title
 
