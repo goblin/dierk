@@ -111,7 +111,6 @@ function card2row(c, set_descs) {
 
 	if(c.mtgjson.layout == 'double-faced') {
 		var other_name = c.mtgjson.names[1];
-		first_row += '<br /><b>' + other_name + '</b>';
 		var back;
 
 		var search = set_descs[c.set].cards;
@@ -121,7 +120,10 @@ function card2row(c, set_descs) {
 			}
 		}
 
-		first_row += '<br />' + me(back.mtgjson.text);
+		first_row += '<br /><b>' + other_name + 
+			' (' + me(back.power) + '/' + me(back.toughness) + ')</b><br />' +
+			'(' + me(back.subtype) + ')<br />' +
+			me(back.mtgjson.text);
 		popup += get_popup_for_card(back);
 	}
 
