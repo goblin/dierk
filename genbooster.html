@@ -50,6 +50,8 @@ span.card_text {
 <script src="https://cdn.rawgit.com/christianbach/tablesorter/master/jquery.tablesorter.min.js"></script>
 
 <script>
+var name_idx;
+
 function get_args() {
 	var rv = {};
 
@@ -353,6 +355,60 @@ function recreate() {
 	$('#cards_table').trigger('update');
 }
 
+function populate_name_idx() {
+	var rng = new window.prng_aes('00000000000000000000000000000000');
+	var gb = new window.genbooster(rng);
+	var set_descs = gb.set_descs;
+
+	if(name_idx !== undefined)
+		return set_descs;
+
+	name_idx = {};
+
+	var setnames = Object.keys(set_descs);
+
+	for(var i = 0; i < setnames.length; i++) {
+		var cards = set_descs[setnames[i]].cards;
+		for(var c = 0; c < cards.length; c++) {
+			name_idx[cards[c].title.toLowerCase()] = cards[c];
+		}
+	}
+
+	return set_descs;
+}
+
+function import_deck() {
+	var set_descs = populate_name_idx();
+	var table_el = document.getElementById('cards_table_body');
+
+	table_el.innerHTML = '';
+
+	var deck = document.getElementById('deck').value;
+	var cardnames = deck.split("\n");
+
+	for(var i = 0; i < cardnames.length; i++) {
+		var name = cardnames[i];
+		var cnt = 1;
+
+		var match = name.match(/^(\d+) (.*)$/);
+		if(match) {
+			cnt = parseInt(match[1]);
+			name = match[2];
+		}
+
+		var card = name_idx[name.toLowerCase()];
+		if(!card) {
+			throw "couldn't find card: " + cardnames[i];
+		}
+
+		for(var c = 0; c < cnt; c++) {
+			append_cards([card], set_descs);
+		}
+	}
+	
+	$('#cards_table').trigger('update');
+}
+
 $(document).ready(function() {
 	// http://stackoverflow.com/questions/5889232/tablesorter-jquery-plugin-fails-in-ff-3-6-12-with-msg-table-config-parsersc-i
 	$('#cards_table').tablesorter({debug:false});
@@ -376,6 +432,7 @@ and copy&amp;paste your deck somewhere.</p>
 <label><input type="checkbox" onchange="set_plaintext(this);" checked="checked"/>plaintext list</label>
 <input type="button" onclick="recreate();" value="recreate from seed" />
 <input type="button" onclick="limit_to_selected();" value="limit to selected only" />
+<input type="button" onclick="import_deck();" value="import deck" />
 <table id="cards_table" class="tablesorter">
 <thead>
 <tr>
