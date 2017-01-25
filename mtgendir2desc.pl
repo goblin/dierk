@@ -56,7 +56,6 @@ sub process_set {
 	my $dir = "$mtgen_dir/wwwroot/$setcode";
 
 	my $meta_json = load_json_file($meta_file);
-# XXX: finished here
 
 	my ($packs, $defs) = get_packs_and_defs($dir, $meta_json);
 
