@@ -277,7 +277,8 @@ function set_overlay(chkbx) {
 
 function cap24() {
 	var tbl = $('#cards_table');
-	tbl.trigger('sorton', [[[0, 0]]]);
+	// colour, type, cmc, rarity, name
+	tbl.trigger('sorton', [[[4, 0], [5, 0], [3, 0], [7, 0], [0, 0]]]);
 	tbl = document.getElementById('cards_table');
 
 	var last = '';
