@@ -200,12 +200,15 @@ function start() {
 	for(var i in setlist) {
 		var match = setlist[i].match(/^(\d+)(...)\.(.*)$/);
 		if(!match) {
-			throw "error";
+			match = setlist[i].match(/^(\d+)(...)$/);
+			if(!match) {
+				throw "error";
+			}
 		}
 
 		var num = match[1];
 		var set = match[2];
-		var product = match[3];
+		var product = match[3] || set + '-standard';
 
 		generate_some(gb, num, set, product);
 	}
