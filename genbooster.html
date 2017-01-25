@@ -401,6 +401,9 @@ function populate_name_idx() {
 	for(var i = 0; i < setnames.length; i++) {
 		var cards = set_descs[setnames[i]].cards;
 		for(var c = 0; c < cards.length; c++) {
+			if('usableForDeckBuilding' in cards[c] && !cards[c].usableForDeckBuilding)
+				continue;
+
 			name_idx[cards[c].title.toLowerCase()] = cards[c];
 		}
 	}
