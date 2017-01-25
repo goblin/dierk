@@ -104,6 +104,16 @@ function row_click(where) {
 	}
 }
 
+function find_card(set, name, set_descs) {
+	var search = set_descs[set].cards;
+	for(var i in search) {
+		if(search[i].title == name) {
+			return search[i];
+		}
+	}
+	return undef;
+}
+
 function card2row(c, set_descs) {
 	var popup = get_popup_for_card(c);
 
@@ -111,16 +121,18 @@ function card2row(c, set_descs) {
 
 	if(c.mtgjson.layout == 'double-faced') {
 		var other_name = c.mtgjson.names[1];
-		var back;
-
-		var search = set_descs[c.set].cards;
-		for(var i in search) {
-			if(search[i].title == other_name) {
-				back = search[i];
-			}
-		}
+		var back = find_card(c.set, other_name, set_descs);
 
 		first_row += '<br /><b>' + other_name + 
+			' (' + me(back.power) + '/' + me(back.toughness) + ')</b><br />' +
+			'(' + me(back.subtype) + ')<br />' +
+			me(back.mtgjson.text);
+		popup += get_popup_for_card(back);
+	} else if(c.mtgjson.layout == 'meld') {
+		var other_name = c.mtgjson.names[2];
+		var back = find_card(c.set, other_name, set_descs);
+
+		first_row += '<br />Melds into:<br/><b>' + other_name + 
 			' (' + me(back.power) + '/' + me(back.toughness) + ')</b><br />' +
 			'(' + me(back.subtype) + ')<br />' +
 			me(back.mtgjson.text);
