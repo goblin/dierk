@@ -287,6 +287,10 @@ function set_overlay(chkbx) {
 	document.styleSheets[1].cssRules[6].style.display = chkbx.checked ? 'block' : 'none';
 }
 
+function set_plaintext(chkbx) {
+	document.getElementById('cards_pre').style.display = chkbx.checked ? 'inline' : 'none';
+}
+
 function cap24() {
 	var tbl = $('#cards_table');
 	// colour, type, cmc, rarity, name
@@ -369,6 +373,7 @@ and copy&amp;paste your deck somewhere.</p>
 <input type="button" onclick="cap24();" value="cap to 4" />
 <label><input type="checkbox" onchange="set_cardtext(this);" checked="checked"/>card text</label>
 <label><input type="checkbox" onchange="set_overlay(this);" checked="checked"/>overlay</label>
+<label><input type="checkbox" onchange="set_plaintext(this);" checked="checked"/>plaintext list</label>
 <input type="button" onclick="recreate();" value="recreate from seed" />
 <input type="button" onclick="limit_to_selected();" value="limit to selected only" />
 <table id="cards_table" class="tablesorter">
