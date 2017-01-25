@@ -217,22 +217,37 @@ function row2cardname(row) {
 	return row.childNodes[0].childNodes[0].textContent;
 }
 
+function row2cardtype(row) {
+	return row.childNodes[5].childNodes[0].textContent;
+}
+
 function getdeck() {
 	var deck = document.getElementById('deck');
 	var tbl = document.getElementById('cards_table');
 	var res = '';
 	var cnt = 0;
+	var types = {};
 
 	for(var i = 0; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
 		if(row.className == 'clicked') {
 			res += row2cardname(row) + "\n";
 			cnt++;
+			var type = row2cardtype(row);
+			var typecnt = types[type] || 0;
+			typecnt++;
+			types[type] = typecnt;
 		}
 	}
 
 	deck.value = res;
-	document.getElementById('cardcnt').innerHTML = cnt.toString() + ' cards in deck.';
+	document.getElementById('cardcnt').innerHTML = cnt.toString() + ' cards in deck: '
+		+ Object.keys(types).map(function(k) {
+			var mult = '';
+			if(types[k] > 1)
+				mult = 's';
+			return types[k] + ' ' + k + mult;
+		}).join(', ') + '.';
 }
 
 function reselect() {
