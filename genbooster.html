@@ -374,12 +374,19 @@ function limit_to_selected() {
 	$('#cards_table').trigger('update');
 }
 
+function delete_all_rows(tbl) {
+	for(var i = tbl.rows.length - 1; i >= 0; i--) {
+		tbl.deleteRow(i);
+	}
+	$('#cards_table').trigger('update');
+}
+
 function recreate() {
 	var pre_el = document.getElementById('cards_pre');
 	var table_el = document.getElementById('cards_table_body');
 
 	pre_el.innerHTML = '';
-	table_el.innerHTML = '';
+	delete_all_rows(table_el);
 
 	start();
 	
@@ -415,7 +422,7 @@ function import_deck() {
 	var set_descs = populate_name_idx();
 	var table_el = document.getElementById('cards_table_body');
 
-	table_el.innerHTML = '';
+	delete_all_rows(table_el);
 
 	var deck = document.getElementById('deck').value;
 	var cardnames = deck.split("\n");
