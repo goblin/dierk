@@ -149,7 +149,7 @@ function card2row(c, set_descs) {
 		'<td>' + c.type + '</td>' +
 		'<td>' + me(c.subtype) + '</td>' +
 		'<td>' + c.rarity + '</td>' +
-		'<td>' + me(c.power) + '</td>' +
+		'<td>' + me(c.power || c.loyalty) + '</td>' +
 		'<td>' + me(c.toughness) + '</td>' +
 		'</tr>';
 }
@@ -211,19 +211,42 @@ function start() {
 	document.getElementById('loading').style.display = 'none';
 }
 
+function row2cardname(row) {
+	return row.childNodes[0].childNodes[0].textContent;
+}
+
 function getdeck() {
 	var deck = document.getElementById('deck');
 	var tbl = document.getElementById('cards_table');
 	var res = '';
 
-	for(var i in tbl.rows) {
+	for(var i = 0; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
 		if(row.className == 'clicked') {
-			res += row.childNodes[0].childNodes[0].textContent + "\n";
+			res += row2cardname(row) + "\n";
 		}
 	}
 
-	deck.innerHTML = res;
+	deck.value = res;
+}
+
+function reselect() {
+	var deck = document.getElementById('deck').value;
+	var tbl = document.getElementById('cards_table');
+
+	var cards = deck.split("\n");
+		console.log(cards);
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		var idx = cards.indexOf(row2cardname(row));
+		console.log(row, row2cardname(row));
+		if(idx > -1) {
+			row.className = 'clicked';
+			cards[idx] = null;
+		} else {
+			row.className = '';
+		}
+	}
 }
 
 $(document).ready(function() {
@@ -238,6 +261,7 @@ $(document).ready(function() {
 and copy&amp;paste your deck somewhere.</p>
 <textarea rows="4" cols="60" id="deck"></textarea>
 <input type="button" onclick="getdeck();" value="get deck" />
+<input type="button" onclick="reselect();" value="reselect cards" />
 <table id="cards_table" class="tablesorter">
 <thead>
 <tr>
