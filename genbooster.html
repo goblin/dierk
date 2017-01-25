@@ -149,7 +149,7 @@ function card2row(c, set_descs) {
 		'<td>' + c.type + '</td>' +
 		'<td>' + me(c.subtype) + '</td>' +
 		'<td>' + c.rarity + '</td>' +
-		'<td>' + me(c.power) + '</td>' +
+		'<td>' + me(c.power || c.loyalty) + '</td>' +
 		'<td>' + me(c.toughness) + '</td>' +
 		'</tr>';
 }
