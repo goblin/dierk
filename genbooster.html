@@ -312,6 +312,16 @@ function select_all(all) {
 	}
 }
 
+function invert_selection() {
+	var tbl = document.getElementById('cards_table');
+
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		var old = row.className == 'clicked';
+		row.className = old ? '' : 'clicked';
+	}
+}
+
 function set_cardtext(chkbx) {
 	document.styleSheets[1].cssRules[7].style.display = chkbx.checked ? 'inline' : 'none';
 }
@@ -466,6 +476,7 @@ and copy&amp;paste your deck somewhere.</p>
 <input type="button" onclick="getdeck();" value="get deck" />
 <input type="button" onclick="select_all(true);" value="select all" />
 <input type="button" onclick="select_all(false);" value="select none" />
+<input type="button" onclick="invert_selection();" value="invert selection" />
 <input type="button" onclick="reselect();" value="reselect cards" />
 <input type="button" onclick="cap24();" value="cap to 4" />
 <label><input type="checkbox" onchange="set_cardtext(this);" checked="checked"/>card text</label>
