@@ -270,6 +270,15 @@ function reselect() {
 	}
 }
 
+function select_all(all) {
+	var tbl = document.getElementById('cards_table');
+
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		row.className = all ? 'clicked' : '';
+	}
+}
+
 function set_cardtext(chkbx) {
 	document.styleSheets[1].cssRules[7].style.display = chkbx.checked ? 'inline' : 'none';
 }
@@ -314,6 +323,32 @@ function cap24() {
 	$('#cards_table').trigger('update');
 }
 
+function limit_to_selected() {
+	tbl = document.getElementById('cards_table');
+
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		if(row.className != 'clicked') {
+			tbl.deleteRow(i);
+			i--;
+		}
+	}
+
+	$('#cards_table').trigger('update');
+}
+
+function recreate() {
+	var pre_el = document.getElementById('cards_pre');
+	var table_el = document.getElementById('cards_table_body');
+
+	pre_el.innerHTML = '';
+	table_el.innerHTML = '';
+
+	start();
+	
+	$('#cards_table').trigger('update');
+}
+
 $(document).ready(function() {
 	// http://stackoverflow.com/questions/5889232/tablesorter-jquery-plugin-fails-in-ff-3-6-12-with-msg-table-config-parsersc-i
 	$('#cards_table').tablesorter({debug:false});
@@ -328,10 +363,14 @@ and copy&amp;paste your deck somewhere.</p>
 <textarea rows="4" cols="60" id="deck"></textarea>
 <p id="cardcnt"></p>
 <input type="button" onclick="getdeck();" value="get deck" />
+<input type="button" onclick="select_all(true);" value="select all" />
+<input type="button" onclick="select_all(false);" value="select none" />
 <input type="button" onclick="reselect();" value="reselect cards" />
 <input type="button" onclick="cap24();" value="cap to 4" />
 <label><input type="checkbox" onchange="set_cardtext(this);" checked="checked"/>card text</label>
 <label><input type="checkbox" onchange="set_overlay(this);" checked="checked"/>overlay</label>
+<input type="button" onclick="recreate();" value="recreate from seed" />
+<input type="button" onclick="limit_to_selected();" value="limit to selected only" />
 <table id="cards_table" class="tablesorter">
 <thead>
 <tr>
