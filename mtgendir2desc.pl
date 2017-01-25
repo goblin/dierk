@@ -6,11 +6,15 @@ use warnings;
 use JSON;
 
 # give it the location of the source directory of the mtgen project
-# as an argument
-my $mtgen_dir = shift @ARGV;
+# as the first argument, and the location of mtgjson's AllSets-x.json
+# as the second
+my ($mtgen_dir, $mtgjson_file) = @ARGV;
 $mtgen_dir .= '/src/mtgen';
 
 undef $/;
+
+my $mtgjson = load_json_file($mtgjson_file);
+my $mtgjson_idx = index_mtgjson($mtgjson);
 
 my %retval;
 
@@ -23,7 +27,7 @@ foreach my $file (readdir $dh) {
 	if($file =~ /\.json$/ && -f "$set_meta_dir/$file") {
 		my $set = $file;
 		$set =~ s/\.json$//;
-		my $data = process_set("$set_meta_dir/$file", "$mtgen_dir", $set, $sets_json);
+		my $data = process_set("$set_meta_dir/$file", "$mtgen_dir", $set, $sets_json, $mtgjson_idx);
 		$retval{$set} = $data if($data);
 	}
 }
@@ -48,7 +52,7 @@ sub load_json_file {
 }
 
 sub process_set {
-	my ($meta_file, $mtgen_dir, $setcode, $sets_json) = @_;
+	my ($meta_file, $mtgen_dir, $setcode, $sets_json, $mtgjson_idx) = @_;
 	my $dir = "$mtgen_dir/wwwroot/$setcode";
 
 	my $meta_json = load_json_file($meta_file);
@@ -61,7 +65,7 @@ sub process_set {
 	}
 
 	return { 
-		cards => get_cards($dir, get_cardfiles($meta_json)),
+		cards => get_cards($dir, get_cardfiles($meta_json), $mtgjson_idx),
 		packs => $packs,
 		defs => $defs,
 		date => get_packdate($setcode, $sets_json),
@@ -77,11 +81,20 @@ sub get_cardfiles {
 }
 
 sub get_cards {
-	my ($dir, $cardfiles) = @_;
+	my ($dir, $cardfiles, $mtgjson_idx) = @_;
 
 	my @cards;
 	foreach my $cardf (@$cardfiles) {
 		push @cards, @{ load_json_file("$dir/$cardf") };
+	}
+
+	foreach my $card (@cards) {
+		my $lcset = lc($card->{set});
+		if(exists($mtgjson_idx->{$lcset})) {
+			$card->{mtgjson} = $mtgjson_idx->{$lcset}->{lc($card->{title})};
+		} else {
+			print STDERR "couldn't find this set in mtgjson: $lcset\n";
+		}
 	}
 
 	return \@cards;
@@ -122,4 +135,18 @@ sub get_packdate {
 	}
 
 	return undef;
+}
+
+sub index_mtgjson {
+	my ($mj) = @_;
+
+	my %idx;
+
+	foreach my $set (keys %{ $mj }) {
+		foreach my $card (@{ $mj->{$set}->{cards} }) {
+			$idx{lc($set)}->{lc($card->{name})} = $card;
+		}
+	}
+
+	return \%idx;
 }
