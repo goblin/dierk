@@ -69,7 +69,7 @@ function mana_escape(text) {
 	res = res.
 		replace(/\n/g, '<br />').
 		replace(/\{T\}/g, '{tap}').
-		replace(/\{(.|tap)\}/g, '<img src="http://gatherer.wizards.com/Handlers/Image.ashx?size=small&name=$1&type=symbol" alt="{$1}"></img>');
+		replace(/\{(.|tap)\}/g, '<img src="http://gatherer.wizards.com/Handlers/Image.ashx?size=small&name=$1&type=symbol" alt="{$1}" align="absbottom"></img>');
 
 	return res;
 }
