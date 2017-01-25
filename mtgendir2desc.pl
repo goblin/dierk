@@ -144,6 +144,10 @@ sub index_mtgjson {
 
 	foreach my $set (keys %{ $mj }) {
 		foreach my $card (@{ $mj->{$set}->{cards} }) {
+			# to keep the file a bit smaller
+			delete $card->{legalities};
+			delete $card->{foreignNames};
+
 			$idx{lc($set)}->{lc($card->{name})} = $card;
 		}
 	}
