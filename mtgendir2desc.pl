@@ -91,6 +91,9 @@ sub get_cards {
 		my $lcset = lc($card->{set});
 		if(exists($mtgjson_idx->{$lcset})) {
 			$card->{mtgjson} = $mtgjson_idx->{$lcset}->{lc($card->{title})};
+			if(!$card->{mtgjson}) {
+				print STDERR "card not found: ". to_json($card, { pretty => 1 });
+			}
 		} else {
 			print STDERR "couldn't find this set in mtgjson: $lcset\n";
 		}
