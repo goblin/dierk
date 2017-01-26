@@ -79,6 +79,67 @@ sub get_cardfiles {
 	return [ sort @rv ];
 }
 
+sub warn_rename {
+	my ($card) = @_;
+	print STDERR "renaming $card->{set} / $card->{title}\n";
+}
+
+sub find_mtgjson {
+	my ($card, $mtgjson_idx) = @_;
+
+	my $fixed_name = lc($card->{title});
+	warn_rename($card) if($fixed_name =~ s/\xE2\x80\x99/'/g);
+	warn_rename($card) if($fixed_name =~ s/\x92/'/g);
+	warn_rename($card) if($fixed_name =~ s/(\x93|\x94)/"/g);
+	warn_rename($card) if($fixed_name =~ s/\xE3\x86/ae/g);
+	warn_rename($card) if($fixed_name =~ s/\xE6/ae/g);
+
+	my $lcset = lc($card->{set});
+	if(exists($mtgjson_idx->{$lcset})) {
+		my $rv = $mtgjson_idx->{$lcset}->{$fixed_name};
+		if(!$rv && exists($card->{multiverseid})) {
+			$rv = $mtgjson_idx->{'MVI:'.$card->{multiverseid}};
+		}
+		my %masterpiece_map = (
+			kld => 'mps',
+			aer => 'mps',
+
+			# not actually masterpieces
+			frf => 'frf_ugin', 
+		);
+		#if(!$rv && $card->{masterpiece}) {
+		if(!$rv && exists($masterpiece_map{$lcset})) {
+			$rv = $mtgjson_idx->{$masterpiece_map{$lcset}}->{$fixed_name};
+		}
+		if(!$rv && $fixed_name =~ / & /) {
+			# may be a split card
+			my $left_name = $fixed_name;
+			$left_name =~ s/ &.*$//;
+			$rv = $mtgjson_idx->{$lcset}->{$left_name};
+			if(!$rv) {
+				$rv = $mtgjson_idx->{$masterpiece_map{$lcset}}->{$left_name};
+			}
+		}
+		if(!$rv && $fixed_name =~ /\(.*\)/) {
+			# FIXME: double-faced cards are twice in the database meaning
+			# they have a higher chance of being generated!
+			# double-faced cards
+			$fixed_name =~ s/ ?\(.*\) ?//;
+			$rv = $mtgjson_idx->{$lcset}->{$fixed_name};
+		}
+		if(!$rv && (!exists($card->{usableForDeckBuilding})
+				|| $card->{usableForDeckBuilding})) {
+			print STDERR "card not found: ". to_json([$card, $fixed_name, $lcset], { pretty => 1 });
+			return undef;
+		}
+		return $rv;
+	} else {
+		print STDERR "couldn't find this set in mtgjson: $lcset\n" . to_json($card);
+	}
+
+	return undef;
+}
+
 sub get_cards {
 	my ($dir, $cardfiles, $mtgjson_idx) = @_;
 
@@ -88,12 +149,7 @@ sub get_cards {
 	}
 
 	foreach my $card (@cards) {
-		my $lcset = lc($card->{set});
-		if(exists($mtgjson_idx->{$lcset})) {
-			$card->{mtgjson} = $mtgjson_idx->{$lcset}->{lc($card->{title})};
-		} else {
-			print STDERR "couldn't find this set in mtgjson: $lcset\n";
-		}
+		$card->{mtgjson} = find_mtgjson($card, $mtgjson_idx);
 	}
 
 	return \@cards;
@@ -148,6 +204,9 @@ sub index_mtgjson {
 			delete $card->{foreignNames};
 
 			$idx{lc($set)}->{lc($card->{name})} = $card;
+			if(exists($card->{multiverseid})) {
+				$idx{'MVI:'.$card->{multiverseid}} = $card;
+			}
 		}
 	}
 
