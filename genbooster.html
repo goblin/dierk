@@ -460,6 +460,11 @@ function import_deck() {
 	$('#cards_table').trigger('update');
 }
 
+function add1s() {
+	var deck = document.getElementById('deck').value;
+	document.getElementById('deck').value = deck.replace(/^/gm, '1 ');
+}
+
 $(document).ready(function() {
 	// http://stackoverflow.com/questions/5889232/tablesorter-jquery-plugin-fails-in-ff-3-6-12-with-msg-table-config-parsersc-i
 	$('#cards_table').tablesorter({debug:false});
@@ -486,6 +491,7 @@ and copy&amp;paste your deck somewhere.</p>
 <input type="button" onclick="recreate();" value="recreate from seed" />
 <input type="button" onclick="limit_to_selected();" value="limit to selected only" />
 <input type="button" onclick="import_deck();" value="import deck" />
+<input type="button" onclick="add1s();" value="add 1s" />
 <table id="cards_table" class="tablesorter">
 <thead>
 <tr>
