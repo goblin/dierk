@@ -7,7 +7,7 @@ After checking out, run this:
 
 $ ./mtgendir2desc.pl ../mtgen ../AllSets-x.json > set_descs.json
 $ npm install
-$ ./node_modules/.bin/browserify genbooster.js -o genbooster_bundle.js
+$ ./node_modules/.bin/browserify de.js -o de_bundle.js
 $ ./node_modules/.bin/browserify dierk.js -o dierk_bundle.js
 
 Then navigate to index.html#players=alice,bob,charlie;sets=1kld.kld-standard

@@ -1,5 +1,5 @@
-function genbooster(rng) {
-	this.set_descs = require('./set_descs.json');
+function genbooster(descs, rng) {
+	this.set_descs = descs;
 	this.rng = rng;
 }
 
@@ -206,7 +206,3 @@ genbooster.prototype.run = function(setname, packname) {
 };
 
 module.exports = genbooster;
-if(typeof(window) != 'undefined') {
-	window.genbooster = genbooster;
-	window.prng_aes = require('./prng-aes.js');
-}
