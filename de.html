@@ -4,10 +4,25 @@
 <meta charset="UTF-8">
 <title>dierk/de - Dierk MTG Deck Editor</title>
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/christianbach/tablesorter/master/themes/blue/style.css">
+<link rel="stylesheet" href="jquery/jquery-ui-1.12.1/jquery-ui.min.css">
 <style>
 body {
 	background-color: #1f1e1e;
 	color: white;
+	font-size: 8pt;
+	z-index: 0;
+}
+input {
+	font-size: 8pt;
+}
+span {
+	font-size: 8pt;
+}
+label {
+	font-size: 8pt;
+}
+li {
+	margin-bottom: 2ex;
 }
 table.tablesorter {
 	background-color: gray;
@@ -26,18 +41,120 @@ table.tablesorter tr .popup {
 	display: none;
 }
 table.tablesorter tr:hover .popup {
-	position: absolute; 
-	left: 15em; 
-	background: black; 
-/*    max-width: 60em;*/
+	position: fixed; 
+	left: 20em; 
+	top: 8px;
+	background: black;
+    max-width: 70em;
 	color: lightgray;
 	padding: 1em;       
 	margin-top: 0em;
+	z-index: 1;
 }
+
+#div_superparent {
+	position: fixed;
+	bottom: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	margin: 8px;
+}
+
+#div_left {
+	position: absolute;
+	width: 70%;
+	height: 100%;
+}
+
+#div_right {
+	position: absolute;
+	left: 70%;
+	width: 30%;
+	height: 100%;
+}
+
+#div_decklist {
+	height: 25%;
+	width: 100%;
+	position: absolute;
+	padding-bottom: 8px;
+}
+
+#div_decklist_content {
+	overflow: auto;
+	height: 100%;
+	width: 100%;
+}
+
+#div_sides {
+	position: absolute;
+	top: 25%;
+	width: 100%;
+	height: 75%;
+}
+
+#div_side_left {
+	position: absolute;
+	width: 50%;
+	height: 100%;
+}
+
+#div_side_right {
+	position: absolute;
+	left: 50%;
+	width: 50%;
+	height: 100%;
+}
+
+div .div_table_main {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	
+	/* overridden if flex: */
+	overflow: auto;
+}
+
+div .div_table_top {
+	font-size: 12pt;
+}
+
+div .div_table_bottom {
+	font-size: 11pt;
+}
+
+@supports (display: flex) {
+	div .div_table_main {
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+	div .div_table_bottom {
+		overflow: auto;
+	}
+}
+
+.ui-resizable-e {
+	background-color: black;
+	cursor: ew-resize;
+	width: 4px;
+}
+
+.ui-resizable-s {
+	background-color: black;
+	cursor: ns-resize;
+	bottom: 0;
+	height: 4px;
+}
+
 </style>
 <style>
 #T1 td {
 	user-select: none;
+	cursor: default;
 }
 #T1 tr:hover .popup {
 	display: block;
@@ -57,10 +174,24 @@ table.tablesorter tr:hover .popup {
 	display: block;
 }
 #T2 span.card_text {
-	display: inline;
+	display: none;
 }
 #T2 .exp {
-	display: table-cell;
+	display: none;
+}
+</style>
+<style>
+#T3 td {
+	user-select: none;
+}
+#T3 tr:hover .popup {
+	display: block;
+}
+#T3 span.card_text {
+	display: none;
+}
+#T3 .exp {
+	display: none;
 }
 </style>
 </head>
@@ -71,6 +202,8 @@ table.tablesorter tr:hover .popup {
 <script src="./de_bundle.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdn.rawgit.com/christianbach/tablesorter/master/jquery.tablesorter.min.js"></script>
+<script src="jquery/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+
 
 <script>
 var deck_editor;
@@ -127,7 +260,7 @@ function get_popup_for_card(c) {
 
 function select_all_rows_between(tbl, a, b) {
 	var selecting = false;
-	for(var i = 1; i < tbl.rows.length; i++) {
+	for(var i = 0; i < tbl.rows.length; i++) {
 		if(!selecting) {
 			if(tbl.rows[i] === a || tbl.rows[i] === b) {
 				selecting = true;
@@ -183,7 +316,7 @@ function card2row(c, table_el, tbln) {
 		var str = (c.mtgjson.layout == 'double-faced') ? 'backside' : 'melds into';
 
 		first_row += '<br />' + str + ':<br /><b>' + back.mtgjson.name + 
-			pt(back) + '</b><br />' +
+			pt(back) + '</b> ' +
 			'(' + me(back.subtype) + ')<br />' +
 			me(back.mtgjson.text);
 		popup += get_popup_for_card(back);
@@ -266,15 +399,21 @@ function decklist_changed(decklist) {
 		var deck = decklist.decks[deckname];
 
 		var n = document.createElement('li');
-		n.appendChild(document.createTextNode(deckname));
+		var boldname = document.createElement('b');
+		boldname.appendChild(document.createTextNode(deckname));
+		n.appendChild(boldname);
+		n.appendChild(document.createElement('br'));
+		n.appendChild(document.createTextNode(deck.stats()));
+		n.appendChild(document.createElement('br'));
 		n.appendChild(create_button('export', get_export_func(deck)));
 		n.appendChild(create_button('T1', get_load_func('T1', deck)));
 		n.appendChild(create_button('T2', get_load_func('T2', deck)));
 		n.appendChild(create_button('T3', get_load_func('T3', deck)));
-		n.appendChild(create_button('T4', get_load_func('T4', deck)));
 		n.appendChild(create_button('delete', get_delete_func(deckname)));
 		el.appendChild(n);
 	}
+
+	do_sizing();
 }
 
 function deck_from_argseed() {
@@ -284,6 +423,8 @@ function deck_from_argseed() {
 	
 	var seed_list = new deck_editor.SeedCardList(seed, setstr);
 	deck_editor.deck_list.add_deck(seed_list.get_name(), seed_list);
+
+	return seed_list;
 }
 
 function start() {
@@ -294,50 +435,42 @@ function start() {
 	document.getElementById('loading').innerHTML = 'Indexing cards, almost there...';
 
 	deck_editor = new window.deck_editor(decklist_changed);
-	deck_from_argseed();
+	var argseed = deck_from_argseed();
 
 	document.getElementById('loading').style.display = 'none';
+
+	load_deck('T1', argseed);
 }
 
-function row2cardname(row) {
-	return row.childNodes[0].childNodes[0].textContent;
-}
-
-function row2cardtype(row) {
-	return row.childNodes[5].childNodes[0].textContent;
-}
-
-function to_deck(tbln) {
+function iterate_selection(tbln, cb) {
 	var tbl = document.getElementById(tbln);
-	var deck = new deck_editor.ArrayCardList();
 
 	for(var i = 1; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
 		if(row.className == 'clicked') {
-			deck.add_card(row.card);
+			cb(row.card);
 		}
 	}
+}
+
+function to_deck(tbln) {
+	var deck = new deck_editor.ArrayCardList();
+
+	iterate_selection(tbln, function(card) {
+		deck.add_card(card);
+	});
 
 	var name = document.getElementById(tbln + 'name').value;
 	deck_editor.deck_list.add_deck(name, deck);
 }
 
-function reselect(tbln) {
-	var deck = document.getElementById('deck').value;
-	var tbl = document.getElementById(tbln);
-	alert("this needs fixing"); // FIXME
+function to_table(from, to) {
+	var tgtn = to + 'b';
+	var tgt = document.getElementById(tgtn);
 
-	var cards = deck.split("\n");
-	for(var i = 1; i < tbl.rows.length; i++) {
-		var row = tbl.rows[i];
-		var idx = cards.indexOf(row2cardname(row));
-		if(idx > -1) {
-			row.className = 'clicked';
-			cards[idx] = null;
-		} else {
-			row.className = '';
-		}
-	}
+	iterate_selection(from, function(card) {
+		tgt.appendChild(card2row(card, tgt, tgtn));
+	});
 }
 
 function select_all(tbln, all) {
@@ -361,11 +494,12 @@ function invert_selection(tbln) {
 
 function get_css_for(tbln, pos) {
 	var base = parseInt(tbln.replace(/^T/, '')) - 1;
-	return document.styleSheets[2 + base].cssRules[pos].style;
+	return document.styleSheets[3 + base].cssRules[pos].style;
 }
 
 function set_selectable(tbln, chkbx) {
 	get_css_for(tbln, 0).userSelect = chkbx.checked ? 'none' : 'auto';
+	get_css_for(tbln, 0).cursor = chkbx.checked ? 'default' : 'auto';
 }
 
 function set_overlay(tbln, chkbx) {
@@ -391,7 +525,7 @@ function cap24(tbln) {
 	var cnt = 0;
 	for(var i = 1; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
-		var name = row2cardname(row);
+		var name = row.card.mtgjson.name;
 		var delme = false;
 
 		if(name == last) {
@@ -444,87 +578,192 @@ function import_deck() {
 	deck_editor.deck_list.add_deck(name, deck);
 }
 
+function do_sizing() {
+	var total_h = $('#div_superparent').height();
+	var total_w = $('#div_superparent').width();
+
+	var div_left = $('#div_left');
+	var div_right = $('#div_right');
+
+	var right_w = total_w - div_left.width();
+
+	$('#div_right').css('left', div_left.width() + 8);
+	$('#div_right').width(right_w);
+
+	$('#div_sides').css('top', $('#div_decklist').height() + 8);
+	$('#div_sides').height(total_h - $('#div_decklist').height() - 8);
+
+	$('#div_side_right').css('left', $('#div_side_left').width() + 8);
+	$('#div_side_right').width($('#div_sides').width() - $('#div_side_left').width() - 8);
+}
+
 $(document).ready(function() {
 	// http://stackoverflow.com/questions/5889232/tablesorter-jquery-plugin-fails-in-ff-3-6-12-with-msg-table-config-parsersc-i
 	$('#T1').tablesorter({debug:false});
 	$('#T2').tablesorter({debug:false});
+
+	$('#div_left').resizable({
+		handles: 'e',
+		containment: '#div_superparent'
+	});
+	$('#div_decklist').resizable({
+		handles: 's',
+		containment: '#div_superparent'
+	});
+	$('#div_side_left').resizable({
+		handles: 'e',
+		containment: '#div_sides'
+	});
+
+	$(window).resize(do_sizing);
+
+	do_sizing();
 });
 
 </script>
 
-<p><label><input type="checkbox" checked="checked" id="export_full"/>export for xmage</label></p>
-<textarea rows="4" cols="60" id="deck"></textarea>
-<input type="text" value="Imported Deck" size="30" id="imp_name" />
-<input type="button" onclick="import_deck();" value="import" />
-<h2>Deck list:</h2>
-<ul id="decklist"></ul>
-<input type="button" onclick="deck_from_argseed();" value="new from seed" />
+<div id="div_superparent">
 
-<h3>T1: 
-<input type="text" value="Deck from T1" size="30" id="T1name" />
-<input type="button" onclick="to_deck('T1');" value="to deck" />
-</h3>
-<input type="button" onclick="select_all('T1', true);" value="select all" />
-<input type="button" onclick="select_all('T1', false);" value="select none" />
-<input type="button" onclick="invert_selection('T1');" value="invert selection" />
-<input type="button" onclick="reselect('T1');" value="reselect cards" />
-<input type="button" onclick="cap24('T1');" value="cap to 4" />
-<input type="button" onclick="limit_to_selected('T1');" value="limit to selected only" />
-<label><input type="checkbox" onchange="set_cardtext('T1', this);" checked="checked"/>card text</label>
-<label><input type="checkbox" onchange="set_selectable('T1', this);" id="selectable_T1" checked="checked"/>selectable</label>
-<label><input type="checkbox" onchange="set_overlay('T1', this);" checked="checked"/>overlay</label>
-<label><input type="checkbox" onchange="set_compact('T1', this);" />compact</label>
-<table id="T1" class="tablesorter">
-<thead>
-<tr>
-	<th>Name</th>
-	<th class="exp">Set</th>
-	<th class="exp">Num</th>
-	<th class="exp">CMC</th>
-	<th class="exp">Colour</th>
-	<th class="exp">Type</th>
-	<th class="exp">Subtype</th>
-	<th class="exp">Rarity</th>
-	<th class="exp">Power</th>
-	<th class="exp">Toughness</th>
-</tr>
-</thead>
-<tbody id="T1b">
-</tbody>
-</table>
+	<div id="div_left">
+		<div class="div_table_main" id="div_T1">
+			<div class="div_table_top" id="div_T1_top">
+				<b>T1: </b><span>copy selection to:</span>
+				<input type="text" value="Deck from T1" size="30" id="T1name" />
+				<input type="button" onclick="to_deck('T1');" value="deck" />
+				<input type="button" onclick="to_table('T1', 'T2');" value="T2" />
+				<input type="button" onclick="to_table('T1', 'T3');" value="T3" />
+				<br />
+				<input type="button" onclick="select_all('T1', true);" value="select all" />
+				<input type="button" onclick="select_all('T1', false);" value="select none" />
+				<input type="button" onclick="invert_selection('T1');" value="invert selection" />
+				<input type="button" onclick="cap24('T1');" value="cap to 4" />
+				<input type="button" onclick="limit_to_selected('T1');" value="limit to selected only" />
+				<label><input type="checkbox" onchange="set_cardtext('T1', this);" checked="checked"/>card text</label>
+				<label><input type="checkbox" onchange="set_selectable('T1', this);" id="selectable_T1" checked="checked"/>selectable</label>
+				<label><input type="checkbox" onchange="set_overlay('T1', this);" checked="checked"/>overlay</label>
+				<label><input type="checkbox" onchange="set_compact('T1', this);" />compact</label>
+			</div>
+			<div class="div_table_bottom" id="div_T1_bottom">
+				<table id="T1" class="tablesorter">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th class="exp">Set</th>
+					<th class="exp">Num</th>
+					<th class="exp">CMC</th>
+					<th class="exp">Col</th>
+					<th class="exp">Type</th>
+					<th class="exp">Subtype</th>
+					<th class="exp">Rar</th>
+					<th class="exp">P</th>
+					<th class="exp">T</th>
+				</tr>
+				</thead>
+				<tbody id="T1b">
+				</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div id="div_right">
+		<div id="div_decklist">
+			<div id="div_decklist_content">
+				<h3>Deck list:</h3>
+				<ul id="decklist"></ul>
+				<input type="button" onclick="deck_from_argseed();" value="new from seed" />
+				<label><input type="checkbox" checked="checked" id="export_full"/>export for xmage</label>
+				<textarea rows="4" cols="40" id="deck"></textarea>
+				<input type="text" value="Imported Deck" size="30" id="imp_name" />
+				<input type="button" onclick="import_deck();" value="import" />
+			</div>
+		</div>
+		<div id="div_sides">
+			<div id="div_side_left">
+				<div class="div_table_main" id="div_T2">
+					<div class="div_table_top" id="div_T2_top">
+						<b>T2: </b><span>copy selection to:</span>
+						<input type="text" value="Deck from T2" size="30" id="T2name" />
+						<input type="button" onclick="to_deck('T2');" value="deck" />
+						<input type="button" onclick="to_table('T2', 'T1');" value="T1" />
+						<input type="button" onclick="to_table('T2', 'T3');" value="T3" />
+						<br />
+						<input type="button" onclick="select_all('T2', true);" value="select all" />
+						<input type="button" onclick="select_all('T2', false);" value="select none" />
+						<input type="button" onclick="invert_selection('T2');" value="invert selection" />
+						<input type="button" onclick="cap24('T2');" value="cap to 4" />
+						<input type="button" onclick="limit_to_selected('T2');" value="limit to selected only" />
+						<label><input type="checkbox" onchange="set_cardtext('T2', this);" />card text</label>
+						<label><input type="checkbox" onchange="set_selectable('T2', this);" id="selectable_T2" checked="checked"/>selectable</label>
+						<label><input type="checkbox" onchange="set_overlay('T2', this);" checked="checked"/>overlay</label>
+						<label><input type="checkbox" onchange="set_compact('T2', this);" checked="checked"/>compact</label>
+					</div>
+					<div class="div_table_bottom" id="div_T2_bottom">
+						<table id="T2" class="tablesorter">
+						<thead>
+						<tr>
+							<th>Name</th>
+							<th class="exp">Set</th>
+							<th class="exp">Num</th>
+							<th class="exp">CMC</th>
+							<th class="exp">Col</th>
+							<th class="exp">Type</th>
+							<th class="exp">Subtype</th>
+							<th class="exp">Rar</th>
+							<th class="exp">P</th>
+							<th class="exp">T</th>
+						</tr>
+						</thead>
+						<tbody id="T2b">
+						</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div id="div_side_right">
+				<div class="div_table_main" id="div_T3">
+					<div class="div_table_top" id="div_T3_top">
+						<b>T3: </b><span>copy selection to:</span>
+						<input type="text" value="Deck from T3" size="30" id="T3name" />
+						<input type="button" onclick="to_deck('T3');" value="deck" />
+						<input type="button" onclick="to_table('T3', 'T1');" value="T1" />
+						<input type="button" onclick="to_table('T3', 'T2');" value="T2" />
+						<br />
+						<input type="button" onclick="select_all('T3', true);" value="select all" />
+						<input type="button" onclick="select_all('T3', false);" value="select none" />
+						<input type="button" onclick="invert_selection('T3');" value="invert selection" />
+						<input type="button" onclick="cap24('T3');" value="cap to 4" />
+						<input type="button" onclick="limit_to_selected('T3');" value="limit to selected only" />
+						<label><input type="checkbox" onchange="set_cardtext('T3', this);" />card text</label>
+						<label><input type="checkbox" onchange="set_selectable('T3', this);" id="selectable_T3" checked="checked"/>selectable</label>
+						<label><input type="checkbox" onchange="set_overlay('T3', this);" checked="checked"/>overlay</label>
+						<label><input type="checkbox" onchange="set_compact('T3', this);" checked="checked"/>compact</label>
+					</div>
+					<div class="div_table_bottom" id="div_T3_bottom">
+						<table id="T3" class="tablesorter">
+						<thead>
+						<tr>
+							<th>Name</th>
+							<th class="exp">Set</th>
+							<th class="exp">Num</th>
+							<th class="exp">CMC</th>
+							<th class="exp">Col</th>
+							<th class="exp">Type</th>
+							<th class="exp">Subtype</th>
+							<th class="exp">Rar</th>
+							<th class="exp">P</th>
+							<th class="exp">T</th>
+						</tr>
+						</thead>
+						<tbody id="T3b">
+						</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-<h3>T2:
-<input type="text" value="Deck from T2" size="30" id="T2name" />
-<input type="button" onclick="to_deck('T2');" value="to deck" />
-</h3>
-<input type="button" onclick="select_all('T2', true);" value="select all" />
-<input type="button" onclick="select_all('T2', false);" value="select none" />
-<input type="button" onclick="invert_selection('T2');" value="invert selection" />
-<input type="button" onclick="reselect('T2');" value="reselect cards" />
-<input type="button" onclick="cap24('T2');" value="cap to 4" />
-<input type="button" onclick="limit_to_selected('T2');" value="limit to selected only" />
-<label><input type="checkbox" onchange="set_cardtext('T2', this);" checked="checked"/>card text</label>
-<label><input type="checkbox" onchange="set_selectable('T2', this);" id="selectable_T2" checked="checked"/>selectable</label>
-<label><input type="checkbox" onchange="set_overlay('T2', this);" checked="checked"/>overlay</label>
-<label><input type="checkbox" onchange="set_compact('T2', this);" />compact</label>
-<table id="T2" class="tablesorter">
-<thead>
-<tr>
-	<th>Name</th>
-	<th class="exp">Set</th>
-	<th class="exp">Num</th>
-	<th class="exp">CMC</th>
-	<th class="exp">Colour</th>
-	<th class="exp">Type</th>
-	<th class="exp">Subtype</th>
-	<th class="exp">Rarity</th>
-	<th class="exp">Power</th>
-	<th class="exp">Toughness</th>
-</tr>
-</thead>
-<tbody id="T2b">
-</tbody>
-</table>
+</div>
 
 </body>
 </html>

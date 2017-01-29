@@ -172,7 +172,7 @@ SeedCardList.prototype.for_each_usable_card = function(cb, booster_done_cb) {
 SeedCardList.prototype.for_each = SeedCardList.prototype.for_each_usable_card;
 
 SeedCardList.prototype.get_name = function() {
-	return this.seed.replace(/(........)/g, "$1 ") + '; ' + this.setstr.replace(/,/g, ', ');
+	return 'seed ' + this.seed.replace(/(........)/g, "$1 ") + '; ' + this.setstr.replace(/,/g, ', ');
 };
 
 function ArrayCardList() {
@@ -216,6 +216,30 @@ function export_(what, full) {
 SeedCardList.prototype.export_ = 
 ArrayCardList.prototype.export_ = function(full) {
 	return export_(this, full);
+}
+
+SeedCardList.prototype.stats =
+ArrayCardList.prototype.stats = function() {
+	var tot = 0;
+	var lands = 0;
+	var creats = 0;
+	var arts = 0;
+	var other = 0;
+
+	this.for_each(function(c) {
+		tot++;
+		if(c.type.match(/Creature/))
+			creats++;
+		else if(c.type.match(/Land/))
+			lands++;
+		else if(c.type.match(/Artifact/))
+			arts++;
+		else
+			other++;
+	});
+
+	return tot + ": " + lands + " lands, " + creats + " creatures, " +
+		arts + " artifacts, " + other + " other.";
 }
 
 ArrayCardList.prototype.import_ = function(strlist) {
