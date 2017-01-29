@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>dierk/de - Dierk MTG Deck Editor</title>
+<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/christianbach/tablesorter/master/themes/blue/style.css">
+<style>
+body {
+	background-color: #1f1e1e;
+	color: white;
+}
+table.tablesorter {
+	background-color: gray;
+}
+table.tablesorter tbody td {
+	background-color: #1f1e1e;
+	color: white;
+}
+table.tablesorter thead th {
+	color: black;
+}
+table.tablesorter tr.clicked td {
+	background-color: #404040;
+}
+table.tablesorter tr .popup {
+	display: none;
+}
+table.tablesorter tr:hover .popup {
+	position: absolute; 
+	left: 15em; 
+	background: black; 
+/*    max-width: 60em;*/
+	color: lightgray;
+	padding: 1em;       
+	margin-top: 0em;
+}
+</style>
+<style>
+#T1 td {
+	user-select: none;
+}
+#T1 tr:hover .popup {
+	display: block;
+}
+#T1 span.card_text {
+	display: inline;
+}
+#T1 .exp {
+	display: table-cell;
+}
+</style>
+<style>
+#T2 td {
+	user-select: none;
+}
+#T2 tr:hover .popup {
+	display: block;
+}
+#T2 span.card_text {
+	display: inline;
+}
+#T2 .exp {
+	display: table-cell;
+}
+</style>
+</head>
+<body onload="start();">
+
+<p id="loading"> Loading, please be patient... </p>
+
+<script src="./de_bundle.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdn.rawgit.com/christianbach/tablesorter/master/jquery.tablesorter.min.js"></script>
+
+<script>
+var deck_editor;
+
+function get_args() {
+	var rv = {};
+
+	var args = window.location.href.replace(/^.*#/, '');
+	args.split(/;/).forEach(function(arg) {
+		var kv = arg.split(/=/, 2);
+		rv[kv[0]] = kv[1];
+	});
+
+	return rv;
+}
+
+function mana_escape(text) {
+	var res = text;
+	if(res === undefined)
+		res = ''
+	res = res.toString();
+
+	res = res.
+		replace(/\n/g, '<br />').
+		replace(/\{T\}/g, '{tap}').
+		replace(/\{([0-9A-Za-z]+)\}/g, '<img src="http://gatherer.wizards.com/Handlers/Image.ashx?size=small&name=$1&type=symbol" alt="{$1}" align="absbottom"></img>');
+
+	return res;
+}
+
+function me(text) {
+	return mana_escape(text);
+}
+
+function get_popup_for_card(c) {
+	var rulings_head = '';
+	var rulings_disp = 'none';
+	if(c.mtgjson.rulings) {
+		rulings_head = 'Rulings:';
+		rulings_disp = 'inline-block';
+	}
+
+	var rv = '<div style="display: inline-block; float: left;"><img src="' + 
+		c.src + '"></img></div><div style="display: ' + rulings_disp + '; float: left; max-width: 40em;">' +
+		rulings_head + '<ul>';
+
+	for(var r in c.mtgjson.rulings) {
+		rv += '<li>' + me(c.mtgjson.rulings[r].text) + '</li>';
+	}
+	
+	rv += '</div></ul>';
+	return '<div style="display: inline-block;">' + rv + '</div>';
+}
+
+function select_all_rows_between(tbl, a, b) {
+	var selecting = false;
+	for(var i = 1; i < tbl.rows.length; i++) {
+		if(!selecting) {
+			if(tbl.rows[i] === a || tbl.rows[i] === b) {
+				selecting = true;
+				tbl.rows[i].className = 'clicked';
+			}
+		} else {
+			tbl.rows[i].className = 'clicked';
+			if(tbl.rows[i] === a || tbl.rows[i] === b) {
+				return;
+			}
+		}
+	}
+}
+
+var last_clicked;
+function row_click(where, ev, tbl, tbln) {
+	if(!document.getElementById('selectable_' + tbln).checked)
+		return;
+
+	if(last_clicked !== undefined && ev.shiftKey) {
+		select_all_rows_between(tbl, where, last_clicked);
+		last_clicked = where;
+		return;
+	}
+
+	if(where.className == 'clicked') {
+		where.className = '';
+		last_clicked = undefined;
+	} else {
+		where.className = 'clicked';
+		last_clicked = where;
+	}
+}
+
+function pt(c) {
+	return deck_editor.Card.pt(c);
+}
+function get_setnum(c) {
+	return deck_editor.Card.get_setnum(c);
+}
+
+function card2row(c, table_el, tbln) {
+	var set_descs = deck_editor.set_descs;
+	var popup = get_popup_for_card(c);
+
+	var first_row = '<b>' + c.mtgjson.name + '</b><b>' + pt(c) + '</b>' + 
+		'<span style="float: right;">' + me(c.mtgjson.manaCost) + '</span><br />' +
+		'<span class="card_text">' + me(c.mtgjson.text);
+
+	if(c.mtgjson.layout == 'double-faced' || c.mtgjson.layout == 'meld') {
+		var back = deck_editor.Card.get_backside(c);
+
+		var str = (c.mtgjson.layout == 'double-faced') ? 'backside' : 'melds into';
+
+		first_row += '<br />' + str + ':<br /><b>' + back.mtgjson.name + 
+			pt(back) + '</b><br />' +
+			'(' + me(back.subtype) + ')<br />' +
+			me(back.mtgjson.text);
+		popup += get_popup_for_card(back);
+	}
+
+	first_row += '</span><div class="popup">' + popup + '</div>';
+
+	var tr = document.createElement('tr');
+	tr.addEventListener('click', function(ev) {
+		row_click(tr, ev, table_el, tbln);
+	});
+	tr.innerHTML = '<td>' + first_row + '</td>' +
+		'<td class="exp">' + c.set + '</td>' +
+		'<td class="exp">' + get_setnum(c) + '</td>' +
+		'<td class="exp">' + me(c.mtgjson.cmc) + '</td>' +
+		'<td class="exp">' + c.colour + '</td>' +
+		'<td class="exp">' + c.type + '</td>' +
+		'<td class="exp">' + me(c.subtype) + '</td>' +
+		'<td class="exp">' + c.rarity + '</td>' +
+		'<td class="exp">' + me(c.power || c.loyalty) + '</td>' +
+		'<td class="exp">' + me(c.toughness) + '</td>';
+	
+	tr['card'] = c;
+	return tr;
+}
+
+function create_button(text, cb) {
+	var rv = document.createElement('input');
+	rv.setAttribute('type', 'button');
+	rv.setAttribute('value', text);
+	rv.addEventListener('click', cb);
+
+	return rv;
+}
+
+function export_deck(deck) {
+	var deck_el = document.getElementById('deck');
+	var full = document.getElementById('export_full').checked;
+	deck_el.value = deck.export_(full);
+}
+
+function load_deck(tbln, deck) {
+	var table_el = document.getElementById(tbln + 'b');
+
+	deck.for_each(function(c) {
+		if(deck_editor.Card.usable(c)) {
+			table_el.appendChild(card2row(c, table_el, tbln));
+		}
+	});
+	
+	$('#' + tbln).trigger('update');
+}
+
+function get_export_func(deck) {
+	return function() {
+		export_deck(deck);
+	}
+}
+
+function get_load_func(tbln, deck) {
+	return function() {
+		load_deck(tbln, deck);
+	}
+}
+
+function get_delete_func(deckname) {
+	return function(){ 
+		deck_editor.deck_list.delete_deck(deckname);
+	}
+}
+
+function decklist_changed(decklist) {
+	var el = document.getElementById('decklist');
+	while(el.firstChild)
+		el.removeChild(el.firstChild);
+
+	var decknames = Object.keys(decklist.decks);
+	for(var i in decknames) {
+		var deckname = decknames[i];
+		var deck = decklist.decks[deckname];
+
+		var n = document.createElement('li');
+		n.appendChild(document.createTextNode(deckname));
+		n.appendChild(create_button('export', get_export_func(deck)));
+		n.appendChild(create_button('T1', get_load_func('T1', deck)));
+		n.appendChild(create_button('T2', get_load_func('T2', deck)));
+		n.appendChild(create_button('T3', get_load_func('T3', deck)));
+		n.appendChild(create_button('T4', get_load_func('T4', deck)));
+		n.appendChild(create_button('delete', get_delete_func(deckname)));
+		el.appendChild(n);
+	}
+}
+
+function deck_from_argseed() {
+	var args = get_args();
+	var seed = args.seed;
+	var setstr = args.sets;
+	
+	var seed_list = new deck_editor.SeedCardList(seed, setstr);
+	deck_editor.deck_list.add_deck(seed_list.get_name(), seed_list);
+}
+
+function start() {
+	if(typeof(Storage) === 'undefined') {
+		alert("This browser doesn't support Web Storage. The decks won't get saved.");
+	}
+
+	document.getElementById('loading').innerHTML = 'Indexing cards, almost there...';
+
+	deck_editor = new window.deck_editor(decklist_changed);
+	deck_from_argseed();
+
+	document.getElementById('loading').style.display = 'none';
+}
+
+function row2cardname(row) {
+	return row.childNodes[0].childNodes[0].textContent;
+}
+
+function row2cardtype(row) {
+	return row.childNodes[5].childNodes[0].textContent;
+}
+
+function to_deck(tbln) {
+	var tbl = document.getElementById(tbln);
+	var deck = new deck_editor.ArrayCardList();
+
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		if(row.className == 'clicked') {
+			deck.add_card(row.card);
+		}
+	}
+
+	var name = document.getElementById(tbln + 'name').value;
+	deck_editor.deck_list.add_deck(name, deck);
+}
+
+function reselect(tbln) {
+	var deck = document.getElementById('deck').value;
+	var tbl = document.getElementById(tbln);
+	alert("this needs fixing"); // FIXME
+
+	var cards = deck.split("\n");
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		var idx = cards.indexOf(row2cardname(row));
+		if(idx > -1) {
+			row.className = 'clicked';
+			cards[idx] = null;
+		} else {
+			row.className = '';
+		}
+	}
+}
+
+function select_all(tbln, all) {
+	var tbl = document.getElementById(tbln);
+
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		row.className = all ? 'clicked' : '';
+	}
+}
+
+function invert_selection(tbln) {
+	var tbl = document.getElementById(tbln);
+
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		var old = row.className == 'clicked';
+		row.className = old ? '' : 'clicked';
+	}
+}
+
+function get_css_for(tbln, pos) {
+	var base = parseInt(tbln.replace(/^T/, '')) - 1;
+	return document.styleSheets[2 + base].cssRules[pos].style;
+}
+
+function set_selectable(tbln, chkbx) {
+	get_css_for(tbln, 0).userSelect = chkbx.checked ? 'none' : 'auto';
+}
+
+function set_overlay(tbln, chkbx) {
+	get_css_for(tbln, 1).display = chkbx.checked ? 'block' : 'none';
+}
+
+function set_cardtext(tbln, chkbx) {
+	get_css_for(tbln, 2).display = chkbx.checked ? 'inline' : 'none';
+}
+
+function set_compact(tbln, chkbx) {
+	get_css_for(tbln, 3).display = chkbx.checked ? 'none' : 'table-cell';
+}
+
+//FIXME
+function cap24(tbln) {
+	var tbl = $('#' + tbln);
+	// colour, type, cmc, rarity, name
+	tbl.trigger('sorton', [[[4, 0], [5, 0], [3, 0], [7, 0], [0, 0]]]);
+	tbl = document.getElementById(tbln);
+
+	var last = '';
+	var cnt = 0;
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		var name = row2cardname(row);
+		var delme = false;
+
+		if(name == last) {
+			cnt++;
+			if(cnt >= 4) {
+				delme = true;
+			}
+		} else {
+			cnt = 0;
+		}
+
+		if(name.match(/^(Swamp|Mountain|Plains|Forest|Island)$/) !== null)
+			delme = true;
+
+		last = name;
+
+		if(delme) {
+			tbl.deleteRow(i);
+			i--;
+		}
+	}
+
+	$('#' + tbln).trigger('update');
+}
+
+function limit_to_selected(tbln) {
+	tbl = document.getElementById(tbln);
+
+	for(var i = 1; i < tbl.rows.length; i++) {
+		var row = tbl.rows[i];
+		if(row.className != 'clicked') {
+			tbl.deleteRow(i);
+			i--;
+		}
+	}
+
+	$('#' + tbln).trigger('update');
+}
+
+function import_deck() {
+	var data = document.getElementById('deck').value;
+	var deck = new deck_editor.ArrayCardList();
+	var res = deck.import_(data);
+
+	if(res != '') {
+		alert("Import problems:\n" + res);
+	}
+
+	var name = document.getElementById('imp_name').value;
+	deck_editor.deck_list.add_deck(name, deck);
+}
+
+$(document).ready(function() {
+	// http://stackoverflow.com/questions/5889232/tablesorter-jquery-plugin-fails-in-ff-3-6-12-with-msg-table-config-parsersc-i
+	$('#T1').tablesorter({debug:false});
+	$('#T2').tablesorter({debug:false});
+});
+
+</script>
+
+<p><label><input type="checkbox" checked="checked" id="export_full"/>export for xmage</label></p>
+<textarea rows="4" cols="60" id="deck"></textarea>
+<input type="text" value="Imported Deck" size="30" id="imp_name" />
+<input type="button" onclick="import_deck();" value="import" />
+<h2>Deck list:</h2>
+<ul id="decklist"></ul>
+<input type="button" onclick="deck_from_argseed();" value="new from seed" />
+
+<h3>T1: 
+<input type="text" value="Deck from T1" size="30" id="T1name" />
+<input type="button" onclick="to_deck('T1');" value="to deck" />
+</h3>
+<input type="button" onclick="select_all('T1', true);" value="select all" />
+<input type="button" onclick="select_all('T1', false);" value="select none" />
+<input type="button" onclick="invert_selection('T1');" value="invert selection" />
+<input type="button" onclick="reselect('T1');" value="reselect cards" />
+<input type="button" onclick="cap24('T1');" value="cap to 4" />
+<input type="button" onclick="limit_to_selected('T1');" value="limit to selected only" />
+<label><input type="checkbox" onchange="set_cardtext('T1', this);" checked="checked"/>card text</label>
+<label><input type="checkbox" onchange="set_selectable('T1', this);" id="selectable_T1" checked="checked"/>selectable</label>
+<label><input type="checkbox" onchange="set_overlay('T1', this);" checked="checked"/>overlay</label>
+<label><input type="checkbox" onchange="set_compact('T1', this);" />compact</label>
+<table id="T1" class="tablesorter">
+<thead>
+<tr>
+	<th>Name</th>
+	<th class="exp">Set</th>
+	<th class="exp">Num</th>
+	<th class="exp">CMC</th>
+	<th class="exp">Colour</th>
+	<th class="exp">Type</th>
+	<th class="exp">Subtype</th>
+	<th class="exp">Rarity</th>
+	<th class="exp">Power</th>
+	<th class="exp">Toughness</th>
+</tr>
+</thead>
+<tbody id="T1b">
+</tbody>
+</table>
+
+<h3>T2:
+<input type="text" value="Deck from T2" size="30" id="T2name" />
+<input type="button" onclick="to_deck('T2');" value="to deck" />
+</h3>
+<input type="button" onclick="select_all('T2', true);" value="select all" />
+<input type="button" onclick="select_all('T2', false);" value="select none" />
+<input type="button" onclick="invert_selection('T2');" value="invert selection" />
+<input type="button" onclick="reselect('T2');" value="reselect cards" />
+<input type="button" onclick="cap24('T2');" value="cap to 4" />
+<input type="button" onclick="limit_to_selected('T2');" value="limit to selected only" />
+<label><input type="checkbox" onchange="set_cardtext('T2', this);" checked="checked"/>card text</label>
+<label><input type="checkbox" onchange="set_selectable('T2', this);" id="selectable_T2" checked="checked"/>selectable</label>
+<label><input type="checkbox" onchange="set_overlay('T2', this);" checked="checked"/>overlay</label>
+<label><input type="checkbox" onchange="set_compact('T2', this);" />compact</label>
+<table id="T2" class="tablesorter">
+<thead>
+<tr>
+	<th>Name</th>
+	<th class="exp">Set</th>
+	<th class="exp">Num</th>
+	<th class="exp">CMC</th>
+	<th class="exp">Colour</th>
+	<th class="exp">Type</th>
+	<th class="exp">Subtype</th>
+	<th class="exp">Rarity</th>
+	<th class="exp">Power</th>
+	<th class="exp">Toughness</th>
+</tr>
+</thead>
+<tbody id="T2b">
+</tbody>
+</table>
+
+</body>
+</html>

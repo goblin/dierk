@@ -8,7 +8,7 @@ use JSON;
 # give it the location of the source directory of the mtgen project
 # as the first argument, and the location of mtgjson's AllSets-x.json
 # as the second
-my ($mtgen_dir, $mtgjson_file) = @ARGV;
+my ($mtgen_dir, $mtgjson_file, @wanted_sets) = @ARGV;
 $mtgen_dir .= '/src/mtgen';
 
 undef $/;
@@ -27,13 +27,26 @@ foreach my $file (readdir $dh) {
 	if($file =~ /\.json$/ && -f "$set_meta_dir/$file") {
 		my $set = $file;
 		$set =~ s/\.json$//;
+		next unless(set_wanted($set));
 		my $data = process_set("$set_meta_dir/$file", "$mtgen_dir", $set, $sets_json, $mtgjson_idx);
 		$retval{$set} = $data if($data);
 	}
 }
 close($dh);
 
-print to_json(\%retval, { pretty => 1 });
+print to_json(\%retval, { pretty => 0 });
+
+sub set_wanted {
+	my ($set) = @_;
+
+	return 1 if(@wanted_sets == 0);
+
+	foreach my $want (@wanted_sets) {
+		return 1 if($set eq $want);
+	}
+
+	return 0;
+}
 
 sub load_json_file {
 	my ($fname) = @_;
@@ -96,7 +109,16 @@ sub find_mtgjson {
 
 	my $lcset = lc($card->{set});
 	if(exists($mtgjson_idx->{$lcset})) {
-		my $rv = $mtgjson_idx->{$lcset}->{$fixed_name};
+		my $rv;
+		if(exists($card->{num}) && ($card->{num} =~ /^(\d+)/)) {
+			$rv = $mtgjson_idx->{"SN:$lcset:".int($1)};
+			if(!$rv || lc($rv->{name}) ne $fixed_name) {
+				$rv = undef;
+			}
+		}
+		if(!$rv) {
+			$rv = $mtgjson_idx->{$lcset}->{$fixed_name};
+		}
 		if(!$rv && exists($card->{multiverseid})) {
 			$rv = $mtgjson_idx->{'MVI:'.$card->{multiverseid}};
 		}
@@ -180,12 +202,22 @@ sub load_sets_json {
 	return load_json_file("$dir/sets.json");
 }
 
+sub parse_date {
+	my ($date) = @_;
+
+	my %map = qw/Jan 1 Feb 2 Mar 3 Apr 4 May 5 Jun 6 Jul 7 Aug 8 Sep 9 Oct 10 Nov 11 Dec 12/;
+	$date =~ /^(\d+)-([A-Za-z]+)-(\d+)$/
+		or die "invalid date $date";
+
+	return sprintf("%04d%02d%02d", $3, $map{$2}, $1);
+}
+
 sub get_packdate {
 	my ($dir, $sets) = @_;
 
 	foreach my $set (@$sets) {
 		if(lc($set->{code}) eq lc($dir)) {
-			return $set->{releaseDate};
+			return parse_date($set->{releaseDate});
 		}
 	}
 
@@ -202,10 +234,20 @@ sub index_mtgjson {
 			# to keep the file a bit smaller
 			delete $card->{legalities};
 			delete $card->{foreignNames};
+			delete $card->{id};
+			delete $card->{originalText};
+			delete $card->{flavor};
+			delete $card->{printings};
 
 			$idx{lc($set)}->{lc($card->{name})} = $card;
 			if(exists($card->{multiverseid})) {
 				$idx{'MVI:'.$card->{multiverseid}} = $card;
+			}
+			if(exists($card->{number})) {
+				my $num = $card->{number};
+				if($num =~ /^(\d+)a?$/) {
+					$idx{'SN:'.lc($set).':'.int($1)} = $card;
+				}
 			}
 		}
 	}
