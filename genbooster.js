@@ -102,7 +102,7 @@ function cards_from_query(defs, rng, query) {
 		query = query.replace(/^take\[\d+\]>/, '');
 	}
 	
-	var query_results = execute_query_elem(defs, query);
+	var query_results = execute_query(defs, query);
 
 	var rv = [];
 
