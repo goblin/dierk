@@ -169,6 +169,7 @@ div .div_table_bottom {
 <style>
 #T2 td {
 	user-select: none;
+	cursor: default;
 }
 #T2 tr:hover .popup {
 	display: block;
@@ -183,6 +184,7 @@ div .div_table_bottom {
 <style>
 #T3 td {
 	user-select: none;
+	cursor: default;
 }
 #T3 tr:hover .popup {
 	display: block;
@@ -629,10 +631,10 @@ $(document).ready(function() {
 		<div class="div_table_main" id="div_T1">
 			<div class="div_table_top" id="div_T1_top">
 				<b>T1: </b><span>copy selection to:</span>
-				<input type="text" value="Deck from T1" size="30" id="T1name" />
-				<input type="button" onclick="to_deck('T1');" value="deck" />
 				<input type="button" onclick="to_table('T1', 'T2');" value="T2" />
 				<input type="button" onclick="to_table('T1', 'T3');" value="T3" />
+				<input type="button" onclick="to_deck('T1');" value="deck named: " />
+				<input type="text" value="Deck from T1" size="30" id="T1name" />
 				<br />
 				<input type="button" onclick="select_all('T1', true);" value="select all" />
 				<input type="button" onclick="select_all('T1', false);" value="select none" />
@@ -683,10 +685,10 @@ $(document).ready(function() {
 				<div class="div_table_main" id="div_T2">
 					<div class="div_table_top" id="div_T2_top">
 						<b>T2: </b><span>copy selection to:</span>
-						<input type="text" value="Deck from T2" size="30" id="T2name" />
-						<input type="button" onclick="to_deck('T2');" value="deck" />
 						<input type="button" onclick="to_table('T2', 'T1');" value="T1" />
 						<input type="button" onclick="to_table('T2', 'T3');" value="T3" />
+						<input type="button" onclick="to_deck('T2');" value="deck named: " />
+						<input type="text" value="Deck from T2" size="30" id="T2name" />
 						<br />
 						<input type="button" onclick="select_all('T2', true);" value="select all" />
 						<input type="button" onclick="select_all('T2', false);" value="select none" />
@@ -724,10 +726,10 @@ $(document).ready(function() {
 				<div class="div_table_main" id="div_T3">
 					<div class="div_table_top" id="div_T3_top">
 						<b>T3: </b><span>copy selection to:</span>
-						<input type="text" value="Deck from T3" size="30" id="T3name" />
-						<input type="button" onclick="to_deck('T3');" value="deck" />
 						<input type="button" onclick="to_table('T3', 'T1');" value="T1" />
 						<input type="button" onclick="to_table('T3', 'T2');" value="T2" />
+						<input type="button" onclick="to_deck('T3');" value="deck named: " />
+						<input type="text" value="Deck from T3" size="30" id="T3name" />
 						<br />
 						<input type="button" onclick="select_all('T3', true);" value="select all" />
 						<input type="button" onclick="select_all('T3', false);" value="select none" />
