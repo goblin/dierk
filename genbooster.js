@@ -94,16 +94,15 @@ genbooster.prototype.generate_defs = function(setname, packname) {
 };
 
 function cards_from_query(defs, rng, query) {
+	var cnt = 1;
+
 	var match = query.match(/^take\[(\d+)\]>/);
-	if(!match) {
-		throw "query with no take: " + query;
+	if(match) {
+		cnt = match[1];
+		query = query.replace(/^take\[\d+\]>/, '');
 	}
 	
-	var cnt = match[1];
-	
-	query = query.replace(/^take\[\d+\]>/, '');
-
-	var query_results = execute_query_elem(defs, query);
+	var query_results = execute_query(defs, query);
 
 	var rv = [];
 
@@ -155,6 +154,20 @@ function cards_from_queryset(defs, rng, qset) {
 	}
 
 	var denominator = get_valid_denominator(firstper, qset);
+	var times10 = false;
+
+	var match = firstper.toString().match(/\.(\d+)$/);
+	if(match) {
+		if(!match[1].match(/^\d$/)) {
+			throw "more than one digit after a dot not yet supported";
+		} else if(!denominator == 100) {
+			throw "fractional percentage with non-100 denominator not yet supported";
+		} else {
+			denominator = 1000;
+			times10 = true;
+		}
+	}
+
 	var accu = 0;
 	var lucky = rng.getrange(denominator);
 
@@ -164,6 +177,10 @@ function cards_from_queryset(defs, rng, qset) {
 		var per = subq.percent;
 		if(typeof(per) == 'string')
 			per = per.replace('/' + denominator + '$', '');
+
+		if(times10) {
+			per = per.toString().replace(/\.(\d)$/, "$1");
+		}
 		per = parseInt(per);
 
 		if(lucky < per + accu) {
