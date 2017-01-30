@@ -94,15 +94,14 @@ genbooster.prototype.generate_defs = function(setname, packname) {
 };
 
 function cards_from_query(defs, rng, query) {
+	var cnt = 1;
+
 	var match = query.match(/^take\[(\d+)\]>/);
-	if(!match) {
-		throw "query with no take: " + query;
+	if(match) {
+		cnt = match[1];
+		query = query.replace(/^take\[\d+\]>/, '');
 	}
 	
-	var cnt = match[1];
-	
-	query = query.replace(/^take\[\d+\]>/, '');
-
 	var query_results = execute_query_elem(defs, query);
 
 	var rv = [];
