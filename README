@@ -1,4 +1,68 @@
-Dierk - secure multiparty random number (or MTG deck) generator
+Dierk - secure multiparty random number (or MTG booster) generator
+
+STATUS
+
+Alpha-stage, subject to major changes, including backward incompatibilities.
+
+DESCRIPTION
+
+Dierk lets you generate random numbers, which can be converterd to M:TG
+boosters, securely between multiple people in remote locations. You can
+then use the boosters to create decks and print out proxies. After the
+game(s), you can prove to everyone that you only used the cards you were
+allocated in the draft.
+
+HOW TO USE
+
+You need to come up with the M:TG sets you want the boosters from and
+how many boosters you want for each player. You also need to know the
+number of players involved.
+
+Let's say Alice and Bob want to get 30 Shadows over Innistrad, 20 Eldritch
+Moon, 30 Kaladesh and 20 Aether Revolt boosters. They agree on a link
+of this format:
+
+https://goblin.github.io/dierk/#players=alice,bob;sets=30soi,20emn,30kld,20aer
+
+The order in which boosters are listed matters.
+
+Then they visit the link, and follow all the steps. At step 11 they get
+links to the Deck Editor and they can use it to build a deck. Step 12 is
+meant to be used after the game, to prove that they used the right cards.
+
+DECK EDITOR
+
+The deck editor can also be used as a standalone app. You can pass it
+any seed, not just the one you got from the generator, and any set
+of boosters.
+
+It currently takes a while to load because it loads all the card data
+into memory at startup.
+
+For the sample set, you can try it out at:
+
+https://goblin.github.io/dierk/de.html#seed=9f86d081884c7d659a2feaa0c55ad015;sets=30soi,20emn,30kld,20aer
+
+TECHNICAL DESCRIPTION
+
+The "private key" is just a random number generated in the browser. The
+"public key" is a 16-byte truncation of SHA256(private_key). The whole
+procedure is simply a SHA256 commitment scheme.
+
+You can get the public key from a private one with:
+
+$ echo 9f86d081884c7d659a2feaa0c55ad015 | xxd -r -ps | sha256sum - | cut -c 1-32
+
+Each player's generated random number is a XOR of everyone's "generation"
+private keys and that player's "own" private key.
+
+That random number is then used as a seed to generate more random numbers
+and create boosters (in genbooster.js). The random number generator used
+is AES in counter mode.
+
+Let me know if you come up with a better name than "private" and "public key".
+
+INSTALLATION
 
 You need the mtgen package from https://github.com/copperdogma/mtgen
 You'll also need the AllSets-x.json from mtgjson.net.
