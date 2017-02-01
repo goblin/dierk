@@ -37,7 +37,8 @@ any seed, not just the one you got from the generator, and any set
 of boosters.
 
 It currently takes a while to load because it loads all the card data
-into memory at startup.
+into memory at startup. It also works much better in Chrome  / Chromium
+than Firefox. Not tested on other browsers.
 
 For the sample set, you can try it out at:
 
