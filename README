@@ -26,6 +26,11 @@ https://goblin.github.io/dierk/#players=alice,bob;sets=30soi,20emn,30kld,20aer
 
 The order in which boosters are listed matters.
 
+Newer sets may require an mtgen product name (currently you have to look
+it up manually on mtgen.net), such as 'bro-draft' from the 'bro' set:
+
+https://goblin.github.io/dierk/#players=alice,bob;sets=1bro.bro-draft
+
 Then they visit the link, and follow all the steps. At step 11 they get
 links to the Deck Editor and they can use it to build a deck. Step 12 is
 meant to be used after the game, to prove that they used the right cards.
@@ -66,14 +71,18 @@ Let me know if you come up with a better name than "private" and "public key".
 INSTALLATION
 
 You need the mtgen package from https://github.com/copperdogma/mtgen
-You'll also need the AllSets-x.json from mtgjson.net.
+You'll also need the AllPrintings.json from mtgjson.net.
 
 After checking out, run this:
 
-$ ./mtgendir2desc.pl ../mtgen ../AllSets-x.json > set_descs.json
+$ mkdir data
+$ ln -s /path/to/mtgen data/mtgen
+$ ./recreate_data.py data < AllPrintings.json
 $ npm install
 $ ./node_modules/.bin/browserify de.js -o de_bundle.js
 $ ./node_modules/.bin/browserify dierk.js -o dierk_bundle.js
+
+Serve all this with a webserver.
 
 Then navigate to index.html#players=alice,bob,charlie;sets=1kld.kld-standard
 (replace players and sets as necessary)
