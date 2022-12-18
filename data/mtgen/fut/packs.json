@@ -1,0 +1,136 @@
+﻿{
+  "defs": [
+    {
+      "defName": "fut",
+      "query": "from[*]?set='fut'"
+    },
+    {
+      "defName": "fut-promo",
+      "query": "from[fut]?promo=true"
+    },
+    {
+      "defName": "fut-timeshifted",
+      "query": "from[*]?timeshifted=true-from[fut-promo]"
+    },
+    {
+      "defName": "fut-main",
+      "query": "from[fut]-from[fut]?type=(Marketing|Basic Land)-from[fut]?token=true-from[fut-promo]-from[fut-timeshifted]"
+    },
+    {
+      "defName": "fut-foil",
+      "query": "from[fut-main]+from[fut-timeshifted]"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "fut-all-cards",
+      "packDesc": "Future Sight: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[fut]" }
+      ]
+    },
+    {
+      "packName": "fut-standard",
+      "packDesc": "Future Sight: Standard Booster",
+      "isGenerated": true,
+      "_comment": "The boosters contain regular numbers for rarities ? that is, one rare, three uncommons, and eleven commons ? but varying numbers of futureshifted cards, 'somewhere between five to ten, literally.",
+      "_comment2": "5t,4c,2[c/t],1u,2[u/t],1[r/t] ",
+      "cards": [
+        { "query": "take[5]>from[fut-timeshifted]?rarity='c" },
+        { "query": "take[4]>from[fut-main]?rarity='c" },
+        {
+          "querySet": [
+            {
+              "percent": "1/2",
+              "query": "from[fut]?rarity='c"
+            },
+            {
+              "percent": "1/2",
+              "query": "from[fut-timeshifted]?rarity='c"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "percent": "1/2",
+              "query": "from[fut]?rarity='c"
+            },
+            {
+              "percent": "1/2",
+              "query": "from[fut-timeshifted]?rarity='c"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "percent": "1/2",
+              "query": "from[fut]?rarity='u"
+            },
+            {
+              "percent": "1/2",
+              "query": "from[fut-timeshifted]?rarity='u"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "percent": "1/2",
+              "query": "from[fut]?rarity='u"
+            },
+            {
+              "percent": "1/2",
+              "query": "from[fut-timeshifted]?rarity='u"
+            }
+          ]
+        },
+        { "query": "take[1]>from[fut-main]?rarity='u" },
+        {
+          "querySet": [
+            {
+              "percent": "1/2",
+              "query": "from[fut]?rarity='r"
+            },
+            {
+              "percent": "1/2",
+              "query": "from[fut-timeshifted]?rarity='r"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "11",
+              "query": "from[fut-foil]?rarity=rarityByWeight2008(cur)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "fut-prerelease-promos",
+      "packDesc": "Future Sight: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[fut]?includedReason='Prerelease Promo" }
+      ]
+    },
+    {
+      "packName": "fut-promos",
+      "packDesc": "Future Sight: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[fut-promo]" }
+      ]
+    }
+  ]
+}

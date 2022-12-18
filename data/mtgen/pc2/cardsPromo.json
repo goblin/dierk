@@ -1,0 +1,38 @@
+﻿[
+  {
+    "set": "pc2",
+    "title": "Stairs to Infinity",
+    "src": "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=226521&type=card",
+    "cost": "",
+    "rarity": "r",
+    "type": "Plane",
+    "subtype": "Xerex",
+    "colour": "c",
+    "num": "0001 Promo",
+    "numInt": 1,
+    "mtgenId": "pc2|0001 Promo",
+    "mtgenVariant": 2,
+    "duplicateNum": true,
+    "promo": true,
+    "height": 279,
+    "width": 400,
+    "includedReason": "Release Promo",
+    "usableForDeckBuilding": false,
+    "addedViaException": true
+  },
+  {
+    "src": "http://mtgen.net/cards/mtg-chaos-die.png",
+    "set": "pc2",
+    "title": "Planar Die",
+    "colour": "o",
+    "num": "001 Die",
+    "rarity": "c",
+    "type": "Die",
+    "promo": "true",
+    "includedReason": "Deck Promo",
+    "usableForDeckBuilding": false,
+    "addedViaException": true,
+    "numInt": 1,
+    "mtgenId": "pc2|001 Die"
+  }
+]

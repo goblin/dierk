@@ -1,0 +1,39 @@
+{
+  "startProductName": "cmr-boosters",
+  "packFiles": [
+    "packs.json?v1.5"
+  ],
+  "cardFiles": [
+    "cardsMain.json?v1.2",
+    "cardsToken.json",
+    "cardsVariant.json?v1.2",
+    "cardsPromo.json",
+    "../cards/ads/cardsAds.json"
+  ],
+  "updates": [
+    {
+      "UpdateDate": "2021-07-03T23:30:00:00",
+      "HtmlString": "Updated marketing cards to be more accurate for set, plus set chances as 1:3 token:marketing for core sets, 2:3 for expansions, and 9:1 as of Battle for Zendikar."
+    },
+    {
+      "UpdateDate": "2021-06-25T23:30:00:00",
+      "HtmlString": "Foil rarity changed from 1:8 to 1:7.4."
+    },
+    {
+      "UpdateDate": "2021-04-17T15:00:00:00",
+      "HtmlString": "Changes foils so they'll no longer output cards outside the main set."
+    },
+    {
+      "UpdateDate": "2021-04-13T21:40:00:00",
+      "HtmlString": "Rebuilt main and variant cards with the cutoff at card 362/363, fixing an issue with Sol Ring showing up where it shouldn't."
+    },
+    {
+      "UpdateDate": "2020-12-29T22:30:00:00",
+      "HtmlString": "Draft booster: Legends no longer appear in C/U slots, Commander deck-specific cards removed, Extended art cards removed, foil slot now always foil. Thanks, Kowaleyer!"
+    },
+    {
+      "UpdateDate": "2020-12-30T01:00:00",
+      "HtmlString": "Draft booster: Prismatic Piper etched foil will no longer appear."
+    }
+  ]
+}

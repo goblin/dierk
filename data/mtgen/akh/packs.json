@@ -1,0 +1,142 @@
+{
+  "defs": [
+    {
+      "defName": "akh",
+      "query": "from[*]?set='akh'"
+    },
+    {
+      "defName": "akh-masterpiece-series",
+      "query": "from[akh]?masterpiece=true"
+    },
+    {
+      "defName": "akh-base",
+      "query": "from[akh]-from[akh]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[akh]?promo=true-from[akh-masterpiece-series]"
+    },
+    {
+      "defName": "akh-main",
+      "query": "from[akh-base]"
+    },
+    {
+      "defName": "akh-foils",
+      "query": "from[akh-main]+from[akh]?type='Basic Land'+from[akh]?fullArt=true"
+    },
+    {
+      "defName": "akh-promo",
+      "query": "from[akh]?promo=true"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "akh-all-cards",
+      "packDesc": "Amonkhet: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[akh]-from[akh]?doubleFaceBackCard=true" }
+      ]
+    },
+    {
+      "packName": "akh-standard",
+      "packDesc": "Amonkhet: Standard Booster",
+      "packVersion": "1.2",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[akh-main]?rarity='c" },
+        { "query": "take[3]>from[akh-main]?rarity='u" },
+        { "query": "from[akh-main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "querySet": [
+            {
+              "percent": "3/4",
+              "query": "from[akh]?type='Basic Land"
+            },
+            {
+              "percent": "1/4",
+              "query": "from[akh]?fullArt=true"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "percent": "1/144",
+              "overrideSlot": "9",
+              "query": "from[akh-masterpiece-series]"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[akh-foils]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "akh-promos",
+      "packDesc": "Amonkhet: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[akh-promo]" }
+      ]
+    },
+    {
+      "packName": "akh-prerelease-promo-packins",
+      "packDesc": "Amonkhet: Prerelease Packins",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "querySet": [
+            {
+              "percent": "7/8",
+              "query": "from[akh-base]?rarity='r",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/8",
+              "query": "from[akh-base]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        { "query": "take[1]>from[akh-promo]?type='Life Counter" },
+        { "query": "from[akh-promo]?title='Deck Box" },
+        { "query": "from[akh-promo]?title='Deckbuilding Advice Insert" },
+        { "query": "from[akh-promo]?title='Five Trials Checklist" }
+      ]
+    },
+    {
+      "packName": "akh-prerelease-promos",
+      "packDesc": "Amonkhet: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[akh-promo]?includedReason='Prerelease Promo" }
+      ]
+    }
+
+  ]
+}

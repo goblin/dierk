@@ -1,0 +1,77 @@
+{
+  "defs": [
+    {
+      "defName": "cn2",
+      "query": "from[*]?set='cn2'"
+    },
+    {
+      "defName": "cn2-base",
+      "query": "from[cn2]-from[cn2]?type='Basic Land'-from[*]?usableForDeckBuilding=false"
+    },
+    {
+      "defName": "cn2-draft-affecting",
+      "query": "from[cn2]?draftAffecting=true"
+    },
+    {
+      "defName": "cn2-conspiracy",
+      "query": "from[cn2]?type='Conspiracy'"
+    },
+    {
+      "defName": "cn2-main",
+      "query": "from[cn2-base]-from[cn2-conspiracy]"
+    },
+    {
+      "defName": "cn2-foils",
+      "query": "from[cn2-main]"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "cn2-all-cards",
+      "packDesc": "Conspiracy: Take the Crown: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[cn2]-from[cn2]?doubleFaceBackCard=true" }
+      ]
+    },
+    {
+      "packName": "cn2-standard",
+      "packDesc": "Conspiracy: Take the Crown: Standard Booster",
+      "packVersion": "1.2",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[cn2-main]?rarity='c" },
+        { "query": "take[3]>from[cn2-main]?rarity='u" },
+        { "query": "from[cn2-main]?rarity=rarityByWeight2008(rm)" },
+        { "query": "from[cn2-conspiracy]?rarity=rarityByWeight2008(curm)" },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[cn2-foils]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}

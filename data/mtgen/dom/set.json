@@ -1,0 +1,48 @@
+{
+  "startProductName": "dom-prerelease",
+  "packFiles": [
+    "packs.json?v1.6"
+  ],
+  "cardFiles": [
+    "cardsMain.json?v1.4",
+    "cardsLand.json?v1.2",
+    "cardsBasicLand.json",
+    "cardsPromo.json",
+    "cardsToken.json",
+    "../cards/ads/cardsAds.json"
+  ],
+  "updates": [
+    {
+      "UpdateDate": "2021-11-28T23:30:00:00",
+      "HtmlString": "You can now get a foil legendary creature. Thanks, Dan!"
+    },
+    {
+      "UpdateDate": "2021-07-03T23:30:00:00",
+      "HtmlString": "Updated marketing cards to be more accurate for set, plus set chances as 1:3 token:marketing for core sets, 2:3 for expansions, and 9:1 as of Battle for Zendikar."
+    },
+    {
+      "UpdateDate": "2021-06-25T23:30:00:00",
+      "HtmlString": "Updated foil chances. Now 15/67 chance a booster has a foil and includes basic lands."
+    },
+    {
+      "updateDate": "2018-04-23",
+      "htmlString": "Evening: Now legendary creatures replace a single uncommon or rare slot."
+    },
+    {
+      "updateDate": "2018-04-14",
+      "htmlString": "Morning: Now legendary slots only produce legendary creatures instead of all legendary types."
+    },
+    {
+      "updateDate": "2018-04-14",
+      "htmlString": "Morning: Removed 'Teferi, Timebender' from boosters. Removed promos from in-booster Lengendaries."
+    },
+    {
+      "updateDate": "2018-04-13",
+      "htmlString": "Evening: Removed all Planeswalker deck cards."
+    },
+    {
+      "updateDate": "2018-04-13",
+      "htmlString": "Evening: Firesong and Sunspeaker no longer available in boosters. Every boosters now contains a Legendary."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "defs": [
+    {
+      "defName": "mm3",
+      "query": "from[*]?set='mm3'"
+    },
+    {
+      "defName": "mm3-main",
+      "query": "from[mm3]-from[mm3]?type='Basic Land'-from[*]?usableForDeckBuilding=false"
+    },
+    {
+      "defName": "mm3-foils",
+      "query": "from[mm3-main]"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "mm3-all-cards",
+      "packDesc": "Modern Masters 2017: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[mm3]" }
+      ]
+    },
+    {
+      "packName": "mm3-standard",
+      "packDesc": "Modern Masters 2017: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[mm3-main]?rarity='c'" },
+        { "query": "take[3]>from[mm3-main]?rarity='u'" },
+        { "query": "from[mm3-main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "query": "from[mm3-foils]?rarity=rarityByWeight2008(curm)",
+          "canBeDuplicate": true,
+          "setValues": { "foil": true }
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

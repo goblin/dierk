@@ -1,0 +1,78 @@
+{
+  "defs": [
+    {
+      "defName": "bok",
+      "query": "from[*]?set='bok"
+    },
+    {
+      "defName": "bok-main",
+      "query": "from[bok]-from[bok]?type=(Marketing|Basic Land)-from[bok]?token=true-from[bok]?promo=true"
+    },
+    {
+      "defName": "bok-promo",
+      "query": "from[bok]?promo=true"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "bok-all-cards",
+      "packDesc": "Betrayers of Kamigawa: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[bok]" }
+      ]
+    },
+    {
+      "packName": "bok-standard",
+      "packDesc": "Betrayers of Kamigawa: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[11]>from[bok-main]?rarity='c" },
+        { "query": "take[3]>from[bok-main]?rarity='u" },
+        { "query": "take[1]>from[bok-main]?rarity='r" },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and it replaced a card of it's rarity.",
+              "percent": "11/67",
+              "overrideSlot": "11",
+              "query": "from[bok-main]?rarity='c'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "3/67",
+              "overrideSlot": "14",
+              "query": "from[bok-main]?rarity='u'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/67",
+              "overrideSlot": "15",
+              "query": "from[bok-main]?rarity='r'",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "bok-prerelease-promos",
+      "packDesc": "Betrayers of Kamigawa: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[bok]?includedReason='Prerelease Promo" }
+      ]
+    },
+    {
+      "packName": "bok-promos",
+      "packDesc": "Betrayers of Kamigawa: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[bok-promo]" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+﻿[
+  {
+    "_comments": [
+      "add a new card = add:true, newValues {}",
+      "delete a card  = delete:true, where",
+      "update card(s) = where, newValues {}"
+    ]
+  },
+  {
+    "_comment": "There are four card with the same name, so we kill them/recreate them in import-settings-other.json",
+    "delete": true,
+    "where": "title='Wastes"
+  },
+  {
+    "where": "title='Brute Strength",
+    "newValues": {
+      "rarity": "c"
+    }
+  },
+  {
+    "where": "title='Slip Through Space",
+    "newValues": {
+      "cost": "U",
+      "colour": "u"
+    }
+  },
+  {
+    "where": "title='Allied Reinforcements'",
+    "newValues": {
+      "type": "Sorcery"
+    }
+  }
+]

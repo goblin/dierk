@@ -1,0 +1,84 @@
+{
+  "defs": [
+    {
+      "defName": "mrd",
+      "query": "from[*]?set='mrd"
+    },
+    {
+      "defName": "mrd-main",
+      "query": "from[mrd]-from[mrd]?type=(Marketing|Basic Land)-from[mrd]?token=true-from[mrd]?promo=true"
+    },
+    {
+      "defName": "mrd-promo",
+      "query": "from[mrd]?promo=true"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "mrd-all-cards",
+      "packDesc": "Mirrodin: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[mrd]" }
+      ]
+    },
+    {
+      "packName": "mrd-standard",
+      "packDesc": "Mirrodin: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[11]>from[mrd-main]?rarity='c" },
+        { "query": "take[3]>from[mrd-main]?rarity='u" },
+        { "query": "take[1]>from[mrd-main]?rarity='r" },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and it replaced a card of it's rarity.",
+              "percent": "6/67",
+              "overrideSlot": "11",
+              "query": "from[mrd-main]?rarity='c'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "5/67",
+              "overrideSlot": "11",
+              "query": "from[mrd]?rarity='b'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "3/67",
+              "overrideSlot": "14",
+              "query": "from[mrd-main]?rarity='u'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/67",
+              "overrideSlot": "15",
+              "query": "from[mrd-main]?rarity='r'",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "mrd-prerelease-promos",
+      "packDesc": "Mirrodin: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[mrd]?includedReason='Prerelease Promo" }
+      ]
+    },
+    {
+      "packName": "mrd-promos",
+      "packDesc": "Mirrodin: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[mrd-promo]" }
+      ]
+    }
+  ]
+}

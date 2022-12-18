@@ -1,0 +1,353 @@
+{
+  "setCode": "kld",
+  "cardDataUrl": "http://www.mtgsalvation.com/spoilers/filter?SetID=173&IncludeUnconfirmed=true&CardsPerRequest=999",
+  "imagesUrl": "",
+  "exceptions": [
+    {
+      "_comments": [
+        "promo pattern: target the full set, set ALL to promo:false, pull in the indivdual promo cards and override their src/num/promo=true/includedReason/usableForDeckBuilding, then delete all cards where promo is still false"
+      ]
+    },
+
+    {
+      "_comment": "add promo:false to ALL cards with the intention of deleting them later",
+      "where": "",
+      "newValues": {
+        "promo": false
+      }
+    },
+
+    {
+      "_comment": "modify each of the promo cards, override their src/num/promo=true/includedReason/usableForDeckBuilding",
+      "where": "title='Skyship Stalker",
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_aIJrRlAYFu.png",
+        "num": "{{num}} P Buy-a-Box",
+        "promo": true,
+        "includedReason": "Buy-a-Box Promo",
+        "usableForDeckBuilding": false
+      }
+    },
+    {
+      "where": "title='Saheelis Artistry",
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_hEdHTpcphr.png",
+        "num": "{{num}} P Launch",
+        "promo": true,
+        "includedReason": "Launch Promo",
+        "usableForDeckBuilding": false
+      }
+    },
+    {
+      "where": "title='Essence Extraction",
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_5CCL1nJCGj.png",
+        "num": "{{num}} P Game Day",
+        "promo": true,
+        "includedReason": "Game Day Promo",
+        "usableForDeckBuilding": false
+      }
+    },
+    {
+      "where": "title='Cultivator of Blades",
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_iHZH0ZCI6G.png",
+        "num": "{{num}} P Game Day",
+        "promo": true,
+        "includedReason": "Game Day Top 8 Promo",
+        "usableForDeckBuilding": false
+      }
+    },
+    {
+      "_comment": "delete all cards that still have promo=false, which leaves just our modified promo cards",
+      "delete": true,
+      "where": "promo=false"
+    },
+
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/mtg-spindown-life-counter-white.png",
+        "set": "kld",
+        "title": "White Spindown Life Counter",
+        "colour": "o",
+        "num": "001 Counter",
+        "rarity": "c",
+        "type": "Life Counter",
+        "promo": "true",
+        "includedReason": "Prerelease Promo",
+        "usableForDeckBuilding": false,
+        "addedViaException": true
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/mtg-spindown-life-counter-blue.png",
+        "set": "kld",
+        "title": "Blue Spindown Life Counter",
+        "colour": "o",
+        "num": "002 Counter",
+        "rarity": "c",
+        "type": "Life Counter",
+        "promo": "true",
+        "includedReason": "Prerelease Promo",
+        "usableForDeckBuilding": false,
+        "addedViaException": true
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/mtg-spindown-life-counter-black.png",
+        "set": "kld",
+        "title": "Black Spindown Life Counter",
+        "colour": "o",
+        "num": "003 Counter",
+        "rarity": "c",
+        "type": "Life Counter",
+        "promo": "true",
+        "includedReason": "Prerelease Promo",
+        "usableForDeckBuilding": false,
+        "addedViaException": true
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/mtg-spindown-life-counter-red.png",
+        "set": "kld",
+        "title": "Red Spindown Life Counter",
+        "colour": "o",
+        "num": "004 Counter",
+        "rarity": "c",
+        "type": "Life Counter",
+        "promo": "true",
+        "includedReason": "Prerelease Promo",
+        "usableForDeckBuilding": false,
+        "addedViaException": true
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/mtg-spindown-life-counter-green.png",
+        "set": "kld",
+        "title": "Green Spindown Life Counter",
+        "colour": "o",
+        "num": "005 Counter",
+        "rarity": "c",
+        "type": "Life Counter",
+        "promo": "true",
+        "includedReason": "Prerelease Promo",
+        "usableForDeckBuilding": false,
+        "addedViaException": true
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/kld-prerelease-deck-box.png",
+        "set": "kld",
+        "title": "Deck Box",
+        "colour": "o",
+        "num": "006 Deck Box",
+        "rarity": "c",
+        "type": "Insert",
+        "promo": "true",
+        "includedReason": "Prerelease Promo",
+        "usableForDeckBuilding": false,
+        "addedViaException": true
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/kld-prerelease-dice-box.png",
+        "set": "kld",
+        "title": "Dice Box",
+        "colour": "o",
+        "num": "007 Dice Box",
+        "rarity": "c",
+        "type": "Insert",
+        "promo": "true",
+        "includedReason": "Prerelease Promo",
+        "usableForDeckBuilding": false,
+        "addedViaException": true
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/kld-prerelease-thopter.png",
+        "set": "kld",
+        "title": "Thopter",
+        "colour": "o",
+        "num": "008 Thopter",
+        "rarity": "c",
+        "type": "Insert",
+        "promo": "true",
+        "includedReason": "Prerelease Thopter",
+        "usableForDeckBuilding": false,
+        "addedViaException": true
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/mtg-deckbuilding-info.jpg",
+        "src_large": "http://mtgen.net/cards/mtg-deckbuilding-info-lg.jpg",
+        "height": 370,
+        "width": 515,
+        "set": "kld",
+        "title": "Deckbuilding Advice Insert",
+        "colour": "o",
+        "num": "009 Insert",
+        "rarity": "c",
+        "type": "Insert",
+        "promo": "true",
+        "includedReason": "Prerelease Promo",
+        "usableForDeckBuilding": false
+      }
+    },
+
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_uu75TalTjk.png",
+        "title": "Plains",
+        "num": 250
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_BS17MM2NEj.png",
+        "title": "Plains",
+        "num": 251
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_K2DD6SAgs0.png",
+        "title": "Plains",
+        "num": 252
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_ooX0BMc69n.png",
+        "title": "Island",
+        "num": 253
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_k3SRcKYEMq.png",
+        "title": "Island",
+        "num": 254
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_WE4IFzFyw5.png",
+        "title": "Island",
+        "num": 255
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_ncqYSSygMU.png",
+        "title": "Swamp",
+        "num": 256
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_KXwfKLvg3x.png",
+        "title": "Swamp",
+        "num": 257
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_1JUBnNVmIH.png",
+        "title": "Swamp",
+        "num": 258
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_4XG61eJIRF.png",
+        "title": "Mountain",
+        "num": 259
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_acZL9WUIeQ.png",
+        "title": "Mountain",
+        "num": 260
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_2CJ0TqSpkx.png",
+        "title": "Mountain",
+        "num": 261
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_Bk5iqcCW2E.png",
+        "title": "Forest",
+        "num": 262
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_8fJ1kXnSxz.png",
+        "title": "Forest",
+        "num": 263
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://media.wizards.com/2016/bVvMNuiu2i_KLD/en_5prBIgNgpV.png",
+        "title": "Forest",
+        "num": 264
+      }
+    },
+
+    {
+      "_comment": "Set basic land defaults for above lands so we don't have to repeat them every land",
+      "where": "title=(Plains|Island|Swamp|Mountain|Forest)",
+      "newValues": {
+        "set": "{{setCode}}",
+        "height": 370,
+        "width": 265,
+        "type": "Basic Land",
+        "subtype": "{{title}}",
+        "colour": "l",
+        "cost": "",
+        "rarity": "c",
+        "num": "{{num}}/264 L"
+      }
+    }
+
+  ]
+
+}

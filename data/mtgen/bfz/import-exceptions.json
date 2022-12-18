@@ -1,0 +1,19 @@
+﻿[
+  {
+    "_comments": [
+      "add a new card = add:true, newValues {}",
+      "delete a card  = delete:true, where",
+      "update card(s) = where, newValues {}"
+    ]
+  },
+  {
+    "_comment": "MTG Salvation set the rarities of the Expedition-like lands to M instead of R",
+    "where": "title=(Canopy Vista|Cinder Glade|Prairie Stream|Smoldering Marsh|Sunken Hollow)",
+    "newValues": { "rarity": "r" }
+  },
+  {
+    "_comment": "The BFZ lands don't import properly so we'll do them manually in import-exceptions-other.json",
+    "delete": true,
+    "where": "type='Basic Land'"
+  }
+]

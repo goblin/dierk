@@ -1,0 +1,116 @@
+[
+  {
+    "set": "xln",
+    "title": "Dragonskull Summit",
+    "src": "https://media.wizards.com/2017/xln/en_x87NZsf14I.png",
+    "cost": "",
+    "rarity": "r",
+    "type": "Land",
+    "colour": "l",
+    "num": "0252",
+    "mtgenId": "xln|0252"
+  },
+  {
+    "set": "xln",
+    "title": "Drowned Catacomb",
+    "src": "https://media.wizards.com/2017/xln/en_3UcGoidOjU.png",
+    "cost": "",
+    "rarity": "r",
+    "type": "Land",
+    "colour": "l",
+    "num": "0253",
+    "mtgenId": "xln|0253"
+  },
+  {
+    "set": "xln",
+    "title": "Field of Ruin",
+    "src": "https://media.wizards.com/2017/xln/en_KIg33hX81z.png",
+    "cost": "",
+    "rarity": "u",
+    "type": "Land",
+    "colour": "l",
+    "num": "0254",
+    "mtgenId": "xln|0254"
+  },
+  {
+    "set": "xln",
+    "title": "Glacial Fortress",
+    "src": "https://media.wizards.com/2017/xln/en_gW91ZN4eBi.png",
+    "cost": "",
+    "rarity": "r",
+    "type": "Land",
+    "colour": "l",
+    "num": "0255",
+    "mtgenId": "xln|0255"
+  },
+  {
+    "set": "xln",
+    "title": "Rootbound Crag",
+    "src": "https://media.wizards.com/2017/xln/en_Jt9yurxL7m.png",
+    "cost": "",
+    "rarity": "r",
+    "type": "Land",
+    "colour": "l",
+    "num": "0256",
+    "mtgenId": "xln|0256"
+  },
+  {
+    "set": "xln",
+    "title": "Sunpetal Grove",
+    "src": "https://media.wizards.com/2017/xln/en_cydtngAy9E.png",
+    "cost": "",
+    "rarity": "r",
+    "type": "Land",
+    "colour": "l",
+    "num": "0257",
+    "mtgenId": "xln|0257"
+  },
+  {
+    "set": "xln",
+    "title": "Unclaimed Territory",
+    "src": "https://media.wizards.com/2017/xln/en_pELrMZ7YoA_b.png",
+    "cost": "",
+    "rarity": "u",
+    "type": "Land",
+    "colour": "l",
+    "num": "0258",
+    "mtgenId": "xln|0258"
+  },
+  {
+    "set": "xln",
+    "title": "Unknown Shores",
+    "src": "https://media.wizards.com/2017/xln/en_B5O3SgRoAK.png",
+    "cost": "",
+    "rarity": "c",
+    "type": "Land",
+    "colour": "l",
+    "num": "0259",
+    "mtgenId": "xln|0259"
+  },
+  {
+    "set": "xln",
+    "title": "Woodland Stream",
+    "src": "http://media.wizards.com/2017/xln/en_5gBuExV634.png",
+    "cost": "",
+    "rarity": "c",
+    "type": "Land",
+    "colour": "l",
+    "num": "0284",
+    "mtgenId": "xln|0284",
+    "promo": true,
+    "includedReason": "Planeswalker Deck"
+  },
+  {
+    "set": "xln",
+    "title": "Stone Quarry",
+    "src": "http://media.wizards.com/2017/xln/en_I7RFrHLm7s.png",
+    "cost": "",
+    "rarity": "c",
+    "type": "Land",
+    "colour": "l",
+    "num": "0289",
+    "mtgenId": "xln|0289",
+    "promo": true,
+    "includedReason": "Planeswalker Deck"
+  }
+]

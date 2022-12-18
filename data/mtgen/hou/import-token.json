@@ -1,0 +1,174 @@
+{
+  "setCode": "hou",
+  "cardDataUrl": "",
+  "imagesUrl": "http://magic.wizards.com/en/articles/archive/feature/tokens-hour-devastation-2017-06-29",
+  "exceptions": [
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_mq4ItEvq7h.png",
+        "num": "001",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Adorned Pouncer",
+        "subtype": "Zombie CAt"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_ox3xjElYCu.png",
+        "num": "002",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Champion of Wits",
+        "subtype": "Zombie Naga Wizard"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_YZkrQRbaeS.png",
+        "num": "003",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Dreamstealer",
+        "subtype": "Zombie Human Wizard"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_xsY8pa8CGC.png",
+        "num": "004",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Earthshaker Khenra",
+        "subtype": "Zombie Jackal Warrior"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_hxnQY7L6gG.png",
+        "num": "005",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Proven Combatant",
+        "subtype": "Zombie Human Warrior"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_8p06nQyKU4.png",
+        "num": "006",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Resiliant Khenra",
+        "subtype": "Zombie Jackal Wizard"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_5Jt8yc9Kbi.png",
+        "num": "007",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Sinuous Striker",
+        "subtype": "Zombie Naga Warrior"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_tLLSBMwmE8.png",
+        "num": "008",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Steadfast Sentinal",
+        "subtype": "Zombie Human Cleric"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_4FYrwYtjVe.png",
+        "num": "009",
+        "colour": "b",
+        "type": "Token Creature",
+        "title": "Sunscourge Champion",
+        "subtype": "Zombie Human Wizard"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_SUdSId6sUW.png",
+        "num": "010",
+        "colour": "w",
+        "type": "Token Creature",
+        "title": "Horse",
+        "subtype": "Horse"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_bXiKGqoQmg.png",
+        "num": "011",
+        "colour": "g",
+        "type": "Token Creature",
+        "title": "Snake",
+        "subtype": "Snake"
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "hou",
+        "src": "http://media.wizards.com/2017/hou/en_51TvrK8pox.png",
+        "num": "012",
+        "colour": "m",
+        "type": "Token Creature",
+        "title": "Insect",
+        "subtype": "Insect"
+      }
+    },
+
+    {
+      "add": true,
+      "newValues": {
+        "src": "http://mtgen.net/cards/hou-punch-card.png",
+        "num": "013",
+        "colour": "c",
+        "type": "Token Punch Card",
+        "title": "Punch Card",
+        "subtype": "Punch Card"
+      }
+    },
+
+    {
+      "where": "",
+      "newValues": {
+        "set": "{{setCode}}",
+        "rarity": "c",
+        "num": "{{num}}/012 T",
+        "token": true,
+        "usableForDeckBuilding": false
+      }
+    }
+  ]
+}

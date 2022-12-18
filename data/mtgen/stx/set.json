@@ -1,0 +1,68 @@
+{
+  "startProductName": "stx-prerelease",
+  "packFiles": [
+    "packs.json?v1.12"
+  ],
+  "cardFiles": [
+    "cardsMain.json",
+    "cardsBasicLand.json",
+    "cardsToken.json?v1.1",
+    "cardsVariant.json",
+    "cardsPromo.json",
+    "cardsMysticalArchive.json",
+    "cardsC21CommanderVariant.json",
+    "cardsTheList.json",
+    "cardsArtCards.json",
+    "../cards/ads/cardsAds.json"
+  ],
+  "updates": [
+    {
+      "UpdateDate": "2021-07-03T23:30:00:00",
+      "HtmlString": "Updated marketing cards to be more accurate for set, plus set chances as 1:3 token:marketing for core sets, 2:3 for expansions, and 9:1 as of Battle for Zendikar."
+    },
+    {
+      "UpdateDate": "2021-06-27T23:30:00:00",
+      "HtmlString": "Emergent Sequence is now in the Quandrix college instead of Witherbloom (thanks @wreimers). Also un-broke Set Boosters."
+    },
+    {
+      "UpdateDate": "2021-06-25T23:30:00:00",
+      "HtmlString": "Foils now include basic lands."
+    },
+    {
+      "UpdateDate": "2021-06-15T23:00:00:00",
+      "HtmlString": "Added Set Boosters, with The List and Art Cards."
+    },
+    {
+      "UpdateDate": "2021-06-15T14:30:00:00",
+      "HtmlString": "Updated prerelease pack-ins."
+    },
+    {
+      "UpdateDate": "2021-04-15T10:00:00:00",
+      "HtmlString": "Added rest of tokens."
+    },
+    {
+      "UpdateDate": "2021-04-14T11:00:00:00",
+      "HtmlString": "Collector boosters regular C/U/R/M slots no longer include Lessons."
+    },
+    {
+      "UpdateDate": "2021-04-13T17:30:00:00",
+      "HtmlString": "Prerelease college boosters now contain multi-colour cards for that college's colours."
+    },
+    {
+      "UpdateDate": "2021-04-12T23:00:00:00",
+      "HtmlString": "Collector Booster slot 5 no longer overridden by slot 7's U/R/M lessons."
+    },
+    {
+      "UpdateDate": "2021-04-12T21:45:00:00",
+      "HtmlString": "Prerelease college booster now adhere to each college's colours."
+    },
+    {
+      "UpdateDate": "2021-04-12T20:45:00:00",
+      "HtmlString": "Draft booster now has proper Mystical Archives and foils."
+    },
+    {
+      "UpdateDate": "2021-04-12T15:00:00:00",
+      "HtmlString": "Japanese Mystical Archive cards no longer appear in Draft Booster MA slot."
+    }
+  ]
+}

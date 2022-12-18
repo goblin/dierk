@@ -1,0 +1,142 @@
+{
+  "defs": [
+    {
+      "defName": "hou",
+      "query": "from[*]?set='hou'"
+    },
+    {
+      "defName": "hou-masterpiece-series",
+      "query": "from[hou]?masterpiece=true"
+    },
+    {
+      "defName": "hou-base",
+      "query": "from[hou]-from[hou]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[hou]?promo=true-from[hou-masterpiece-series]"
+    },
+    {
+      "defName": "hou-main",
+      "query": "from[hou-base]"
+    },
+    {
+      "defName": "hou-foils",
+      "query": "from[hou-main]+from[hou]?type='Basic Land'+from[hou]?fullArt=true"
+    },
+    {
+      "defName": "hou-promo",
+      "query": "from[hou]?promo=true"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "hou-all-cards",
+      "packDesc": "Hour of Devastation: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[hou]-from[hou]?doubleFaceBackCard=true" }
+      ]
+    },
+    {
+      "packName": "hou-standard",
+      "packDesc": "Hour of Devastation: Standard Booster",
+      "packVersion": "1.1",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[hou-main]?rarity='c" },
+        { "query": "take[3]>from[hou-main]?rarity='u" },
+        { "query": "from[hou-main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "querySet": [
+            {
+              "percent": "3/4",
+              "query": "from[hou]?type='Basic Land"
+            },
+            {
+              "percent": "1/4",
+              "query": "from[hou]?fullArt=true"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "percent": "1/144",
+              "overrideSlot": "9",
+              "query": "from[hou-masterpiece-series]"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[hou-foils]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "hou-promos",
+      "packDesc": "Hour of Devastation: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[hou-promo]" }
+      ]
+    },
+    {
+      "packName": "hou-prerelease-promo-packins",
+      "packDesc": "Hour of Devastation: Prerelease Packins",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "querySet": [
+            {
+              "percent": "7/8",
+              "query": "from[hou-base]?rarity='r",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/8",
+              "query": "from[hou-base]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        { "query": "take[1]>from[hou-promo]?type='Life Counter" },
+        { "query": "from[hou-promo]?title='Deck Box" },
+        { "query": "from[hou-promo]?title='Deckbuilding Advice Insert" },
+        { "query": "from[hou-promo]?title='Five Hours Checklist" }
+      ]
+    },
+    {
+      "packName": "hou-prerelease-promos",
+      "packDesc": "Hour of Devastation: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[hou-promo]?includedReason='Prerelease Promo" }
+      ]
+    }
+
+  ]
+}

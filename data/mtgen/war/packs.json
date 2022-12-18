@@ -1,0 +1,170 @@
+{
+  "defs": [
+    {
+      "defName": "war",
+      "query": "from[*]?set='war'"
+    },
+    {
+      "defName": "war-promo",
+      "query": "from[war]?promo=true"
+    },
+    {
+      "defName": "war-main",
+      "query": "from[war]-from[war]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[war]?promo=true-from[war]?type='Legendary Planeswalker'"
+    },
+    {
+      "defName": "war-basic-land",
+      "query": "from[war]?type='Basic Land'-from[war]?promo=true"
+    },
+    {
+      "defName": "war-foils",
+      "query": "from[war-main]+from[war-basic-land]"
+    },
+
+    {
+      "defName": "war-planeswalker",
+      "query": "from[war]?type='Legendary Planeswalker'-from[war-promo]"
+    },
+    {
+      "defName": "war-prerelease-promo",
+      "query": "from[war-main]+from[war-planeswalker]?rarity=(r|m)"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "war-all-cards",
+      "packDesc": "War of the Spark: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[war]" }
+      ]
+    },
+
+    {
+      "packName": "war-standard",
+      "packDesc": "War of the Spark: Standard Booster",
+      "packVersion": "1.2",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[war-main]?rarity='c" },
+        { "query": "take[3]>from[war-main]?rarity='u" },
+        { "query": "from[war-main]?rarity=rarityByWeight2008(rm)" },
+        { "query": "from[war]?type='Basic Land'-from[war]?promo=true" },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[war-foils]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Always get a planeswalker, override the default uncommon with chances for more rare: 72% c, 24% u, 3% m, replacing the last common",
+              "overrideSlot": "11",
+              "percent": "24/33",
+              "query": "from[war-planeswalker]?rarity='u"
+            },
+            {
+              "overrideSlot": "14",
+              "percent": "8/33",
+              "query": "from[war-planeswalker]?rarity='r"
+            },
+            {
+              "overrideSlot": "14",
+              "percent": "1/33",
+              "query": "from[war-planeswalker]?rarity='m"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "packName": "war-prerelease-promo-packins",
+      "packDesc": "War of the Spark: Prerelease Packins",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "querySet": [
+            {
+              "percent": "23/33",
+              "query": "from[war-planeswalker]?rarity='u",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "7/33",
+              "query": "from[war-planeswalker]?rarity='r",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/33",
+              "query": "from[war-planeswalker]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "percent": "7/8",
+              "query": "from[war-prerelease-promo]?rarity='r",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/8",
+              "query": "from[war-prerelease-promo]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        { "query": "take[1]>from[war-promo]?type='Life Counter" },
+        { "query": "from[war-promo]?title='Prerelease Deck Box" },
+        { "query": "from[war-promo]?title='Deckbuilding Advice Insert" }
+      ]
+    },
+    {
+      "packName": "war-prerelease-promos",
+      "packDesc": "War of the Spark: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[war-promo]?includedReason='Prerelease Promo" }
+      ]
+    },
+
+    {
+      "packName": "war-promos",
+      "packDesc": "War of the Spark: All Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[war-promo]"
+        }
+      ]
+    }
+
+  ]
+}

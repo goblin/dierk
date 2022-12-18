@@ -1,0 +1,59 @@
+{
+  "defs": [
+    {
+      "defName": "mma",
+      "query": "from[*]?set='mma'"
+    },
+    {
+      "defName": "mma_set",
+      "query": "from[mma]"
+    },
+    {
+      "defName": "mma_main",
+      "query": "from[mma_set]-from[*]?usableForDeckBuilding=false",
+      "_comment": "Not normal: put land back IN the main because there is no land slot in MMA"
+    },
+    {
+      "defName": "mma_foils",
+      "query": "from[mma_main]"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "mma-all-cards",
+      "packDesc": "Modern Masters Set: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[mma]" }
+      ]
+    },
+    {
+      "packName": "mma-standard",
+      "packDesc": "Modern Masters Set: Standard Booster",
+      "_comment": "Modern Masters is strange and doesn't have land but has a foil instead: http://wiki.mtgsalvation.com/article/Modern_Masters",
+      "cards": [
+        { "query": "take[10]>from[mma_main]?rarity='c'" },
+        { "query": "take[3]>from[mma_main]?rarity='u'" },
+        { "query": "from[mma_main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "query": "from[mma_foils]?rarity=rarityByWeight2008(curm)",
+          "canBeDuplicate": true,
+          "setValues": { "foil": true }
+        },
+        {
+          "querySet": [
+            {
+              "percent": "2/3",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "1/3",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}

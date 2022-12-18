@@ -1,0 +1,94 @@
+﻿{
+  "defs": [
+    {
+      "defName": "tsp",
+      "query": "from[*]?set='tsp"
+    },
+    {
+      "defName": "tsb",
+      "query": "from[*]?set='tsb"
+    },
+    {
+      "defName": "tsp-tsb",
+      "query": "from[tsp]+from[tsb]"
+    },
+    {
+      "defName": "tsp-main",
+      "query": "from[tsp]-from[tsp]?type=(Marketing|Basic Land)-from[tsp]?token=true-from[tsp]?promo=true"
+    },
+    {
+      "defName": "tsp-promo",
+      "query": "from[tsp]?promo=true"
+    },
+    {
+      "_comment": "Time Spiral included main cards, timeshifted cards, and basic lands as possible foils",
+      "defName": "tsp-foil",
+      "query": "from[tsp-main]+from[tsb]+from[tsp]?rarity='b'"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "tsp-all-cards",
+      "packDesc": "Time Spiral: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[tsp-tsb]" }
+      ]
+    },
+    {
+      "packName": "tsp-standard",
+      "packDesc": "Time Spiral: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[tsp-main]?rarity='c" },
+        { "query": "take[3]>from[tsp-main]?rarity='u" },
+        { "query": "take[1]>from[tsp-main]?rarity='r" },
+        { "query": "take[1]>from[tsb]" },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "_comment2": "As of this set, foils now always replace a common instead of a card of that rarity, allowing for two rares",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[tsp-foil]?rarity=rarityByWeight2008(cur)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "tsp-prerelease-promos",
+      "packDesc": "Time Spiral: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[tsp]?includedReason='Prerelease Promo" }
+      ]
+    },
+    {
+      "packName": "tsp-promos",
+      "packDesc": "Time Spiral: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[tsp-promo]" }
+      ]
+    },
+    {
+      "packName": "tsp-tournament-deck",
+      "packDesc": "Time Spiral: Tournament Deck",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[10]>from[tsp-main]?rarity='u" },
+        { "query": "take[3]>from[tsp-main]?rarity='r" },
+        { "query": "take[29]>from[tsp-main]?rarity='c" },
+        { "query": "take[3]>from[tsb]" },
+        { "query": "take[30]>from[tsp]?type='Basic Land" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "defs": [
+    {
+      "defName": "ema",
+      "query": "from[*]?set='ema"
+    },
+    {
+      "defName": "ema-base",
+      "query": "from[ema]-from[ema]?type='Basic Land'-from[*]?usableForDeckBuilding=false"
+    },
+    {
+      "defName": "ema-main",
+      "query": "from[ema-base]"
+    },
+    {
+      "defName": "ema-foils",
+      "query": "from[ema-main]"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "ema-all-cards",
+      "packDesc": "Eternal Masters: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[ema]" }
+      ]
+    },
+    {
+      "packName": "ema-standard",
+      "packDesc": "Eternal Masters: Standard Booster",
+      "packVersion": "1.0",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[ema-main]?rarity='c" },
+        { "query": "take[3]>from[ema-main]?rarity='u" },
+        { "query": "from[ema-main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "query": "from[ema-main]?rarity=rarityByWeight2008(curm)",
+          "setValues": { "foil": true }
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

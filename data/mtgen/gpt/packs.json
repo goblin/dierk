@@ -1,0 +1,78 @@
+{
+  "defs": [
+    {
+      "defName": "gpt",
+      "query": "from[*]?set='gpt"
+    },
+    {
+      "defName": "gpt-main",
+      "query": "from[gpt]-from[gpt]?type=(Marketing|Basic Land)-from[gpt]?token=true-from[gpt]?promo=true"
+    },
+    {
+      "defName": "gpt-promo",
+      "query": "from[gpt]?promo=true"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "gpt-all-cards",
+      "packDesc": "Guildpact: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[gpt]" }
+      ]
+    },
+    {
+      "packName": "gpt-standard",
+      "packDesc": "Guildpact: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[11]>from[gpt-main]?rarity='c" },
+        { "query": "take[3]>from[gpt-main]?rarity='u" },
+        { "query": "take[1]>from[gpt-main]?rarity='r" },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and it replaced a card of it's rarity.",
+              "percent": "11/67",
+              "overrideSlot": "11",
+              "query": "from[gpt-main]?rarity='c'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "3/67",
+              "overrideSlot": "14",
+              "query": "from[gpt-main]?rarity='u'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/67",
+              "overrideSlot": "15",
+              "query": "from[gpt-main]?rarity='r'",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "gpt-prerelease-promos",
+      "packDesc": "Guildpact: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[gpt]?includedReason='Prerelease Promo" }
+      ]
+    },
+    {
+      "packName": "gpt-promos",
+      "packDesc": "Guildpact: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[gpt-promo]" }
+      ]
+    }
+  ]
+}

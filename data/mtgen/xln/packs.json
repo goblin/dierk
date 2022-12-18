@@ -1,0 +1,120 @@
+{
+  "defs": [
+    {
+      "defName": "xln",
+      "query": "from[*]?set='xln'"
+    },
+    {
+      "defName": "xln-base",
+      "query": "from[xln]-from[xln]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[xln]?promo=true-from[xln]?doubleFaceBackCard=true"
+    },
+    {
+      "defName": "xln-main",
+      "query": "from[xln-base]"
+    },
+    {
+      "defName": "xln-foils",
+      "query": "from[xln-main]+from[xln]?type='Basic Land'"
+    },
+    {
+      "defName": "xln-promo",
+      "query": "from[xln]?promo=true"
+    },
+    {
+      "defName": "xln-token",
+      "query": "from[xln]?token=true-from[xln-promo]"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "xln-all-cards",
+      "packDesc": "Ixalan: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[xln]-from[xln]?doubleFaceBackCard=true" }
+      ]
+    },
+    {
+      "packName": "xln-standard",
+      "packDesc": "Ixalan: Standard Booster",
+      "packVersion": "1.1",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[xln-main]?rarity='c" },
+        { "query": "take[3]>from[xln-main]?rarity='u" },
+        { "query": "from[xln-main]?rarity=rarityByWeight2008(rm)" },
+        { "query": "from[xln]?type='Basic Land" },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[xln-foils]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "xln-promos",
+      "packDesc": "Ixalan: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[xln-promo]" }
+      ]
+    },
+    {
+      "packName": "xln-prerelease-promo-packins",
+      "packDesc": "Ixalan: Prerelease Packins",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "querySet": [
+            {
+              "percent": "7/8",
+              "query": "from[xln-base]?rarity='r",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/8",
+              "query": "from[xln-base]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        { "query": "take[1]>from[xln-promo]?type='Life Counter" },
+        { "query": "from[xln-promo]?title='Deck Box" },
+        { "query": "from[xln-promo]?title='Deckbuilding Advice Insert" }
+      ]
+    },
+    {
+      "packName": "xln-prerelease-promos",
+      "packDesc": "Ixalan: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[xln-promo]?includedReason='Prerelease Promo" }
+      ]
+    }
+
+  ]
+}

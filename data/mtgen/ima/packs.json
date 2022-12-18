@@ -1,0 +1,55 @@
+{
+  "defs": [
+    {
+      "defName": "ima",
+      "query": "from[*]?set='ima'"
+    },
+    {
+      "defName": "ima-main",
+      "query": "from[ima]-from[ima]?type='Basic Land'-from[*]?usableForDeckBuilding=false"
+    },
+    {
+      "defName": "ima-foils",
+      "query": "from[ima-main]"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "ima-all-cards",
+      "packDesc": "Iconic Masters: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[ima]" }
+      ]
+    },
+    {
+      "packName": "ima-standard",
+      "packDesc": "Iconic Masters: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[ima-main]?rarity='c'" },
+        { "query": "take[3]>from[ima-main]?rarity='u'" },
+        { "query": "from[ima-main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "query": "from[ima-foils]?rarity=rarityByWeight2008(curm)",
+          "canBeDuplicate": true,
+          "setValues": { "foil": true }
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

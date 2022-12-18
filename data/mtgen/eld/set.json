@@ -1,0 +1,28 @@
+{
+  "startProductName": "eld-prerelease",
+  "packFiles": [
+    "packs.json?v1.3"
+  ],
+  "cardFiles": [
+    "cardsMain.json?v1.1",
+    "cardsToken.json",
+    "cardsPromo.json",
+    "cardsVariant.json?v1.1",
+    "cardsBasicLand.json",
+    "../cards/ads/cardsAds.json"
+  ],
+  "updates": [
+    {
+      "UpdateDate": "2021-07-03T23:30:00:00",
+      "HtmlString": "Updated marketing cards to be more accurate for set, plus set chances as 1:3 token:marketing for core sets, 2:3 for expansions, and 9:1 as of Battle for Zendikar."
+    },
+    {
+      "UpdateDate": "2021-06-25T23:30:00:00",
+      "HtmlString": "Foils now include basic lands."
+    },
+    {
+      "UpdateDate": "2019-09-23T11:00:00:00",
+      "HtmlString": "Fixed 3 card rarities, foils will no longer include tokens, Collector Booster ancillary slot now included everything it should."
+    }
+  ]
+}

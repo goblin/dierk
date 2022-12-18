@@ -1,0 +1,136 @@
+{
+  "defs": [
+    {
+      "defName": "aer",
+      "query": "from[*]?set='aer'"
+    },
+    {
+      "defName": "aer-masterpiece-series",
+      "query": "from[aer]?masterpiece=true"
+    },
+    {
+      "defName": "aer-base",
+      "query": "from[aer]-from[aer]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[aer]?promo=true-from[aer-masterpiece-series]"
+    },
+    {
+      "defName": "kld-basicland",
+      "query": "from[*]?type='Basic Land'"
+    },
+    {
+      "defName": "aer-main",
+      "query": "from[aer-base]"
+    },
+    {
+      "defName": "aer-foils",
+      "query": "from[aer-main]"
+    },
+    {
+      "defName": "aer-promo",
+      "query": "from[aer]?promo=true"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "aer-all-cards",
+      "packDesc": "Aether Revolt: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[aer]-from[aer]?doubleFaceBackCard=true" }
+      ]
+    },
+    {
+      "packName": "aer-standard",
+      "packDesc": "Aether Revolt: Standard Booster",
+      "packVersion": "1.1",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[aer-main]?rarity='c" },
+        { "query": "take[3]>from[aer-main]?rarity='u" },
+        { "query": "from[aer-main]?rarity=rarityByWeight2008(rm)" },
+        { "query": "take[1]>from[kld-basicland]" },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "percent": "1/144",
+              "overrideSlot": "9",
+              "query": "from[aer-masterpiece-series]"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[aer-foils]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "aer-promos",
+      "packDesc": "Aether Revolt: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[aer-promo]" }
+      ]
+    },
+    {
+      "packName": "aer-prerelease-promo-packins",
+      "packDesc": "Aether Revolt: Prerelease Packins",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "querySet": [
+            {
+              "percent": "7/8",
+              "query": "from[aer-base]?rarity='r",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/8",
+              "query": "from[aer-base]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        { "query": "take[1]>from[aer-promo]?type='Life Counter" },
+        { "query": "from[aer-promo]?title='Deck Box" },
+        { "query": "from[aer-promo]?title='Renegade Sticker" },
+        { "query": "from[aer-promo]?title='Deckbuilding Advice Insert" }
+
+      ]
+    },
+    {
+      "packName": "aer-prerelease-promos",
+      "packDesc": "Aether Revolt: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[aer-promo]?includedReason='Prerelease Promo" }
+      ]
+    }
+
+  ]
+}

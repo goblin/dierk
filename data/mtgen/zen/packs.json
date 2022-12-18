@@ -1,0 +1,114 @@
+{
+  "defs": [
+    {
+      "defName": "zen",
+      "query": "from[*]?set='zen'"
+    },
+    {
+      "defName": "zen-main",
+      "query": "from[zen]-from[zen]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[zen]?promo=true"
+    },
+    {
+      "defName": "zen-foil",
+      "query": "from[zen-main]+from[zen]?type='Basic Land'"
+    },
+    {
+      "defName": "zen-promo",
+      "query": "from[zen]?promo=true"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "zen-all-cards",
+      "packDesc": "Zendikar: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[zen]" }
+      ]
+    },
+    {
+      "packName": "zen-standard",
+      "packDesc": "Zendikar: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[zen-main]?rarity='c'" },
+        { "query": "take[3]>from[zen-main]?rarity='u'" },
+        { "query": "from[zen-main]?rarity=rarityByWeight2008(rm)" },
+        { "query": "from[zen]?type='Basic Land'" },
+        {
+          "querySet": [
+            {
+              "_comment": "Expansions are 2/3 ratio of tokens/tips",
+              "percent": "2/3",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "1/3",
+              "query": "from[{{setCode}}]?tip=true"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[zen-foil]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "zen-promos",
+      "packDesc": "Zendikar: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[zen-promo]" }
+      ]
+    },
+    {
+      "packName": "zen-fat-pack-pack-ins",
+      "packDesc": "Zendikar Fat Pack: Pack-Ins",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[zen]?title=(Zendikar Player?s Guide|Zendikar Test of Metal Sample Book Chapter|Zendikar Mural|Zendikar Rules Reference Card)" },
+        {
+          "query": "from[zen-fatpack]?type='Life Counter'",
+          "canBeDuplicate": true
+        }
+      ]
+    },
+    {
+      "packName": "zen-fat-pack-land",
+      "packDesc": "Zendikar Fat Pack: Land",
+      "isGenerated": false,
+      "cards": [
+        {
+          "query": "take[16]>from[zen]?title='Plains'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[16]>from[zen]?title='Island'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[16]>from[zen]?title='Swamp'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[16]>from[zen]?title='Forest'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[16]>from[zen]?title='Mountain'",
+          "canBeDuplicate": true
+        }
+      ]
+    }
+  ]
+}

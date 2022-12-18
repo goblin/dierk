@@ -1,0 +1,84 @@
+{
+  "defs": [
+    {
+      "defName": "m12",
+      "query": "from[*]?set='m12"
+    },
+    {
+      "defName": "m12-main",
+      "query": "from[m12]-from[m12]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[m12]?promo=true"
+    },
+    {
+      "defName": "m12-promo",
+      "query": "from[m12]?promo=true"
+    },
+    {
+      "defName": "m12-foil",
+      "query": "from[m12-main]+from[m12]?type='Basic Land"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "m12-all-cards",
+      "packDesc": "Magic 2012: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[m12]" }
+      ]
+    },
+    {
+      "packName": "m12-standard",
+      "packDesc": "Magic 2012: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[m12-main]?rarity='c" },
+        { "query": "take[3]>from[m12-main]?rarity='u" },
+        { "query": "from[m12-main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "querySet": [
+            {
+              "percent": "1/3",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "2/3",
+              "query": "from[{{setCode}}]?tip=true"
+            }
+          ]
+        },
+        { "query": "from[m12]?type='Basic Land" },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[m12-foil]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+
+      ]
+    },
+    {
+      "packName": "m12-prerelease-promos",
+      "packDesc": "Magic 2012: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[m12]?includedReason='Prerelease Promo" }
+      ]
+    },
+    {
+      "packName": "m12-promos",
+      "packDesc": "Magic 2012: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[m12-promo]" }
+      ]
+    }
+  ]
+}

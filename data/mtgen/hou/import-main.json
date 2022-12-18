@@ -1,0 +1,127 @@
+{
+  "setCode": "hou",
+  "cardDataUrl": "http://www.mtgsalvation.com/spoilers/filter?SetID=183&IncludeUnconfirmed=true&CardsPerRequest=999",
+  "imagesUrl": "http://magic.wizards.com/en/articles/archive/card-image-gallery/hour-devastation",
+  "exceptions": [
+    {
+      "_comments": [
+        "add a new card = add:true, newValues {}",
+        "delete a card  = delete:true, where",
+        "update card(s) = where, newValues {}"
+      ]
+    },
+    {
+      "_comment": "mtg salvation included the basic lands, and special lands, which I import separately",
+      "delete": true,
+      "where": "type=(Basic Land|Land)"
+    },
+    {
+      "_comment": "ten cards are only found in the Planeswalker Decks: http://magic.wizards.com/en/articles/archive/feature/exclusive-cards-hour-devastation-planeswalker-decks-2017-06-21",
+      "delete": true,
+      "where": "title=(Nicol Bolas, the Deceiver|Wasp of the Bitter End|Zealot of the God-Pharaoh|Visage of Bolas|Cinder Barrens|   Nissa, Genesis Mage|Avid Reclaimer|Brambleweft Behemoth|Nissa's Encouragement|Woodland Stream)"
+    },
+
+    {
+      "where": "title='Angel of the God-Pharoh'",
+      "newValues": {
+        "title": "Angel of the God-Pharaoh"
+      }
+    },
+    {
+      "where": "title='Maurauding Boneslasher'",
+      "newValues": {
+        "title": "Marauding Boneslasher"
+      }
+    },
+    {
+      "where": "title='Crook of Comdemnation'",
+      "newValues": {
+        "title": "Crook of Condemnation"
+      }
+    },
+    {
+      "where": "title='Nicol Bolas, the Deceiver'",
+      "newValues": {
+        "src": "http://media.wizards.com/2017/images/daily/en_iSHCrCgmya.png"
+      }
+    },
+    {
+      "where": "title='Nissa, Genesis Mage'",
+      "newValues": {
+        "src": "http://media.wizards.com/2017/images/daily/en_VlI3HOtQc3.png"
+      }
+    },
+
+    {
+      "where": "title='Farm // Market'",
+      "newValues": {
+        "cost": "2{W}2{U}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Leave // Chance'",
+      "newValues": {
+        "cost": "1{W}3{R}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Consign // Oblivion'",
+      "newValues": {
+        "cost": "1{U}4{B}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Reason // Believe'",
+      "newValues": {
+        "cost": "{U}4{G}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Claim // Fame'",
+      "newValues": {
+        "cost": "{B}1{R}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Grind // Dust'",
+      "newValues": {
+        "cost": "1{B}3{W}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Refuse // Cooperate'",
+      "newValues": {
+        "cost": "3{R}2{U}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Struggle // Survive'",
+      "newValues": {
+        "cost": "2{R}1{G}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Appeal // Authority'",
+      "newValues": {
+        "cost": "{G}1{W}",
+        "colour": "m"
+      }
+    },
+    {
+      "where": "title='Driven // Despair'",
+      "newValues": {
+        "cost": "1{G}1{B}",
+        "colour": "m"
+      }
+    }
+
+  ]
+}

@@ -1,0 +1,47 @@
+﻿{
+  "startProductName": "isd-prerelease",
+  "packFiles": [
+    "packs.json?v1.8"
+  ],
+  "cardFiles": [
+    "cardsMain.json?v1.4",
+    "cardsToken.json",
+    "cardsOther.json?v1.2",
+    "../cards/ads/cardsAds.json"
+  ],
+  "updates": [
+    {
+      "UpdateDate": "2021-07-06T23:30:00:00",
+      "HtmlString": "Double-faced cards upgraded to new version."
+    },
+    {
+      "UpdateDate": "2021-07-03T23:30:00:00",
+      "HtmlString": "Updated marketing cards to be more accurate for set, plus set chances as 1:3 token:marketing for core sets, 2:3 for expansions, and 9:1 as of Battle for Zendikar."
+    },
+    {
+      "UpdateDate": "2021-06-25T23:30:00:00",
+      "HtmlString": "Updated foil chances. Now 15/67 chance a booster has a foil, includes basic lands, and staring with this set, it always replaces a common."
+    },
+    {
+      "UpdateDate": "2020-04-13T00:00:00",
+      "HtmlString": "Fixed booster layout."
+    },
+    {
+      "UpdateDate": "2020-04-09T00:00:00",
+      "HtmlString": "Reimported all cards. Now only one double-faced card (plus maybe foil) per booster."
+    },
+    {
+      "UpdateDate": "2019-08-14T00:30:00",
+      "HtmlString": "Fixed double-faced card rarities and they can now be foil."
+    },
+    {
+      "UpdateDate": "2019-08-13T00:30:00",
+      "HtmlString": "Redid boosters according to actual layout. Double-faced cards only appear in a single slot."
+    },
+    {
+      "UpdateDate": "2011-09-29T00:00:00",
+      "HtmlString": "Double-Faced now replaced common. No duplicates allowed. Works in Firefox. (Thanks, Mike!)"
+    }
+  ],
+  "createdText": "(yes, the day before the Innistrad Prerelease)"
+}

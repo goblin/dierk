@@ -1,0 +1,468 @@
+﻿{
+  "defs": [
+    {
+      "defName": "khm",
+      "query": "from[*]?set='khm'"
+    },
+    {
+      "defName": "the-list",
+      "query": "from[*]?theList=true"
+    },
+    {
+      "defName": "akhm-art-cards",
+      "query": "from[*]?artCard=true"
+    },
+    {
+      "defName": "khm-promo",
+      "query": "from[khm]?promo=true"
+    },
+    {
+      "defName": "khm-variants",
+      "query": "from[khm]?variant=true"
+    },
+    {
+      "defName": "khm-main",
+      "query": "from[khm]-from[khm]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[khm]?promo=true-from[khm]?variant=true"
+    },
+    {
+      "defName": "khm-showcase",
+      "query": "from[khm]?showcase=true"
+    },
+    {
+      "defName": "khm-borderless",
+      "query": "from[khm]?borderless=true"
+    },
+    {
+      "defName": "khm-extended-art",
+      "query": "from[khm]?extendedArtwork=true"
+    },
+    {
+      "defName": "khm-theme-booster",
+      "query": "from[khm]?themeBoosterCard=true"
+    },
+    {
+      "defName": "khm-saga",
+      "query": "from[khm]?subtype='Saga'"
+    },
+    {
+      "defName": "khm-alternate-frame",
+      "query": "from[khm-showcase]+from[khm-borderless]+from[khm-extended-art]"
+    },
+    {
+      "defName": "khm-showcase-and-borderless",
+      "query": "from[khm-showcase]+from[khm-borderless]"
+    },
+    {
+      "defName": "khm-snow-land",
+      "query": "from[khm]?snowLand=true"
+    },
+    {
+      "defName": "khm-booster",
+      "query": "from[khm]?mainSet=true-from[khm-snow-land]"
+    },
+    {
+      "defName": "khm-booster-and-showcase-and-borderless",
+      "query": "from[khm-booster]+from[khm-showcase]+from[khm-borderless]"
+    },
+    {
+      "defName": "khm-saga-theme-commander",
+      "query": "from[khm-saga]+from[khm-borderless]+from[khm-theme-booster]"
+    },
+    {
+      "defName": "khm-snow-cards",
+      "query": "from[khm-booster]?type~='Snow'"
+    },
+    {
+      "defName": "khm-common-and-dual-snow-land",
+      "query": "from[khm-main]?rarity='c'+from[khm-main]?type='Snow Land'"
+    },
+    {
+      "defName": "khm-set-only-cards",
+      "query": "from[khm]?numInt=(374-393)"
+    },
+    {
+      "defName": "khm-snow-cards-and-showcase-and-set-only",
+      "query": "from[khm-snow-cards]?rarity=(c|u)+from[khm-showcase]+from[khm-set-only-cards]"
+    },
+    {
+      "defName": "khm-foils",
+      "query": "from[khm]-from[khm-promo]-from[khm]?token=true"
+    },
+    {
+      "defName": "khm-booster-with-snow-land",
+      "query": "from[khm]?mainSet=true+from[khm-snow-land]"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "khm-all-cards",
+      "packDesc": "Kaldheim: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[khm]" }
+      ]
+    },
+
+    {
+      "_comment": "Standard Boosters were renamed to Draft Boosters as of ELD",
+      "packName": "khm-draft",
+      "packDesc": "Kaldheim: Draft Booster",
+      "packVersion": "1.1",
+      "sources": [ "https://wpn.wizards.com/en/article/inside-each-kaldheim-product", "https://www.youtube.com/watch?v=9IVwm2F90pY&t=1113s" ],
+      "isGenerated": true,
+      "cards": [
+        {
+          "_comment": "1/14 chance of replacing common snow land with rare. All snow lands are common except for one rare, 'Faceless Haven' which only appears in the rare slot.",
+          "query": "from[khm-snow-land]?rarity='c'"
+        },
+        { "query": "take[10]>from[khm-booster]?rarity='c" },
+        { "query": "take[3]>from[khm-booster]?rarity='u" },
+        { "query": "from[khm-booster-with-snow-land]?rarity=rarityByWeight2020(rm)" },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "33% chance of foil, scaled by rarity, replacing the last common, as of M20: Jun-2019",
+              "percent": "33",
+              "overrideSlot": "11",
+              "query": "from[khm-foils]?rarity=rarityByWeight2020(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "_comment": "Collector Boosters were introduced as standard feature as of ELD",
+      "packName": "khm-collector",
+      "packDesc": "Kaldheim: Collector Booster",
+      "packVersion": "1.0",
+      "sources": [ "https://wpn.wizards.com/en/article/inside-each-kaldheim-product", "https://magic.wizards.com/en/articles/archive/feature/collecting-kaldheim-2021-01-07" ],
+      "isGenerated": true,
+      "cards": [
+        {
+          "_comment": "Slot 1: Foil: Alternate-frame R/M",
+          "query": "from[khm-alternate-frame]?rarity='r",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 2: Non-Foil: Showcase or Borderless R/M",
+          "query": "from[khm-showcase-and-borderless]?rarity='r"
+        },
+        {
+          "_comment": "Slot 3: Non-Foil: Extended-Art R/M",
+          "query": "from[khm-extended-art]?rarity='r"
+        },
+        {
+          "_comment": "Slot 4: Non-Foil: Saga R, Theme Booster R, or Commander Deck R/M",
+          "query": "from[khm-saga-theme-commander]?rarity='r"
+        },
+        {
+          "_comment": "Slot 5: Foil R/M",
+          "query": "from[khm-booster-with-snow-land]?rarity='r"
+        },
+        {
+          "_comment": "Slot 6: Foil U Showcase",
+          "query": "from[khm-showcase]?rarity='u",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 7: Non-Foil U Showcase",
+          "query": "from[khm-showcase]?rarity='u"
+        },
+        {
+          "_comment": "Slot 8-9: 2x Foil U",
+          "query": "take[2]>from[khm-booster]?rarity='u'",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 10-15: 5x Foil C or Snow Dual Lands",
+          "query": "take[5]>from[khm-common-and-dual-snow-land]",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 16: Foil Basic Snow Land",
+          "query": "from[khm-main]?type='Basic Snow Land'",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 17: Foil: token",
+          "query": "from[{{setCode}}]?token=true",
+          "setValues": { "foil": true }
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 1: Foil: Alternate-frame R/M",
+              "overrideSlot": "1",
+              "percent": "8.75",
+              "query": "from[khm-alternate-frame]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 2: Non-Foil: Showcase or Borderless R/M",
+              "overrideSlot": "2",
+              "percent": "8.75",
+              "query": "from[khm-showcase-and-borderless]?rarity='m"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 3: Non-Foil: Extended-Art R/M",
+              "overrideSlot": "3",
+              "percent": "8.75",
+              "query": "from[khm-extended-art]?rarity='m"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 5: Foil R/M",
+              "overrideSlot": "5",
+              "percent": "8.75",
+              "query": "from[khm-booster]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 5: Foil R/M",
+              "overrideSlot": "5",
+              "percent": "8.75",
+              "query": "from[khm-booster]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "_comment": "Set Boosters were introduced as standard feature as of ZNR",
+      "packName": "khm-set-booster",
+      "packDesc": "Kaldheim: Set Booster",
+      "packVersion": "1.0",
+      "sources": [ "https://magic.wizards.com/en/articles/archive/feature/kaldheim-product-overview-2021-01-25", "https://media.wizards.com/2020/wpn/marketing_materials/khm/khm_booster_breakdown_en.zip" ],
+      "isGenerated": true,
+      "cards": [
+        {
+          "_comment": "Slot 1: Snow Land",
+          "_comment2": "1 Snow land (basic or dual land, possibly foil)",
+          "query": "from[khm-snow-land]?rarity='c'"
+        },
+        {
+          "_comment": "Slot 2: R/M normal/showcase/borderless",
+          "_comment2": "1 Rare or mythic rare (can be showcase or borderless)",
+          "query": "from[khm-booster-and-showcase-and-borderless]?rarity=rarityByWeight2008(rm)"
+        },
+        {
+          "_comment": "Slot 3: Snow C/U, Showcase U, Theme Booster R",
+          "_comment2": "1 Snow common or uncommon, showcase uncommon, or exclusive rare (see below)",
+          "query": "from[khm-snow-cards-and-showcase-and-set-only]?rarity=rarityByWeight2008(cur)"
+        },
+        {
+          "_comment": "Slot 4: Foil: normal/showcase/borderless",
+          "_comment2": "1 Foil card of any rarity (can be showcase or borderless)",
+          "query": "from[khm-booster-and-showcase-and-borderless]?rarity=rarityByWeight2008(curm)",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 5: normal/showcase/borderless",
+          "_comment2": "1 Non-foil card of any rarity (can be showcase or borderless)",
+          "query": "from[khm-booster-and-showcase-and-borderless]?rarity=rarityByWeight2008(curm)"
+        },
+        {
+          "_comment": "Slot 6-12: 6x C/U",
+          "_comment2": "7 Commons and uncommons",
+          "query": "from[khm-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[khm-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[khm-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[khm-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[khm-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[khm-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[khm-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "_comment": "Slot 13 Art Card",
+          "_comment2": "There are 81 total possible borderless art cards. 95% of those opened will be regular and 5% will be foil stamped with an artist signature or Planeswalker symbol.",
+          "query": "from[akhm-art-cards]",
+          "setValues": { "modifiers": [ "Normal" ] }
+        },
+        {
+          "_comment": "Slot 14: Token/Ad or The List",
+          "_comment2": "1 Token/ad card (75%), or a card from The List (25%) – The List is a collection of 300 cards from Magic's history that we have brought together for this special slot. We have rotated in 50 new reprints that we feel help capture the feel of Modern Horizons 2. Inclusion of cards from The List doesn't impact what formats the card is legal in",
+          "query": "from[{{setCode}}]?token=true"
+        },
+
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 1: Snow Land",
+              "_comment2": "1 Snow land (basic or dual land, possibly foil)",
+              "query": "from[khm-snow-land]?rarity='c'",
+              "overrideSlot": "1",
+              "percent": "15",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 13: Art Card",
+              "_comment2": "There are 81 total possible borderless art cards. 95% of those opened will be regular and 5% will be foil stamped with an artist signature or Planeswalker symbol.",
+              "overrideSlot": "13",
+              "percent": "5",
+              "query": "from[akhm-art-cards]",
+              "setValues": { "modifiers": [ "Foil Stamped" ] }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 14: Token/Ad or The List",
+              "_comment2": "1 Token/ad card (75%), or a card from The List (25%) – The List is a collection of 300 cards from Magic's history that we have brought together for this special slot. We have rotated in 50 new reprints that we feel help capture the feel of Modern Horizons 2. Inclusion of cards from The List doesn't impact what formats the card is legal in",
+              "query": "from[the-list]?rarity=rarityByWeight2008(curm)",
+              "overrideSlot": "14",
+              "percent": "25"
+            }
+          ]
+        }
+
+      ]
+    },
+
+    {
+      "packName": "khm-prerelease-promo-packins",
+      "packDesc": "Kaldheim: Prerelease Packins",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "querySet": [
+            {
+              "percent": "7/8",
+              "query": "from[khm-main]?rarity='r",
+              "setValues": {
+                "foil": true
+              }
+            },
+            {
+              "percent": "1/8",
+              "query": "from[khm-main]?rarity='m",
+              "setValues": {
+                "foil": true
+              }
+            }
+          ]
+        },
+        { "query": "take[1]>from[khm-promo]?type='Life Counter'" },
+        { "query": "from[khm-promo]?title='Prerelease Deck Box" },
+        { "query": "from[khm-promo]?title='Deckbuilding Advice Insert" },
+        { "query": "from[khm-promo]?title='Arena Code Card" }
+      ]
+    },
+    {
+      "packName": "khm-prerelease-promos",
+      "packDesc": "Kaldheim: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[khm-promo]?includedReason='Prerelease Promo" }
+      ]
+    },
+
+    {
+      "packName": "khm-variants",
+      "packDesc": "Kaldheim: All Variants",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[khm-variants]"
+        }
+      ]
+    },
+
+    {
+      "packName": "khm-promos",
+      "packDesc": "Kaldheim: All Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[khm-promo]"
+        }
+      ]
+    },
+
+    {
+      "packName": "akhm-art-cards",
+      "packDesc": "Kaldheim: Art Cards",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[akhm-art-cards]"
+        }
+      ]
+    },
+
+    {
+      "packName": "the-list",
+      "packDesc": "Kaldheim: The List",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[the-list]"
+        }
+      ]
+    }
+  ]
+}

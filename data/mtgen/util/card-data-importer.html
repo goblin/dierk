@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+<head>
+    <meta charset="UTF-8" />
+    <title>JSON Magic: The Gathering: Card Generator Gathering Magic IMPORTER</title>
+    <link rel='stylesheet' href='style.css' type='text/css' />
+</head>
+<body class="home">
+    <h1>JSON Magic: The Gathering Sealed Deck Card Generator Gathering Magic IMPORTER</h1>
+    <p>This page imports card data from the <a href="https://mtgsalvation.com" target="_blank">MTG Salvation spoilers</a>, <a href="https://www.google.com/search?q=card+image+gallery+wizards+of+the+coast" target="_blank">WotC card image gallery spoilers</a>, and <a href="http://mtgjson.com" target="_blank">mtgjson.com</a> to help create the Sealed Deck Card Generator pages for each release.</p>
+    <ul>
+        <li>5-Apr-2021: Added import options.</li>
+        <li>26-Feb-2017: Rewritten to use es6 instead of es5/backbone/jQuery.</li>
+        <li>23-Jul-2016: Combined the settings and exceptons file into one.</li>
+        <li>28-Jan-2016: Updated to add/use mtgenIds and associative arrays on "cards". Added </li>
+        <li>4-Jul-2015: New version created.</li>
+        <li>11-Dec-2015: Paths adjusted for MVC5 layout.</li>
+    </ul>
+    <br />
+    <h2 id='local-error' class='error' style="display:none">NOTE: You CANNOT run this thing locally. It won't work. It needs to run through the proxy to work.</h2>
+    <section id="options">
+        <label for="load-settings">Load Existing Settings:</label> <input id="load-settings" type="file" accept="application/json" />
+        <br />
+        <br />
+        <label for="set-code">Set code (e.g.: dgm):</label>
+        <br />
+        <input id="set-code" />
+        <br />
+        <br />
+        <label for="url-card-data">URL from which to import card data (mtgen.net/localhost, MTG Salvation, Gathering Magic, or mtgjson.com):</label>
+        <br />
+        <input id="url-card-data" size="100" />
+        <br />
+        <br />
+        <label for="html-card-data">OR copy and paste the raw card data from the page into this box (you still need the site name above):</label>
+        <br />
+        <textarea id="html-card-data" cols="100" rows="20"></textarea>
+        <br />
+        <br />
+        <label for="url-images">
+            URL from which to retrieve card images (Wizards of the Coast or mtgjson.com) <em>(If none supplied or no image match found, it'll use the card data image above. If no image at all, it'll generate a placeholder card.)</em>:<br />
+            Use <em>"http://url.com/etc/{{num:000}}/etc"</em> to import raw images from the target url with a particular digit format (e.g.: 000)
+        </label>
+        <br />
+        <input id="url-images" size="100" />
+        <br />
+        <br />
+        <label for="import-options">Import options:</label>
+        <br />
+        <textarea id="import-options" cols="100" rows="5"></textarea>
+        <br />
+        <br />
+        <label for="exceptions">Exceptions JSON that handles any parsing errors or post-import data modifications:</label>
+        <br />
+        <textarea id="exceptions" cols="100" rows="20"></textarea>
+        <br />
+        <br />
+        <a id="save-settings" href="#">Save These Settings</a>
+        <br />
+        <br />
+        <input id="import" type="submit" value="Import Card Data" style="font-size:150%" />
+        <br />
+        <p id="status"></p>
+        <p id="msg"></p>
+    </section>
+    <h2>Output</h2>
+    <h3>Parsing Log</h3>
+    <p>Use the exceptions JSON setting above to fix any errors below.</p>
+    <section id="log"></section>
+    <h3>Output JSON Data</h3>
+    <textarea id="out-main" cols="100" rows="20"></textarea>
+    <footer>
+        <p>Created by: Cam Marsollier - <a href="mailto:cam.marsollier@gmail.com">cam.marsollier@gmail.com</a></p>
+        <p>Note that this site has no affiliation with <a href="http://www.wizards.com/Magic/">Wizards of the Coast</a>, owner of Magic: The Gathering.</p>
+    </footer>
+    <script src="/lib/mtg-generator-lib.js"></script>
+    <script src="/util/js/card-data-importer.js"></script>
+    <script src="//unpkg.com/string-similarity/umd/string-similarity.min.js"></script>
+    <script>
+        'use strict';
+        const cardDataImporter = new CardDataImporter();
+
+        if (window.location.protocol == 'file:') { document.getElementById('local-error').getElementById; }
+
+        async function _startProcessing() {
+            const [logOutput, finalData] = await cardDataImporter.loadAndProcessAllFiles({
+                cardDataUrl: document.getElementById('url-card-data').value
+                , htmlCardData: document.getElementById('html-card-data').value
+                , imagesUrl: document.getElementById('url-images').value
+                , importOptions: document.getElementById('import-options').value
+                , exceptions: document.getElementById('exceptions').value
+                , setCode: document.getElementById('set-code').value
+            });
+
+            document.getElementById('log').innerHTML = logOutput;
+
+            document.getElementById('msg').innerHTML =
+                `${finalData.initialCardDataCount} cards found from ${document.getElementById('url-card-data').value}</br>
+                        ${finalData.imageDataCount} images found from ${document.getElementById('url-images').value}</br><br/>
+                        <strong>${finalData.finalCardCount} final cardsMain.json cards generated at ${(new Date())}.</strong>`;
+            document.getElementById('status').innerHTML = `<strong>Processing complete at ${(new Date())}</strong>`;
+            document.getElementById('out-main').value = finalData.cardsMainJson;
+        }
+
+        document.getElementById('import').addEventListener('click', _startProcessing);
+
+        document.querySelectorAll('input').forEach(el => el.addEventListener('change', () => setSaveLinkToDownloadFile()));
+
+        document.getElementById('load-settings').addEventListener('change', e => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = e => {
+                const jsonSettings = e.target.result;
+                const settings = JSON.parse(jsonSettings);
+                const finalSettings = cardDataImporter.setSettings(settings);
+                document.getElementById('set-code').value = finalSettings.setCode;
+                document.getElementById('url-card-data').value = finalSettings.cardDataUrl;
+                document.getElementById('url-images').value = finalSettings.imagesUrl;
+                document.getElementById('import-options').value = JSON.stringify(finalSettings.importOptions ?? {}, null, ' ');;
+                document.getElementById('exceptions').value = JSON.stringify(finalSettings.exceptions, null, ' ');
+
+                // rebuild the download file and attach it to the download link
+                setSaveLinkToDownloadFile();
+            };
+
+            reader.readAsText(file);
+        });
+
+        const setSaveLinkToDownloadFile = () => {
+            const attrs = cardDataImporter.getDownloadSettingsFileLinkAttributes(
+                document.getElementById('set-code').value,
+                document.getElementById('url-card-data').value,
+                document.getElementById('url-images').value,
+                document.getElementById('import-options').value,
+                document.getElementById('exceptions').value
+            );
+            const linkEl = document.getElementById('save-settings');
+            linkEl.setAttribute('href', attrs.href);
+            linkEl.setAttribute('download', attrs.download); // 'download' attr is Chrome/FF-only to set download filename
+        }
+
+        window.addEventListener('data-loading', () => document.getElementById('status').innerHTML = `<strong>Data load started at ${(new Date())}</strong>`, false);
+
+        window.addEventListener('searching-gatherer-for-card',
+            (e) => document.getElementById('msg').innerHTML += `<br/><em>Fetching data from wizards.gatherer.com for card '${e.detail.cardName}'</em>`, false);
+
+        window.addEventListener('data-loaded', () => {
+            document.getElementById('status').innerHTML = `<strong>Have data; now processing at ${(new Date())}</strong>`;
+            document.getElementById('out-main').value = '';
+            document.getElementById('log').innerHTML = '';
+        }, false);
+    </script>
+</body>
+</html>

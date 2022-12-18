@@ -1,0 +1,138 @@
+{
+  "defs": [
+    {
+      "defName": "avr",
+      "query": "from[*]?set='avr'"
+    },
+    {
+      "defName": "avr-promo",
+      "query": "from[avr]?promo=true"
+    },
+    {
+      "defName": "avr-set",
+      "query": "from[avr]-from[avr-promo]"
+    },
+    {
+      "defName": "avr-main",
+      "query": "from[avr]-from[avr]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[avr]?promo=true"
+    },
+    {
+      "defName": "avr-foils",
+      "query": "from[avr-main]+from[avr]?type='Basic Land"
+    },
+    {
+      "defName": "avr-fatpack",
+      "query": "from[avr]?includedReason='Fat Pack Pack-In'"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "avr-all-cards",
+      "packDesc": "Avacyn Restored: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[avr]" }
+      ]
+    },
+    {
+      "packName": "avr-standard",
+      "packDesc": "Avacyn Restored: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[avr-main]?rarity='c'" },
+        { "query": "take[3]>from[avr-main]?rarity='u'" },
+        { "query": "from[avr-main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "querySet": [
+            {
+              "percent": "1/3",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "2/3",
+              "query": "from[{{setCode}}]?tip=true"
+            }
+          ]
+        },
+        { "query": "from[avr]?type='Basic Land'" },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[avr-foils]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "avr-promos",
+      "packDesc": "Avacyn Restored: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[avr-promo]" }
+      ]
+    },
+    {
+      "packName": "avr-prerelease-promos",
+      "packDesc": "Avacyn Restored: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[avr-promo]?includedReason='Prerelease Promo'" }
+      ]
+    },
+    {
+      "packName": "avr-fat-pack-land",
+      "packDesc": "Avacyn Restored Fat Pack: Land",
+      "isGenerated": false,
+      "cards": [
+        {
+          "query": "take[14]>from[avr]?title='Plains'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[14]>from[avr]?title='Island'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[14]>from[avr]?title='Swamp'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[14]>from[avr]?title='Forest'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[14]>from[avr]?title='Mountain'",
+          "canBeDuplicate": true
+        }
+      ]
+    },
+    {
+      "packName": "avr-fat-pack-pack-ins",
+      "packDesc": "Avacyn Restored Fat Pack: Pack-Ins",
+      "isGenerated": false,
+      "cards": [
+        {
+          "query": "take[*]>from[avr]?title=(Avacyn Restored Player’s Guide|Avacyn Restored Card Box|Avacyn Restored Mural|Avacyn Restored Rules Reference Card)",
+          "inOrder": true
+        },
+        {
+          "query": "from[avr-fatpack]?type='Life Counter'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[2]>from[avr]?title='Avacyn Restored Deck Box'",
+          "canBeDuplicate": true
+        }
+      ]
+    }
+
+  ]
+}

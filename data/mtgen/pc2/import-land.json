@@ -1,0 +1,24 @@
+﻿{
+  "setCode": "pc2",
+  "cardDataUrl": "http://www.mtgsalvation.com/spoilers/filter?SetID=105&IncludeUnconfirmed=true&CardsPerRequest=999",
+  "imagesUrl": "http://magic.wizards.com/en/articles/archive/feature/card-image-gallery-2012-05-21",
+  "exceptions": [
+    {
+      "_comment": "add isPlane:false to ALL cards with the intention of deleting them later",
+      "where": "",
+      "newValues": {
+        "isLand": false
+      }
+    },
+    {
+      "where": "type=Land",
+      "newValues": {
+        "isLand": true
+      }
+    },
+    {
+      "delete": true,
+      "where": "isLand=false"
+    }
+  ]
+}

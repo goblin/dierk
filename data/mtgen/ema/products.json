@@ -1,0 +1,40 @@
+{
+  "_comment": "if there are no options the query/packNames will be auto-run",
+  "products": [
+    {
+      "productName": "ema-all-cards",
+      "productDesc": "All Cards",
+      "sources": [ "http://magic.wizards.com/en/articles/archive/card-image-gallery/eternal-masters", "http://www.mtgsalvation.com/spoilers/171-eternal-masters", "http://magic.wizards.com/en/articles/archive/card-preview/tokens-eternal-masters-2016-05-27" ],
+      "isGenerated": false,
+      "initialSort": "colour",
+      "packs": [
+        { "packName": "ema-all-cards" }
+      ]
+    },
+    {
+      "productName": "ema-boosters",
+      "productDesc": "Boosters",
+      "isGenerated": true,
+      "isVisible": true,
+      "initialSort": "set",
+      "packs": [
+        { "packName": "ema-standard" }
+      ],
+      "options": {
+        "presets": [
+          {
+            "presetName": "ema-boosters-six",
+            "presetDesc": "Six Boosters",
+            "default": true,
+            "packs": [
+              {
+                "count": 6,
+                "defaultPackName": "ema-standard"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

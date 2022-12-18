@@ -1,0 +1,85 @@
+{
+  "_comment": "if there are no options the query/packNames will be auto-run",
+  "products": [
+    {
+      "productName": "kld-all-cards",
+      "productDesc": "All Cards",
+      "sources": [ "http://magic.wizards.com/en/articles/archive/card-image-gallery/kaladesh", "http://www.mtgsalvation.com/spoilers/173-kaladesh", "http://magic.wizards.com/en/articles/archive/feature/basic-lands-kaladesh-2016-09-12", "http://magic.wizards.com/en/articles/archive/making-magic/masterpiece-series-2016-09-12", "http://magic.wizards.com/en/articles/archive/card-preview/exclusive-cards-planeswalker-decks-2016-09-13" ],
+      "isGenerated": false,
+      "initialSort": "colour",
+      "packs": [
+        { "packName": "kld-all-cards" }
+      ]
+    },
+    {
+      "productName": "kld-boosters",
+      "productDesc": "Boosters",
+      "isGenerated": true,
+      "isVisible": true,
+      "initialSort": "set",
+      "packs": [
+        { "packName": "kld-standard" }
+      ],
+      "options": {
+        "presets": [
+          {
+            "presetName": "kld-boosters-six",
+            "presetDesc": "Six Boosters",
+            "default": true,
+            "packs": [
+              {
+                "count": 6,
+                "defaultPackName": "kld-standard"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "productName": "kld-prerelease",
+      "productDesc": "Prerelease",
+      "isVisible": true,
+      "sources": [ "http://magic.wizards.com/en/articles/archive/feature/kaladesh-packaging-promos-and-planeswalker-decks-2016-09-06" ],
+      "isGenerated": true,
+      "initialSort": "set",
+      "packs": [
+        { "packName": "kld-standard" },
+        { "packName": "kld-prerelease-promo-packins" },
+        { "packName": "kld-prerelease-promos" }
+      ],
+      "options": {
+        "presets": [
+          {
+            "presetName": "kld-prerelease",
+            "presetDesc": "Prerelease Pack",
+            "default": true,
+            "packs": [
+              {
+                "count": 1,
+                "defaultPackName": "kld-prerelease-promo-packins"
+              },
+              {
+                "count": 6,
+                "defaultPackName": "kld-standard"
+              }
+            ]
+          }
+        ]
+      }
+
+    },
+    {
+      "productName": "kld-promos",
+      "productDesc": "All Promos",
+      "sources": [ "http://magic.wizards.com/en/articles/archive/feature/kaladesh-packaging-promos-and-planeswalker-decks-2016-09-06" ],
+      "isGenerated": false,
+      "isVisible": true,
+      "initialSort": "name",
+      "packs": [
+        { "packName": "kld-promos" }
+      ]
+    }
+
+  ]
+}

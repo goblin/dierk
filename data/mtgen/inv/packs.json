@@ -1,0 +1,87 @@
+{
+  "defs": [
+    {
+      "defName": "inv",
+      "query": "from[*]?set='inv"
+    },
+    {
+      "defName": "inv-main",
+      "query": "from[inv]"
+    },
+    {
+      "defName": "inv-promo",
+      "query": "from[inv]?promo=true"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "inv-all-cards",
+      "packDesc": "Invasion: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[inv]" }
+      ]
+    },
+    {
+      "packName": "inv-standard",
+      "packDesc": "Invasion: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[11]>from[inv-main]?rarity='c" },
+        { "query": "take[3]>from[inv-main]?rarity='u" },
+        { "query": "take[1]>from[inv-main]?rarity='r" },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and it replaced a card of it's rarity.",
+              "percent": "6/67",
+              "overrideSlot": "11",
+              "query": "from[inv-main]?rarity='c'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "5/67",
+              "overrideSlot": "11",
+              "query": "from[inv-main]?rarity='b'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "3/67",
+              "overrideSlot": "14",
+              "query": "from[inv-main]?rarity='u'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/67",
+              "overrideSlot": "15",
+              "query": "from[inv-main]?rarity='r'",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "inv-promos",
+      "packDesc": "Invasion: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[inv-promo]" }
+      ]
+    },
+    {
+      "packName": "inv-starter-deck",
+      "packDesc": "Invasion: Starter Deck",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[9]>from[inv-main]?rarity='u" },
+        { "query": "take[3]>from[inv-main]?rarity='r" },
+        { "query": "take[26]>from[inv-main]?rarity='c" },
+        { "query": "take[22]>from[inv-main]?type='Basic Land" }
+      ]
+    }
+  ]
+}

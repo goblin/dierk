@@ -1,0 +1,17 @@
+{
+  "setCode": "m19",
+  "cardDataUrl": "https://api.scryfall.com/cards/search?order=set&q=e%3Atm19&unique=prints",
+  "imagesUrl": "",
+  "exceptions": [
+    {
+      "where": "",
+      "newValues": {
+        "set": "{{setCode}}",
+        "rarity": "c",
+        "num": "{{num}}/017 T",
+        "token": true,
+        "usableForDeckBuilding": false
+      }
+    }
+  ]
+}

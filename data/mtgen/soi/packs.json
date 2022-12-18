@@ -1,0 +1,145 @@
+{
+  "defs": [
+    {
+      "defName": "soi",
+      "query": "from[*]?set='soi'-from[*]?doubleFaceBackCard=true"
+    },
+    {
+      "defName": "soi-base",
+      "query": "from[soi]-from[soi]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[soi]?promo=true"
+    },
+    {
+      "defName": "soi-main",
+      "query": "from[soi-base]-from[soi]?doubleFaceCard=true"
+    },
+    {
+      "defName": "soi-doubleface",
+      "query": "from[soi-base]?doubleFaceFrontCard=true"
+    },
+    {
+      "defName": "soi-foils",
+      "query": "from[soi-main]+from[soi]?type='Basic Land'"
+    },
+    {
+      "defName": "soi-promo",
+      "query": "from[soi]?promo=true"
+    }
+
+  ],
+  "packs": [
+    {
+      "packName": "soi-all-cards",
+      "packDesc": "Shadows Over Innistrad: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[soi]-from[soi]?doubleFaceBackCard=true" }
+      ]
+    },
+    {
+      "packName": "soi-standard",
+      "packDesc": "Shadows Over Innistrad: Standard Booster",
+      "packVersion": "1.2",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[9]>from[soi-main]?rarity='c" },
+        { "query": "take[3]>from[soi-main]?rarity='u" },
+        { "query": "from[soi-main]?rarity=rarityByWeight2008(rm)" },
+        { "query": "from[soi-doubleface]?rarity=rarityByWeight2008(cu)" },
+        {
+          "querySet": [
+            {
+              "percent": "50",
+              "query": "from[soi]?title='Checklist Card"
+            },
+            {
+              "percent": "50",
+              "query": "from[soi]?type='Basic Land"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "7",
+              "query": "from[soi-foils]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Double-face card",
+              "percent": "1/8",
+              "overrideSlot": "8",
+              "query": "from[soi-doubleface]?rarity=rarityByWeight2008(rm)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "soi-promos",
+      "packDesc": "Shadows Over Innistrad: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[soi-promo]" }
+      ]
+    },
+    {
+      "packName": "soi-prerelease-promo-packins",
+      "packDesc": "Shadows Over Innistrad: Prerelease Packins",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "querySet": [
+            {
+              "percent": "7/8",
+              "query": "from[soi-base]?rarity='r",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/8",
+              "query": "from[soi-base]?rarity='m",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        { "query": "take[1]>from[soi-promo]?type='Life Counter" },
+        { "query": "from[soi-promo]?title='Deck Box" },
+        { "query": "from[soi-promo]?title='Prerelease Card Divider" },
+        { "query": "from[soi-promo]?title='Deckbuilding Advice Insert" }
+
+      ]
+    },
+    {
+      "packName": "soi-prerelease-promos",
+      "packDesc": "Shadows Over Innistrad: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[soi-promo]?includedReason='Prerelease Promo" }
+      ]
+    }
+
+  ]
+}

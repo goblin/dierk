@@ -1,0 +1,83 @@
+{
+  "defs": [
+    {
+      "defName": "m11",
+      "query": "from[*]?set='m11"
+    },
+    {
+      "defName": "m11-main",
+      "query": "from[m11]-from[m11]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[m11]?promo=true"
+    },
+    {
+      "defName": "m11-promo",
+      "query": "from[m11]?promo=true"
+    },
+    {
+      "defName": "m11-foil",
+      "query": "from[m11-main]+from[m11]?type='Basic Land'"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "m11-all-cards",
+      "packDesc": "Magic 2011: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[m11]" }
+      ]
+    },
+    {
+      "packName": "m11-standard",
+      "packDesc": "Magic 2011: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[m11-main]?rarity='c" },
+        { "query": "take[3]>from[m11-main]?rarity='u" },
+        { "query": "from[m11-main]?rarity=rarityByWeight2008(rm)" },
+        { "query": "from[m11]?type='Basic Land" },
+        {
+          "querySet": [
+            {
+              "percent": "1/3",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "2/3",
+              "query": "from[{{setCode}}]?tip=true"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[m11-foil]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "m11-prerelease-promos",
+      "packDesc": "Magic 2011: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[m11]?includedReason='Prerelease Promo" }
+      ]
+    },
+    {
+      "packName": "m11-promos",
+      "packDesc": "Magic 2011: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[m11-promo]" }
+      ]
+    }
+  ]
+}

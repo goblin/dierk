@@ -1,0 +1,33 @@
+{
+  "startProductName": "bbd-boosters",
+  "packFiles": [
+    "packs.json?v1.4"
+  ],
+  "cardFiles": [
+    "cardsMain.json?v1.1",
+    "cardsToken.json?v1.1",
+    "../cards/ads/cardsAds.json"
+  ],
+  "updates": [
+    {
+      "UpdateDate": "2021-07-03T23:30:00:00",
+      "HtmlString": "Updated marketing cards to be more accurate for set, plus set chances as 1:3 token:marketing for core sets, 2:3 for expansions, and 9:1 as of Battle for Zendikar."
+    },
+    {
+      "UpdateDate": "2021-06-25T23:30:00:00",
+      "HtmlString": "Updated foil chances. Now 15/67 chance a booster has a foil and includes basic lands."
+    },
+    {
+      "updateDate": "2018-06-10",
+      "htmlString": "Evening: Added tokens."
+    },
+    {
+      "updateDate": "2018-06-08",
+      "htmlString": "Evening: Added Launch Party and All Promos sections."
+    },
+    {
+      "updateDate": "2018-05-28",
+      "htmlString": "Evening: Planeswalkers are now paired as well."
+    }
+  ]
+}

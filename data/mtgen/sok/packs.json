@@ -1,0 +1,78 @@
+{
+  "defs": [
+    {
+      "defName": "sok",
+      "query": "from[*]?set='sok"
+    },
+    {
+      "defName": "sok-main",
+      "query": "from[sok]-from[sok]?type=(Marketing|Basic Land)-from[sok]?token=true-from[sok]?promo=true"
+    },
+    {
+      "defName": "sok-promo",
+      "query": "from[sok]?promo=true"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "sok-all-cards",
+      "packDesc": "Saviors of Kamigawa: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[sok]" }
+      ]
+    },
+    {
+      "packName": "sok-standard",
+      "packDesc": "Saviors of Kamigawa: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[11]>from[sok-main]?rarity='c" },
+        { "query": "take[3]>from[sok-main]?rarity='u" },
+        { "query": "take[1]>from[sok-main]?rarity='r" },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and it replaced a card of it's rarity.",
+              "percent": "11/67",
+              "overrideSlot": "11",
+              "query": "from[sok-main]?rarity='c'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "3/67",
+              "overrideSlot": "14",
+              "query": "from[sok-main]?rarity='u'",
+              "setValues": { "foil": true }
+            },
+            {
+              "percent": "1/67",
+              "overrideSlot": "15",
+              "query": "from[sok-main]?rarity='r'",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "sok-prerelease-promos",
+      "packDesc": "Saviors of Kamigawa: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[sok]?includedReason='Prerelease Promo" }
+      ]
+    },
+    {
+      "packName": "sok-promos",
+      "packDesc": "Saviors of Kamigawa: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[sok-promo]" }
+      ]
+    }
+  ]
+}

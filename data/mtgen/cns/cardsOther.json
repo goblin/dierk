@@ -1,0 +1,19 @@
+﻿[
+ {
+  "title": "Magister of Worth",
+  "src": "https://media.wizards.com/images/magic/daily/arcana/ljquoqhelp_arc_mow.jpg",
+  "set": "cns",
+  "cost": "{4}{W}{B}",
+  "rarity": "r",
+  "type": "Creature",
+  "subtype": "Angel",
+  "creature": true,
+  "power": "4",
+  "toughness": "4",
+  "colour": "m",
+  "num": "*048",
+  "promo": "true",
+  "includedReason": "Release Event Promo",
+  "usableForDeckBuilding": true
+ }
+]

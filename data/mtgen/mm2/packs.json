@@ -1,0 +1,55 @@
+{
+  "defs": [
+    {
+      "defName": "mm2",
+      "query": "from[*]?set='mm2'"
+    },
+    {
+      "defName": "mm2-main",
+      "query": "from[mm2]-from[mm2]?type='Basic Land'-from[*]?usableForDeckBuilding=false"
+    },
+    {
+      "defName": "mm2-foils",
+      "query": "from[mm2-main]"
+    }
+
+  ],
+  "packs": [
+    {
+      "packName": "mm2-all-cards",
+      "packDesc": "Modern Masters 2015: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[mm2]" }
+      ]
+    },
+    {
+      "packName": "mm2-standard",
+      "packDesc": "Modern Masters 2015: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[mm2-main]?rarity='c'" },
+        { "query": "take[3]>from[mm2-main]?rarity='u'" },
+        { "query": "from[mm2-main]?rarity=rarityByWeight2008(rm)" },
+        {
+          "query": "from[mm2-foils]?rarity=rarityByWeight2008(curm)",
+          "canBeDuplicate": true,
+          "setValues": { "foil": true }
+        },
+        {
+          "querySet": [
+            {
+              "percent": "2/3",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "1/3",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}

@@ -1,0 +1,476 @@
+﻿{
+  "defs": [
+    {
+      "defName": "znr",
+      "query": "from[*]?set='znr'"
+    },
+    {
+      "defName": "the-list",
+      "query": "from[*]?theList=true"
+    },
+    {
+      "defName": "aznr-art-cards",
+      "query": "from[*]?artCard=true"
+    },
+    {
+      "defName": "znr-promo",
+      "query": "from[znr]?promo=true"
+    },
+    {
+      "defName": "znr-variants",
+      "query": "from[znr]?variant=true-from[znr-promo]"
+    },
+    {
+      "defName": "znr-showcase",
+      "query": "from[znr]?numInt=(290-313)"
+    },
+    {
+      "defName": "znr-basic-land",
+      "query": "from[znr]?type='Basic Land'"
+    },
+    {
+      "defName": "znr-main",
+      "query": "from[znr]-from[znr]?promo=true-from[znr]?variant=true-from[znr]?type='Basic Land'-from[*]?usableForDeckBuilding=false"
+    },
+    {
+      "defName": "znr-main-and-showcase",
+      "query": "from[znr-main]+from[znr-showcase]"
+    },
+    {
+      "defName": "znr-foils",
+      "query": "from[znr]-from[znr-promo]-from[znr]?token=true+from[znr-basic-land]"
+    },
+    {
+      "defName": "znr-booster",
+      "query": "from[znr]?mainSet=true-from[znr-promo]-from[znr]?doubleFaceCard=true"
+    },
+    {
+      "defName": "znr-doubleface",
+      "query": "from[znr-main]?doubleFaceCard=true-from[znr-promo]"
+    }
+  ],
+
+  "packs": [
+    {
+      "packName": "znr-all-cards",
+      "packDesc": "Zendikar Rising: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[znr]" }
+      ]
+    },
+
+    {
+      "_comment": "Standard Boosters were renamed to Draft Boosters as of ELD",
+      "packName": "znr-draft",
+      "packDesc": "Zendikar Rising: Draft Booster",
+      "sources": [ "https://magic.wizards.com/en/articles/archive/feature/zendikar-rising-product-overview-2020-09-02", "https://www.youtube.com/watch?v=IZOAf2C_qnk&t=720s" ],
+      "packVersion": "1.1",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[znr-booster]?rarity='c" },
+        { "query": "take[3]>from[znr-booster]?rarity='u" },
+        { "query": "from[znr-booster]?rarity=rarityByWeight2020(rm)" },
+        { "query": "from[znr-basic-land]" },
+        {
+          "querySet": [
+            {
+              "_comment": "Starting in BFZ the token:marketing ratio changed to 9:1.",
+              "percent": "90",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "10",
+              "query": "from[*]?getMarketingCardsForSet({{setCode}})"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "33% chance of foil, scaled by rarity, replacing the last common, as of M20: Jun-2019",
+              "_comment2": "This set was the first where mythic odds changed from 1 in 8 to 1 in 7.4 (encoded in rarityByWeight2020)",
+              "percent": "33",
+              "overrideSlot": "9",
+              "query": "from[znr-foils]?rarity=rarityByWeight2020(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "overrideSlot": "13",
+              "percent": "215/296",
+              "query": "from[znr-doubleface]?rarity='u"
+            },
+            {
+              "overrideSlot": "14",
+              "percent": "71/296",
+              "query": "from[znr-doubleface]?rarity='r"
+            },
+            {
+              "overrideSlot": "14",
+              "percent": "10/296",
+              "query": "from[znr-doubleface]?rarity='m"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "_comment": "Set Boosters were introduced as standard feature as of ZNR",
+      "packName": "znr-set-booster",
+      "packDesc": "Zendikar Rising: Set Booster",
+      "packVersion": "1.0",
+      "sources": [ "https://magic.wizards.com/en/articles/archive/making-magic/set-boosters-2020-07-25" ],
+      "isGenerated": true,
+      "cards": [
+        {
+          "_comment": "Slot 1: Art Card",
+          "_comment2": "There are 81 total possible borderless art cards. 95% of those opened will be regular and 5% will be foil stamped with an artist signature or Planeswalker symbol.",
+          "query": "from[aznr-art-cards]",
+          "setValues": { "modifiers": [ "Normal" ] }
+        },
+        {
+          "_comment": "Slot 2: Basic Land",
+          "_comment2": "There are 10 total possible basic lands. 85% of those opened will be regular and 15% will be traditional foil",
+          "query": "from[znr]?type='Basic Land'"
+        },
+        {
+          "_comment": "Slot 3-8: 6x Connected C/U",
+          "_comment2": "6 Common or uncommon cards, of which at least one is uncommon (in any combination of regular cards) – Common cards will tell a story and be thematically connected to other commons. Uncommon cards will be connected to other uncommons",
+          "query": "from[znr-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[znr-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[znr-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[znr-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "query": "from[znr-booster]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "_comment": "Slot 8: U (the 'guaranteed' uncommon from above)",
+          "query": "from[znr-booster]?rarity='u'"
+        },
+        {
+          "_comment": "Slot 9: Head-Turning Slot: C/U showcase or normal?",
+          "_comment2": "You will get a common or uncommon that is either a showcase card or a card that's a cool element of the set that we haven't talked about yet",
+          "query": "from[znr-main-and-showcase]?rarity=rarityByWeight2008(cu)"
+        },
+        {
+          "_comment": "Slot 10-11: C/U/R/M showcase or normal?",
+          "_comment2": "These two slots can basically be anything from common to mythic rare. It is possible to get showcase versions of rares and mythic rares in these slots. (The common and uncommon showcase cards appear in the previous slot.) Note that neither of these is your rare slot, so any rares or mythic rares you get in these two slots are extra ones in the booster. The rarity of each slot is independent, so you have the potential to get two mythic rares here.",
+          "query": "from[znr-main-and-showcase]?rarity=rarityByWeight2008(curm)"
+        },
+        {
+          "_comment": "Slot 10-11: C/U/R/M showcase or normal?",
+          "_comment2": "These two slots can basically be anything from common to mythic rare. It is possible to get showcase versions of rares and mythic rares in these slots. (The common and uncommon showcase cards appear in the previous slot.) Note that neither of these is your rare slot, so any rares or mythic rares you get in these two slots are extra ones in the booster. The rarity of each slot is independent, so you have the potential to get two mythic rares here.",
+          "query": "from[znr-main-and-showcase]?rarity=rarityByWeight2008(curm)"
+        },
+        {
+          "_comment": "Slot 12: R/M",
+          "_comment2": "The first slot here is your rare/mythic rare slot. This was the most exciting thing in the Draft Boosters, so we couldn't get rid of that. This acts just like the rare/mythic rare slot that you've grown to know and love in Draft Boosters.",
+          "query": "from[znr-booster]?rarity=rarityByWeight2008(rm)"
+        },
+        {
+          "_comment": "Slot 13: Foil: C/U/R/M",
+          "_comment2": "A lot of players enjoy foils, so we decided to just make a slot where you get a foil in every pack. This slot can be any rarity, so yes, this is another place where you can get a rare or mythic rare.",
+          "query": "from[znr-foils]?rarity=rarityByWeight2008(curm)",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 14: Token/Ad or The List",
+          "_comment2": "1 Token/ad card (75%), or a card from The List (25%) – The List is a collection of 300 cards from Magic's history that we have brought together for this special slot. We have rotated in 50 new reprints that we feel help capture the feel of Modern Horizons 2. Inclusion of cards from The List doesn't impact what formats the card is legal in",
+          "query": "from[{{setCode}}]?token=true"
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 1: Art Card",
+              "_comment2": "There are 81 total possible borderless art cards. 95% of those opened will be regular and 5% will be foil stamped with an artist signature or Planeswalker symbol.",
+              "overrideSlot": "1",
+              "percent": "5",
+              "query": "from[aznr-art-cards]",
+              "setValues": { "modifiers": [ "Foil Stamped" ] }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 2: Basic Land",
+              "_comment2": "There are 10 total possible basic lands. 85% of those opened will be regular and 15% will be traditional foil",
+              "query": "from[znr]?type='Basic Land'",
+              "overrideSlot": "2",
+              "percent": "15",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 14: Token/Ad or The List",
+              "_comment2": "1 Token/ad card (75%), or a card from The List (25%) – The List is a collection of 300 cards from Magic's history that we have brought together for this special slot. We have rotated in 50 new reprints that we feel help capture the feel of Modern Horizons 2. Inclusion of cards from The List doesn't impact what formats the card is legal in",
+              "query": "from[the-list]?rarity=rarityByWeight2008(curm)",
+              "overrideSlot": "14",
+              "percent": "25"
+            }
+          ]
+        }
+
+      ]
+    },
+
+    {
+      "packName": "znr-prerelease-promo-packins",
+      "packDesc": "Zendikar Rising: Prerelease Packins",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "querySet": [
+            {
+              "percent": "7/8",
+              "query": "from[znr-main]?rarity='r",
+              "setValues": {
+                "foil": true
+              }
+            },
+            {
+              "percent": "1/8",
+              "query": "from[znr-main]?rarity='m",
+              "setValues": {
+                "foil": true
+              }
+            }
+          ]
+        },
+        { "query": "take[1]>from[znr-promo]?type='Life Counter'" },
+        { "query": "from[znr-promo]?title='Prerelease Deck Box" },
+        { "query": "from[znr-promo]?title='Deckbuilding Advice Insert" }
+      ]
+    },
+    {
+      "packName": "znr-prerelease-promos",
+      "packDesc": "Zendikar Rising: Prerelease Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[znr-promo]?includedReason='Prerelease Promo" }
+      ]
+    },
+
+    {
+      "_comment": "Collector Boosters were introduced as standard feature as of ELD",
+      "packName": "znr-collector",
+      "packDesc": "Zendikar Rising: Collector Booster",
+      "packVersion": "1.0",
+      "sources": [ "https://magic.wizards.com/en/articles/archive/feature/collecting-zendikar-rising-2020-09-01" ],
+      "isGenerated": true,
+      "cards": [
+        {
+          "_comment": "Slot 1: Foil: Expedition, showcase, borderless, or extended art R/M",
+          "query": "from[znr-showcase-and-borderless]?rarity='c",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 2: Foil: R/M",
+          "query": "from[znr-showcase-and-borderless]?rarity='c",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 3: Nonfoil: Showcase or borderless R/M",
+          "query": "from[znr-showcase-and-borderless]?rarity='r"
+        },
+        {
+          "_comment": "Slot 4: Nonfoil: Extended art R/M",
+          "query": "take[2]>from[znr-showcase-and-borderless]?rarity='c"
+        },
+        {
+          "_comment": "Slot 5: Foil: showcase C/U",
+          "query": "take[2]>from[znr-regular-and-extended-art]?rarity='r",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 6-7: Nonfoil: showcase C/U",
+          "query": "from[znr-extended-art]?rarity='r"
+        },
+        {
+          "_comment": "Slot 8-9: Foil: uncommons",
+          "query": "from[znr-basic-land]?showcaseCard=true",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 10-14: Foil: uncommons",
+          "query": "take[2]>from[znr-main]?rarity='u",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 1: Foil: full-art basic land",
+          "query": "take[4]>from[znr-main-without-showcase]?rarity='c",
+          "setValues": { "foil": true }
+        },
+        {
+          "_comment": "Slot 15: Foil: token",
+          "query": "from[znr-token]-from[znr-token]?marketing=true",
+          "setValues": { "foil": true }
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 1: override Foil: showcase CURM or borderless URM",
+              "overrideSlot": "1",
+              "percent": "24/112",
+              "query": "from[znr-showcase-and-borderless]?rarity='u'",
+              "setValues": { "foil": true }
+            },
+            {
+              "overrideSlot": "1",
+              "percent": "7/112",
+              "query": "from[znr-showcase-and-borderless]?rarity='r'",
+              "setValues": { "foil": true }
+            },
+            {
+              "overrideSlot": "1",
+              "percent": "1/112",
+              "query": "from[znr-showcase-and-borderless]?rarity='m'",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 2: override Foil: showcase CU or borderless U",
+              "overrideSlot": "2",
+              "percent": "3/11",
+              "query": "from[znr-showcase-and-borderless]?rarity='u'",
+              "setValues": { "foil": true }
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 3: override Nonfoil: showcase RM or borderless RM",
+              "overrideSlot": "3",
+              "percent": "1/8",
+              "query": "from[znr-showcase-and-borderless]?rarity='m'"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 4: override Nonfoil: showcase CU or borderless U",
+              "overrideSlot": "4",
+              "percent": "3/11",
+              "query": "from[znr-showcase-and-borderless]?rarity='u'"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 5: override Nonfoil: showcase CU or borderless U",
+              "overrideSlot": "5",
+              "percent": "3/11",
+              "query": "from[znr-showcase-and-borderless]?rarity='u'"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 6: override Foil: standard frame or extended art frame RM",
+              "overrideSlot": "6",
+              "percent": "1/8",
+              "query": "from[znr-regular-and-extended-art]?rarity='m"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 7: override Foil: standard frame or extended art frame RM",
+              "overrideSlot": "7",
+              "percent": "1/8",
+              "query": "from[znr-regular-and-extended-art]?rarity='m"
+            }
+          ]
+        },
+        {
+          "querySet": [
+            {
+              "_comment": "Slot 8: override Nonfoil: extended art RM",
+              "overrideSlot": "8",
+              "percent": "1/8",
+              "query": "from[znr-extended-art]?rarity='m"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "znr-variants",
+      "packDesc": "Zendikar Rising: All Variants",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[znr-variants]"
+        }
+      ]
+    },
+
+    {
+      "packName": "znr-promos",
+      "packDesc": "Zendikar Rising: All Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[znr-promo]"
+        }
+      ]
+    },
+
+    {
+      "packName": "aznr-art-cards",
+      "packDesc": "Zendikar Rising: Art Cards",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[aznr-art-cards]"
+        }
+      ]
+    },
+
+    {
+      "packName": "the-list",
+      "packDesc": "Zendikar Rising: The List",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        {
+          "query": "take[*]>from[the-list]"
+        }
+      ]
+    }
+
+  ]
+}

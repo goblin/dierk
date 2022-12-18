@@ -1,0 +1,147 @@
+{
+  "setCode": "stx",
+  "cardDataUrl": "",
+  "imagesUrl": "",
+  "exceptions": [
+    {
+      "_comment": {
+        "generatedUsing": "card-exception-generator.html",
+        "settings": {
+          "setCode": "stx",
+          "cardImageUrl": "https://magic.wizards.com/en/articles/archive/card-preview/tokens-stx-and-c21-2021-04-15",
+          "requiredImageWidth": "265",
+          "requiredImageHeight": "370",
+          "startingCardNum": "",
+          "cardPattern": "001|m|Token Creature|Avatar\n002|m|Token Creature|Elemental\n003|m|Token Creature|Fractal\n004|m|Token Creature|Inkling\n005|m|Token Creature|Pest\n006|m|Token Creature|Spirit\n007|m|Token Artifact|Treasure\n008|m|Emblem|Lukka Wayward Bonder\n009|m|Emblem|Rowan Scholar of Sparks"
+        }
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_86i4Ook51O.png",
+        "num": "001",
+        "colour": "m",
+        "type": "Token Creature",
+        "title": "Avatar",
+        "subtype": "Avatar",
+        "numInt": 1
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_9TudRQ0nQA.png",
+        "num": "002",
+        "colour": "m",
+        "type": "Token Creature",
+        "title": "Elemental",
+        "subtype": "Elemental",
+        "numInt": 2
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_HXyaXLt8Sd.png",
+        "num": "003",
+        "colour": "m",
+        "type": "Token Creature",
+        "title": "Fractal",
+        "subtype": "Fractal",
+        "numInt": 3
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_cC2UosKXng.png",
+        "num": "004",
+        "colour": "m",
+        "type": "Token Creature",
+        "title": "Inkling",
+        "subtype": "Inkling",
+        "numInt": 4
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_VF9Pkbckd6.png",
+        "num": "005",
+        "colour": "m",
+        "type": "Token Creature",
+        "title": "Pest",
+        "subtype": "Pest",
+        "numInt": 5
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_UGjqTddQfc.png",
+        "num": "006",
+        "colour": "m",
+        "type": "Token Creature",
+        "title": "Spirit",
+        "subtype": "Spirit",
+        "numInt": 6
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_rNuFANCh1U.png",
+        "num": "007",
+        "colour": "m",
+        "type": "Token Artifact",
+        "title": "Treasure",
+        "subtype": "Treasure",
+        "numInt": 7
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_nNQvnRWmEh.png",
+        "num": "008",
+        "colour": "m",
+        "type": "Emblem",
+        "title": "Lukka Wayward Bonder",
+        "subtype": "Lukka Wayward Bonder",
+        "numInt": 8
+      }
+    },
+    {
+      "add": true,
+      "newValues": {
+        "set": "stx",
+        "src": "https://media.wizards.com/2021/stx/en_lM263eh0WZ.png",
+        "num": "009",
+        "colour": "m",
+        "type": "Emblem",
+        "title": "Rowan Scholar of Sparks",
+        "subtype": "Rowan Scholar of Sparks",
+        "numInt": 9
+      }
+    },
+    {
+      "where": "",
+      "newValues": {
+        "set": "{{setCode}}",
+        "rarity": "c",
+        "num": "{{num}}/009 T",
+        "token": true,
+        "usableForDeckBuilding": false
+      }
+    }
+  ]
+}

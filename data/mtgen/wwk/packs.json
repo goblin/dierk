@@ -1,0 +1,118 @@
+{
+  "defs": [
+    {
+      "defName": "wwk",
+      "query": "from[*]?set='wwk"
+    },
+    {
+      "defName": "zen",
+      "query": "from[*]?set='zen"
+    },
+    {
+      "defName": "wwk-main",
+      "query": "from[wwk]-from[wwk]?type='Basic Land'-from[*]?usableForDeckBuilding=false-from[wwk]?promo=true"
+    },
+    {
+      "defName": "wwk-foil",
+      "query": "from[wwk-main]+from[zen]?type='Basic Land'"
+    },
+    {
+      "defName": "wwk-promo",
+      "query": "from[wwk]?promo=true"
+    }
+  ],
+  "packs": [
+    {
+      "packName": "wwk-all-cards",
+      "packDesc": "Worldwake: All Cards",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[wwk]" }
+      ]
+    },
+    {
+      "packName": "wwk-standard",
+      "packDesc": "Worldwake: Standard Booster",
+      "isGenerated": true,
+      "cards": [
+        { "query": "take[10]>from[wwk-main]?rarity='c'" },
+        { "query": "take[3]>from[wwk-main]?rarity='u'" },
+        { "query": "from[wwk-main]?rarity=rarityByWeight2008(rm)" },
+        { "query": "from[zen]?type='Basic Land'" },
+        {
+          "querySet": [
+            {
+              "_comment": "Expansions are 2/3 ratio of tokens/tips",
+              "percent": "2/3",
+              "query": "from[{{setCode}}]?token=true"
+            },
+            {
+              "percent": "1/3",
+              "query": "from[{{setCode}}]?tip=true"
+            }
+          ]
+        },
+
+        {
+          "querySet": [
+            {
+              "_comment": "Early sets had 1/67 cards as foil, equating to 15/67 (~20%) chance a booster had a foil, and as of TSP it replaces a common.",
+              "percent": "15/67",
+              "overrideSlot": "10",
+              "query": "from[wwk-foil]?rarity=rarityByWeight2008(curm)",
+              "setValues": { "foil": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "packName": "wwk-promos",
+      "packDesc": "Worldwake: Promos",
+      "isGenerated": false,
+      "includeWithUserCards": false,
+      "cards": [
+        { "query": "take[*]>from[wwk-promo]" }
+      ]
+    },
+    {
+      "packName": "wwk-fat-pack-pack-ins",
+      "packDesc": "Worldwake Fat Pack: Pack-Ins",
+      "isGenerated": false,
+      "cards": [
+        { "query": "take[*]>from[wwk]?title=(Worldwake Player?s Guide|Worldwake Test of Metal Sample Book Chapter|Worldwake Mural|Worldwake Rules Reference Card)" },
+        {
+          "query": "from[wwk-fatpack]?type='Life Counter'",
+          "canBeDuplicate": true
+        }
+      ]
+    },
+    {
+      "packName": "wwk-fat-pack-land",
+      "packDesc": "Worldwake Fat Pack: Land",
+      "isGenerated": false,
+      "cards": [
+        {
+          "query": "take[16]>from[wwk]?title='Plains'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[16]>from[wwk]?title='Island'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[16]>from[wwk]?title='Swamp'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[16]>from[wwk]?title='Forest'",
+          "canBeDuplicate": true
+        },
+        {
+          "query": "take[16]>from[wwk]?title='Mountain'",
+          "canBeDuplicate": true
+        }
+      ]
+    }
+  ]
+}

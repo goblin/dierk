@@ -1,0 +1,122 @@
+[
+  {
+    "src": "http://mtgen.net/cards/som-fat-pack-players-guide.png",
+    "set": "som",
+    "title": "Scars of Mirrodin Player?s Guide",
+    "colour": "o",
+    "num": "001 Fat Pack",
+    "rarity": "c",
+    "type": "Player's Guide",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-fat-pack-card-box.png",
+    "set": "som",
+    "title": "Scars of Mirrodin Card Box",
+    "colour": "o",
+    "num": "002 Fat Pack",
+    "rarity": "c",
+    "type": "Card Box",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-fat-pack-mural.png",
+    "set": "som",
+    "title": "Scars of Mirrodin Mural",
+    "colour": "o",
+    "num": "003 Fat Pack",
+    "rarity": "c",
+    "type": "Mural",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-fat-pack-sample-chapter.png",
+    "set": "som",
+    "title": "Scars of Mirrodin Test of Metal Sample Book Chapter",
+    "colour": "o",
+    "num": "004 Fat Pack",
+    "rarity": "c",
+    "type": "Sample Chapter",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-fat-pack-rules-reference-card.png",
+    "title": "Scars of Mirrodin Rules Reference Card",
+    "set": "som",
+    "colour": "o",
+    "num": "005 Fat Pack",
+    "rarity": "c",
+    "type": "Rules Reference Card",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-spindown-life-counter-white.png",
+    "set": "som",
+    "title": "White Spindown Life Counter",
+    "colour": "o",
+    "num": "006 Counter",
+    "rarity": "c",
+    "type": "Life Counter",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-spindown-life-counter-blue.png",
+    "set": "som",
+    "title": "Blue Spindown Life Counter",
+    "colour": "o",
+    "num": "007 Counter",
+    "rarity": "c",
+    "type": "Life Counter",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-spindown-life-counter-black.png",
+    "set": "som",
+    "title": "Black Spindown Life Counter",
+    "colour": "o",
+    "num": "008 Counter",
+    "rarity": "c",
+    "type": "Life Counter",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-spindown-life-counter-red.png",
+    "set": "som",
+    "title": "Red Spindown Life Counter",
+    "colour": "o",
+    "num": "009 Counter",
+    "rarity": "c",
+    "type": "Life Counter",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  },
+  {
+    "src": "http://mtgen.net/cards/som-spindown-life-counter-green.png",
+    "set": "som",
+    "title": "Green Spindown Life Counter",
+    "colour": "o",
+    "num": "010 Counter",
+    "rarity": "c",
+    "type": "Life Counter",
+    "promo": "true",
+    "includedReason": "Fat Pack Pack-In",
+    "usableForDeckBuilding": false
+  }
+]

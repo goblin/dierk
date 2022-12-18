@@ -1,0 +1,50 @@
+﻿{
+  "startProductName": "dgm-prerelease",
+  "packFiles": [
+    "packs.json?v2.2",
+    "../gtc/packs.json",
+    "../rtr/packs.json"
+  ],
+  "cardFiles": [
+    "cardsMain.json",
+    "cardsToken.json",
+    "cardsOther.json",
+    "../gtc/cardsMain.json",
+    "../gtc/cardsToken.json",
+    "../gtc/cardsOther.json",
+    "../rtr/cardsMain.json",
+    "../rtr/cardsToken.json",
+    "../rtr/cardsOther.json",
+    "../cards/ads/cardsAds.json"
+  ],
+  "updates": [
+    {
+      "UpdateDate": "2021-07-03T23:30:00:00",
+      "HtmlString": "Updated marketing cards to be more accurate for set, plus set chances as 1:3 token:marketing for core sets, 2:3 for expansions, and 9:1 as of Battle for Zendikar."
+    },
+    {
+      "UpdateDate": "2021-06-25T23:30:00:00",
+      "HtmlString": "Updated foil chances. Now 15/67 chance a booster has a foil, includes basic lands, and staring with this set, it always replaces a common."
+    },
+    {
+      "UpdateDate": "2017-11-02T00:00:00",
+      "HtmlString": "Evening: Fixed most of the guild packs which were all switched around."
+    },
+    {
+      "UpdateDate": "2017-02-08T23:00:00",
+      "HtmlString": "Evening: Fixed card data to import shocklands from rtr/gtc instead of re-creating them as dgm card (which they aren't)."
+    },
+    {
+      "UpdateDate": "2014-09-02T00:00:00",
+      "HtmlString": "Evening: Upgraded to newest version, added all Prerelease pack-ins, Fat Packs, and guild sorting."
+    },
+    {
+      "UpdateDate": "2014-04-25T00:00:00",
+      "HtmlString": "13:00 MST: Added the ability to export your generated cards to the .dec format (used by Magic Online, Cockatrice, and Apprentice), .coll format (used by Decked Builder), and .cod format (used by Cockatrice)."
+    },
+    {
+      "UpdateDate": "2014-04-25T00:00:00",
+      "HtmlString": "23:30 MST: Welcome Reddit! Holy crap you guys know how to send traffic. Based on feedback I've fixed: The land slot now gives a 95% chance of a Guild Gate, 4% chance of a Shockland, and a 1% chance of Maze's End. Despite the weird Europe mis-print, this generator no longer allows foil Shocklands."
+    }
+  ]
+}

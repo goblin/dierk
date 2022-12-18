@@ -1,0 +1,84 @@
+{
+  "_comment": "if there are no options the query/packNames will be auto-run",
+  "products": [
+    {
+      "productName": "sok-all-cards",
+      "productDesc": "All Cards",
+      "sources": [ "http://mtgjson.com/json/sok.json", "http://mtgsalvation.gamepedia.com/Saviors_of_Kamigawa" ],
+      "isGenerated": false,
+      "initialSort": "colour",
+      "packs": [
+        { "packName": "sok-all-cards" }
+      ]
+    },
+    {
+      "productName": "sok-boosters",
+      "productDesc": "Boosters",
+      "sources": [ "http://mtgsalvation.gamepedia.com/Saviors_of_Kamigawa" ],
+      "isGenerated": true,
+      "initialSort": "set",
+      "packs": [
+        { "packName": "sok-standard" }
+      ],
+      "options": {
+        "presets": [
+          {
+            "presetName": "sok-boosters-six",
+            "presetDesc": "Six Boosters",
+            "default": true,
+            "packs": [
+              {
+                "count": 6,
+                "defaultPackName": "sok-standard"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "productName": "sok-prerelease",
+      "productDesc": "Prerelease",
+      "isVisible": true,
+      "sources": [ "http://mtgsalvation.gamepedia.com/Saviors_of_Kamigawa" ],
+      "isGenerated": true,
+      "initialSort": "set",
+      "packs": [
+        { "packName": "sok-standard" },
+        { "packName": "sok-prerelease-promos" }
+      ],
+      "options": {
+        "presets": [
+          {
+            "presetName": "sok-prerelease",
+            "presetDesc": "Prerelease Pack",
+            "default": true,
+            "packs": [
+              {
+                "count": 1,
+                "defaultPackName": "sok-prerelease-promos"
+              },
+              {
+                "count": 6,
+                "defaultPackName": "sok-standard"
+              }
+            ]
+          }
+        ]
+      }
+
+    },
+    {
+      "productName": "sok-promos",
+      "productDesc": "All Promos",
+      "sources": [ "http://mtgsalvation.gamepedia.com/Saviors_of_Kamigawa" ],
+      "isGenerated": false,
+      "isVisible": true,
+      "initialSort": "name",
+      "packs": [
+        { "packName": "sok-promos" }
+      ]
+    }
+
+  ]
+}

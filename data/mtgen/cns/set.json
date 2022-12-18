@@ -1,0 +1,34 @@
+﻿{
+  "startProductName": "cns-boosters",
+  "packFiles": [
+    "packs.json?v1.2"
+  ],
+  "cardFiles": [
+    "cardsMain.json",
+    "cardsToken.json",
+    "cardsOther.json",
+    "../cards/ads/cardsAds.json"
+  ],
+  "updates": [
+    {
+      "UpdateDate": "2021-07-03T23:30:00:00",
+      "HtmlString": "Updated marketing cards to be more accurate for set, plus set chances as 1:3 token:marketing for core sets, 2:3 for expansions, and 9:1 as of Battle for Zendikar."
+    },
+    {
+      "UpdateDate": "2021-06-25T23:30:00:00",
+      "HtmlString": "Updated foil chances. Now 15/67 chance a booster has a foil, includes basic lands, and staring with this set, it always replaces a common."
+    },
+    {
+      "UpdateDate": "2017-03-14",
+      "HtmlString": "Evening: Adjusted Mythic rare chance from 1 in 4 packs to 1 in 8 packs."
+    },
+    {
+      "UpdateDate": "2014-08-23T00:00:00",
+      "HtmlString": "Upgraded to the new generator version."
+    },
+    {
+      "UpdateDate": "2014-05-29T00:00:00",
+      "HtmlString": "Morning: The land slot now replaced with a Conspiracy on Construct card (50/50 chance), and that's the only place you get get one. Thanks, boocat!"
+    }
+  ]
+}
