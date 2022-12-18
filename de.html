@@ -4,8 +4,15 @@
 <meta charset="UTF-8">
 <title>dierk/de - Dierk MTG Deck Editor</title>
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/christianbach/tablesorter/master/themes/blue/style.css">
-<link rel="stylesheet" href="jquery/jquery-ui-1.12.1/jquery-ui.min.css">
+<link rel="stylesheet" href="jquery/jquery-ui-1.13.2/jquery-ui.min.css">
 <style>
+
+:root {
+	--img-width: 265px;
+	--img-height: 370px;
+	--rulings-width: 66em;
+}
+
 body {
 	background-color: #1f1e1e;
 	color: white;
@@ -45,11 +52,13 @@ table.tablesorter tr:hover .popup {
 	left: 20em; 
 	top: 10em;
 	background: black;
-    max-width: 70em;
+	max-width: calc(5em + var(--rulings-width) + var(--img-width));
+	max-height: calc(100vh - 10em);
+	overflow: auto;
 	color: lightgray;
 	padding: 1em;       
 	margin-top: 0em;
-	z-index: 1;
+	z-index: 100;
 }
 
 #div_superparent {
@@ -124,6 +133,21 @@ div .div_table_top {
 
 div .div_table_bottom {
 	font-size: 11pt;
+}
+
+div .popup-img {
+	display: inline-block;
+	float: left;
+}
+
+div .popup-img > img {
+	width: var(--img-width);
+	height: var(--img-height);
+}
+
+div .popup-rulings {
+	float: left;
+	max-width: var(--rulings-width);
 }
 
 @supports (display: flex) {
@@ -204,7 +228,7 @@ div .div_table_bottom {
 <script src="./de_bundle.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdn.rawgit.com/christianbach/tablesorter/master/jquery.tablesorter.min.js"></script>
-<script src="jquery/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+<script src="jquery/jquery-ui-1.13.2/jquery-ui.min.js"></script>
 
 
 <script>
@@ -243,17 +267,18 @@ function me(text) {
 function get_popup_for_card(c) {
 	var rulings_head = '';
 	var rulings_disp = 'none';
-	if(c.mtgjson.rulings) {
+	if(c.rulings.length > 0) {
 		rulings_head = 'Rulings:';
 		rulings_disp = 'inline-block';
 	}
+	const img = c.image_display
 
-	var rv = '<div style="display: inline-block; float: left;"><img src="' + 
-		c.src + '"></img></div><div style="display: ' + rulings_disp + '; float: left; max-width: 40em;">' +
+	var rv = '<div class="popup-img"><img src="' + 
+		img + '"></img></div><div class="popup-rulings" style="display: ' + rulings_disp + '">' +
 		rulings_head + '<ul>';
 
-	for(var r in c.mtgjson.rulings) {
-		rv += '<li>' + me(c.mtgjson.rulings[r].text) + '</li>';
+	for(var r in c.rulings) {
+		rv += '<li>' + me(c.rulings[r].text) + '</li>';
 	}
 	
 	rv += '</div></ul>';
@@ -298,43 +323,55 @@ function row_click(where, ev, tbl, tbln) {
 }
 
 function pt(c) {
-	return deck_editor.Card.pt(c);
+	return deck_editor.Card.fmt_pt(c);
 }
 function get_setnum(c) {
-	return deck_editor.Card.get_setnum(c);
+	return deck_editor.Card.fmt_setnum(c);
+}
+
+function get_color(c) {
+	if(c.colors.length == 1) {
+		return c.colors[0][0]
+	}
+	if(c.colors.length == 0) {
+		return 'a'
+	}
+	return 'm'
 }
 
 function card2row(c, table_el, tbln) {
-	var set_descs = deck_editor.set_descs;
-	var popup = get_popup_for_card(c);
+	let popup = get_popup_for_card(c);
 
-	var first_row = '<b>' + c.mtgjson.name + '</b><b>' + pt(c) + '</b>' + 
-		'<span style="float: right;">' + me(c.mtgjson.manaCost) + '</span><br />' +
-		'<span class="card_text">' + me(c.mtgjson.text);
+	let first_row = '<b>' + c.name + '</b><b>' + pt(c) + '</b>' + 
+		'<span style="float: right;">' + me(c.manaCost) + '</span><br />' +
+		'<span class="card_text">' + me(c.text);
 
-	if(c.mtgjson.layout == 'double-faced' || c.mtgjson.layout == 'meld') {
-		var back = deck_editor.Card.get_backside(c);
+	if(c.otherFaces) {
+		const back = c.otherFaces[0]
 
-		var str = (c.mtgjson.layout == 'double-faced') ? 'backside' : 'melds into';
+		const str = (c.layout == 'meld') ? 'melds into' : 'other face';
 
-		first_row += '<br />' + str + ':<br /><b>' + back.mtgjson.name + 
+		first_row += '<br />' + str + ':<br /><b>' + back.name + 
 			pt(back) + '</b> ' +
 			'(' + me(back.subtype) + ')<br />' +
-			me(back.mtgjson.text);
-		popup += get_popup_for_card(back);
+			me(back.text);
+
+		if(c.layout != 'split') {
+			popup += get_popup_for_card(back);
+		}
 	}
 
 	first_row += '</span><div class="popup">' + popup + '</div>';
 
-	var tr = document.createElement('tr');
+	let tr = document.createElement('tr');
 	tr.addEventListener('click', function(ev) {
 		row_click(tr, ev, table_el, tbln);
 	});
 	tr.innerHTML = '<td>' + first_row + '</td>' +
-		'<td class="exp">' + c.set + '</td>' +
+		'<td class="exp">' + c.setCode + '</td>' +
 		'<td class="exp">' + get_setnum(c) + '</td>' +
-		'<td class="exp">' + me(c.mtgjson.cmc) + '</td>' +
-		'<td class="exp">' + c.colour + '</td>' +
+		'<td class="exp">' + me(c.convertedManaCost) + '</td>' +
+		'<td class="exp">' + get_color(c) + '</td>' +
 		'<td class="exp">' + c.type + '</td>' +
 		'<td class="exp">' + me(c.subtype) + '</td>' +
 		'<td class="exp">' + c.rarity + '</td>' +
@@ -354,43 +391,41 @@ function create_button(text, cb) {
 	return rv;
 }
 
-function export_deck(deck) {
+async function export_deck(deck) {
 	var deck_el = document.getElementById('deck');
 	var full = document.getElementById('export_full').checked;
-	deck_el.value = deck.export_(full);
+	deck_el.value = await deck.export_(full);
 }
 
-function load_deck(tbln, deck) {
+async function load_deck(tbln, deck) {
 	var table_el = document.getElementById(tbln + 'b');
 
-	deck.for_each(function(c) {
-		if(deck_editor.Card.usable(c)) {
-			table_el.appendChild(card2row(c, table_el, tbln));
-		}
+	await deck.for_each(function(c) {
+		table_el.appendChild(card2row(c, table_el, tbln));
 	});
 	
 	$('#' + tbln).trigger('update');
 }
 
 function get_export_func(deck) {
-	return function() {
-		export_deck(deck);
+	return async function() {
+		await export_deck(deck);
 	}
 }
 
 function get_load_func(tbln, deck) {
-	return function() {
-		load_deck(tbln, deck);
+	return async function() {
+		await load_deck(tbln, deck);
 	}
 }
 
 function get_delete_func(deckname) {
-	return function(){ 
-		deck_editor.deck_list.delete_deck(deckname);
+	return async function(){ 
+		await deck_editor.deck_list.delete_deck(deckname);
 	}
 }
 
-function decklist_changed(decklist) {
+async function decklist_changed(decklist) {
 	var el = document.getElementById('decklist');
 	while(el.firstChild)
 		el.removeChild(el.firstChild);
@@ -405,7 +440,7 @@ function decklist_changed(decklist) {
 		boldname.appendChild(document.createTextNode(deckname));
 		n.appendChild(boldname);
 		n.appendChild(document.createElement('br'));
-		n.appendChild(document.createTextNode(deck.stats()));
+		n.appendChild(document.createTextNode(await deck.stats()));
 		n.appendChild(document.createElement('br'));
 		n.appendChild(create_button('export', get_export_func(deck)));
 		n.appendChild(create_button('T1', get_load_func('T1', deck)));
@@ -418,18 +453,18 @@ function decklist_changed(decklist) {
 	do_sizing();
 }
 
-function deck_from_argseed() {
+async function deck_from_argseed() {
 	var args = get_args();
 	var seed = args.seed;
 	var setstr = args.sets;
 	
 	var seed_list = new deck_editor.SeedCardList(seed, setstr);
-	deck_editor.deck_list.add_deck(seed_list.get_name(), seed_list);
+	await deck_editor.deck_list.add_deck(seed_list.get_name(), seed_list);
 
 	return seed_list;
 }
 
-function start() {
+async function start() {
 	if(typeof(Storage) === 'undefined') {
 		alert("This browser doesn't support Web Storage. The decks won't get saved.");
 	}
@@ -437,9 +472,10 @@ function start() {
 	document.getElementById('loading').innerHTML = 'Indexing cards, almost there...';
 
 	deck_editor = new window.deck_editor(decklist_changed);
-	var argseed = deck_from_argseed();
+	await deck_editor.init()
 
 	document.getElementById('loading').style.display = 'none';
+	var argseed = await deck_from_argseed();
 
 	load_deck('T1', argseed);
 }
@@ -455,7 +491,7 @@ function iterate_selection(tbln, cb) {
 	}
 }
 
-function to_deck(tbln) {
+async function to_deck(tbln) {
 	var deck = new deck_editor.ArrayCardList();
 
 	iterate_selection(tbln, function(card) {
@@ -463,7 +499,7 @@ function to_deck(tbln) {
 	});
 
 	var name = document.getElementById(tbln + 'name').value;
-	deck_editor.deck_list.add_deck(name, deck);
+	await deck_editor.deck_list.add_deck(name, deck);
 }
 
 function to_table(from, to) {
@@ -567,17 +603,17 @@ function limit_to_selected(tbln) {
 	$('#' + tbln).trigger('update');
 }
 
-function import_deck() {
+async function import_deck() {
 	var data = document.getElementById('deck').value;
 	var deck = new deck_editor.ArrayCardList();
-	var res = deck.import_(data);
+	let res = await deck.import_(data);
 
 	if(res != '') {
 		alert("Import problems:\n" + res);
 	}
 
 	var name = document.getElementById('imp_name').value;
-	deck_editor.deck_list.add_deck(name, deck);
+	await deck_editor.deck_list.add_deck(name, deck);
 }
 
 function do_sizing() {
@@ -640,7 +676,7 @@ $(document).ready(function() {
 				<input type="button" onclick="select_all('T1', false);" value="select none" />
 				<input type="button" onclick="invert_selection('T1');" value="invert selection" />
 				<input type="button" onclick="cap24('T1');" value="cap to 4" />
-				<input type="button" onclick="limit_to_selected('T1');" value="limit to selected only" />
+				<input type="button" onclick="limit_to_selected('T1');" value="delete unselected" />
 				<label><input type="checkbox" onchange="set_cardtext('T1', this);" checked="checked"/>card text</label>
 				<label><input type="checkbox" onchange="set_selectable('T1', this);" id="selectable_T1" checked="checked"/>selectable</label>
 				<label><input type="checkbox" onchange="set_overlay('T1', this);" checked="checked"/>overlay</label>
@@ -694,7 +730,7 @@ $(document).ready(function() {
 						<input type="button" onclick="select_all('T2', false);" value="select none" />
 						<input type="button" onclick="invert_selection('T2');" value="invert selection" />
 						<input type="button" onclick="cap24('T2');" value="cap to 4" />
-						<input type="button" onclick="limit_to_selected('T2');" value="limit to selected only" />
+						<input type="button" onclick="limit_to_selected('T2');" value="delete unselected" />
 						<label><input type="checkbox" onchange="set_cardtext('T2', this);" />card text</label>
 						<label><input type="checkbox" onchange="set_selectable('T2', this);" id="selectable_T2" checked="checked"/>selectable</label>
 						<label><input type="checkbox" onchange="set_overlay('T2', this);" checked="checked"/>overlay</label>
@@ -735,7 +771,7 @@ $(document).ready(function() {
 						<input type="button" onclick="select_all('T3', false);" value="select none" />
 						<input type="button" onclick="invert_selection('T3');" value="invert selection" />
 						<input type="button" onclick="cap24('T3');" value="cap to 4" />
-						<input type="button" onclick="limit_to_selected('T3');" value="limit to selected only" />
+						<input type="button" onclick="limit_to_selected('T3');" value="delete unselected" />
 						<label><input type="checkbox" onchange="set_cardtext('T3', this);" />card text</label>
 						<label><input type="checkbox" onchange="set_selectable('T3', this);" id="selectable_T3" checked="checked"/>selectable</label>
 						<label><input type="checkbox" onchange="set_overlay('T3', this);" checked="checked"/>overlay</label>
