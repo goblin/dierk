@@ -70,16 +70,22 @@ Let me know if you come up with a better name than "private" and "public key".
 
 INSTALLATION
 
+You can just serve the branch gh-pages.
+
+If you need to recreate gh-pages after changing the source (or want
+to update it), read on.
+
 You need the mtgen package from https://github.com/copperdogma/mtgen
 Actually, currently you need at least the 'modularity' branch from
 https://github.com/goblin/mtgen/tree/modularity.
-You'll also need the AllPrintings.json from mtgjson.net.
+You'll also need the default-cards-*.json and rulings-*.json from
+https://scryfall.com/docs/api/bulk-data .
 
 After checking out, run this:
 
 $ mkdir data
-$ ln -s /path/to/mtgen/mtgen/wwwroot data/mtgen
-$ ./recreate_data.py data < AllPrintings.json
+$ cp -R /path/to/mtgen/mtgen/wwwroot data/mtgen
+$ ./recreate_data.py rulings-*.json data < default-cards-*.json
 $ npm install
 $ ./node_modules/.bin/browserify de.js -o de_bundle.js
 $ ./node_modules/.bin/browserify dierk.js -o dierk_bundle.js

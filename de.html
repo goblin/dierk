@@ -7,12 +7,6 @@
 <link rel="stylesheet" href="jquery/jquery-ui-1.13.2/jquery-ui.min.css">
 <style>
 
-:root {
-	--img-width: 265px;
-	--img-height: 370px;
-	--rulings-width: 66em;
-}
-
 body {
 	background-color: #1f1e1e;
 	color: white;
@@ -52,8 +46,8 @@ table.tablesorter tr:hover .popup {
 	left: 20em; 
 	top: 10em;
 	background: black;
-	max-width: calc(5em + var(--rulings-width) + var(--img-width));
 	max-height: calc(100vh - 10em);
+	max-width: calc(100vw - 20em);
 	overflow: auto;
 	color: lightgray;
 	padding: 1em;       
@@ -141,13 +135,17 @@ div .popup-img {
 }
 
 div .popup-img > img {
-	width: var(--img-width);
-	height: var(--img-height);
+	max-height: 370px;
+	width: auto;
 }
 
 div .popup-rulings {
 	float: left;
-	max-width: var(--rulings-width);
+	max-width: 66em;
+}
+
+span.card_text i {
+	color: #bbb;
 }
 
 @supports (display: flex) {
@@ -255,7 +253,7 @@ function mana_escape(text) {
 	res = res.
 		replace(/\n/g, '<br />').
 		replace(/\{T\}/g, '{tap}').
-		replace(/\{([0-9A-Za-z]+)\}/g, '<img src="http://gatherer.wizards.com/Handlers/Image.ashx?size=small&name=$1&type=symbol" alt="{$1}" align="absbottom"></img>');
+		replace(/\{([0-9A-Za-z]+)\}/g, '<img src="https://gatherer.wizards.com/Handlers/Image.ashx?size=small&name=$1&type=symbol" alt="{$1}" align="absbottom"></img>');
 
 	return res;
 }
@@ -265,20 +263,25 @@ function me(text) {
 }
 
 function get_popup_for_card(c) {
-	var rulings_head = '';
-	var rulings_disp = 'none';
-	if(c.rulings.length > 0) {
+	let rulings_head = '';
+	let rulings_disp = 'none';
+
+	const rulings = c.rulings || []
+	if(rulings.length > 0) {
 		rulings_head = 'Rulings:';
 		rulings_disp = 'inline-block';
 	}
-	const img = c.image_display
 
-	var rv = '<div class="popup-img"><img src="' + 
-		img + '"></img></div><div class="popup-rulings" style="display: ' + rulings_disp + '">' +
+	let rv = '<div class="popup-img">'
+	for(const img of c.display_imgs) {
+		rv += '<img src="' + img + '"></img>'
+	}
+
+	rv += '</div><div class="popup-rulings" style="display: ' + rulings_disp + '">' +
 		rulings_head + '<ul>';
 
-	for(var r in c.rulings) {
-		rv += '<li>' + me(c.rulings[r].text) + '</li>';
+	for(const ruling of rulings) {
+		rv += '<li>' + me(ruling.text) + '</li>';
 	}
 	
 	rv += '</div></ul>';
@@ -330,10 +333,10 @@ function get_setnum(c) {
 }
 
 function get_color(c) {
-	if(c.colors.length == 1) {
-		return c.colors[0][0]
+	if(c.color_identity.length == 1) {
+		return c.color_identity[0][0]
 	}
-	if(c.colors.length == 0) {
+	if(c.color_identity.length == 0) {
 		return 'a'
 	}
 	return 'm'
@@ -342,23 +345,28 @@ function get_color(c) {
 function card2row(c, table_el, tbln) {
 	let popup = get_popup_for_card(c);
 
+	let faces = c.faces || []
+	let mana_cost = c.mana_cost
+	if(mana_cost === undefined && faces[0] !== undefined) {
+		mana_cost = faces[0].mana_cost
+	}
+
 	let first_row = '<b>' + c.name + '</b><b>' + pt(c) + '</b>' + 
-		'<span style="float: right;">' + me(c.manaCost) + '</span><br />' +
-		'<span class="card_text">' + me(c.text);
+		'<span style="float: right;">' + me(mana_cost) + '</span>' +
+		'<br /><span class="card_text">' + me(c.oracle_text);
 
-	if(c.otherFaces) {
-		const back = c.otherFaces[0]
+	if(c.layout == 'meld') {
+		faces = [faces[1]]
+	}
 
-		const str = (c.layout == 'meld') ? 'melds into' : 'other face';
+	for(const i in faces) {
+		const face = faces[i]
+		const str = (c.layout == 'meld') ? 'melds into' : ('face ' + (parseInt(i)+1));
 
-		first_row += '<br />' + str + ':<br /><b>' + back.name + 
-			pt(back) + '</b> ' +
-			'(' + me(back.subtype) + ')<br />' +
-			me(back.text);
-
-		if(c.layout != 'split') {
-			popup += get_popup_for_card(back);
-		}
+		first_row += '<br /><i>' + str + ':</i><br /><b>' + face.name + 
+			pt(face) + '</b> ' +
+			'(' + me(face.subtype) + ')<br />' +
+			me(face.oracle_text);
 	}
 
 	first_row += '</span><div class="popup">' + popup + '</div>';
@@ -368,9 +376,9 @@ function card2row(c, table_el, tbln) {
 		row_click(tr, ev, table_el, tbln);
 	});
 	tr.innerHTML = '<td>' + first_row + '</td>' +
-		'<td class="exp">' + c.setCode + '</td>' +
+		'<td class="exp">' + c.set + '</td>' +
 		'<td class="exp">' + get_setnum(c) + '</td>' +
-		'<td class="exp">' + me(c.convertedManaCost) + '</td>' +
+		'<td class="exp">' + me(c.cmc) + '</td>' +
 		'<td class="exp">' + get_color(c) + '</td>' +
 		'<td class="exp">' + c.type + '</td>' +
 		'<td class="exp">' + me(c.subtype) + '</td>' +

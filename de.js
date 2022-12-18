@@ -4,14 +4,14 @@ const mtgdata = new MTGData()
 // I don't want to convert all the Card objects in the JSON
 class Card {
 	static fmt_setnum(card, prepend_set) {
-		if(card.number === undefined)
+		if(card.collector_number === undefined)
 			return undefined;
 
 		// TODO: dubious
-		let num = '00' + card.number.replace(/a$/, '');
+		let num = '00' + card.collector_number.replace(/a$/, '');
 		num = num.substr(num.length-3, 3);
 
-		return (prepend_set ? (card.setCode + ':') : '') + num;
+		return (prepend_set ? (card.set + ':') : '') + num;
 	}
 
 	static fmt_pt(c) {
@@ -38,25 +38,25 @@ class Card {
 			if(!submatch)
 				throw "invalid card setnum: " + str;
 
-			let set = submatch[1].toUpperCase();
+			let set = submatch[1].toLowerCase();
 
 			// TODO: check if it works; for now I think mtgdata doesn't contain leading zeroes
 			//let num = '00' + parseInt(submatch[2]).toString();
 			//num = num.substr(num.length-3, 3);
 			let num = submatch[2]
 
-			try {
-				return await mtgdata.lookup_card_by_set_and_num(set, num)
-			} catch(e) {
-				throw `card not found: ${str} (${e})`
+			const rv = await mtgdata.lookup_card_by_set_and_num(set, num)
+			if(!rv) {
+				throw 'card not found'
 			}
+			return rv
 		}
 
-		try {
-			return await mtgdata.lookup_card_by_name(name)
-		} catch(e) {
-			throw `card not found: ${str} (${e})`
+		const rv = await mtgdata.lookup_card_by_name(name)
+		if(!rv) {
+			throw 'card not found'
 		}
+		return rv
 	}
 }
 
@@ -75,7 +75,7 @@ class CardList {
 
 		await this.for_each(function(c) {
 			var setnum = '[' + Card.fmt_setnum(c, true) + '] ';
-			var name = (full ? setnum: '') + (c.faceName || c.name);
+			var name = (full ? setnum: '') + c.name;
 
 			if(last != name)
 				flush();
@@ -160,7 +160,7 @@ class SeedCardList extends CardList {
 			for(let j = 0; j < num; j++) {
 				const curseed = this.#seed + '_' + set + '.' + product + '_' + j
 
-				const mtgset = await mtgdata.get_set_by_code(set.toUpperCase())
+				const mtgset = await mtgdata.get_set_by_code(set)
 				await mtgdata.init_mtgen(mtgset)
 
 				mtgset.seed_mtgen(curseed)
@@ -221,7 +221,7 @@ class ArrayCardList extends CardList {
 				try {
 					for(var j = 0; j < cnt; j++) {
 						const card = await Card.from_str(name)
-						await this.#cards.push(card);
+						this.#cards.push(card);
 					}
 				} catch(e) {
 					err += "error with line " + line + ": " + e + "\n";
