@@ -392,9 +392,11 @@ function create_button(text, cb) {
 }
 
 async function export_deck(deck) {
-	var deck_el = document.getElementById('deck');
-	var full = document.getElementById('export_full').checked;
-	deck_el.value = await deck.export_(full);
+	const deck_el = document.getElementById('deck');
+	const full = document.getElementById('export_full').checked;
+	const showseed = document.getElementById('show_seed').checked;
+
+	deck_el.value = await deck.export_(full, showseed);
 }
 
 async function load_deck(tbln, deck) {
@@ -711,6 +713,7 @@ $(document).ready(function() {
 				<ul id="decklist"></ul>
 				<input type="button" onclick="deck_from_argseed();" value="new from seed" />
 				<label><input type="checkbox" checked="checked" id="export_full"/>export for xmage</label>
+				<label><input type="checkbox" id="show_seed"/>show seed</label>
 				<textarea rows="4" cols="40" id="deck"></textarea>
 				<input type="text" value="Imported Deck" size="30" id="imp_name" />
 				<input type="button" onclick="import_deck();" value="import" />

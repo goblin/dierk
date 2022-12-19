@@ -71,12 +71,14 @@ Let me know if you come up with a better name than "private" and "public key".
 INSTALLATION
 
 You need the mtgen package from https://github.com/copperdogma/mtgen
+Actually, currently you need at least the 'modularity' branch from
+https://github.com/goblin/mtgen/tree/modularity.
 You'll also need the AllPrintings.json from mtgjson.net.
 
 After checking out, run this:
 
 $ mkdir data
-$ ln -s /path/to/mtgen data/mtgen
+$ ln -s /path/to/mtgen/mtgen/wwwroot data/mtgen
 $ ./recreate_data.py data < AllPrintings.json
 $ npm install
 $ ./node_modules/.bin/browserify de.js -o de_bundle.js
