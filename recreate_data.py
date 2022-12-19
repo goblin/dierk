@@ -7,8 +7,9 @@ import hashlib
 import gzip
 import os
 
-# feed it AllPrintings.json from mtgjson.net on stdin (tested on version 5.2.0+20221213)
-# first argument is the directory in which to put the results
+# feed it default-cards-*.json from scryfall on stdin
+# first argument is rulings-*.json from scryfall
+# second argument is the directory in which to put the results (should already be mkdir'ed)
 
 if not sys.version_info >= (3, 9):
 	raise RuntimeError('need newish pythons (older might actually work, havent checked)')
@@ -67,13 +68,15 @@ def write_compressed_json(fname, data):
 
 # hashes cardnames with the shortest hash size which doesn't produce
 # conflicts, while keeping a few bits reserved for encoding the set
-def hash_cards(cards, reserved_bits, try_len=4):
+def hash_cards(cards, set_ids, reserved_bits, try_len=4):
 	cardnames = list(cards.keys())
 	hashed_names = hash_list(cardnames, try_len, reserved_bits)
 	sorted_hashed_names = sorted(zip(hashed_names, cardnames))
 	if check_if_repeats(map(lambda x: x[0], sorted_hashed_names)):
-		return hash_cards(cards, reserved_bits, try_len+1)
-	encoded = map(lambda x: encode_hash(x[0], cards[x[1]], reserved_bits), sorted_hashed_names)
+		return hash_cards(cards, set_ids, reserved_bits, try_len+1)
+	encoded = map(lambda x:
+			encode_hash(x[0], set_ids[cards[x[1]]['scryfall_data']['set']], reserved_bits),
+			sorted_hashed_names)
 	return encoded, try_len
 
 # lut = LookUp Table
@@ -82,26 +85,17 @@ def hash_cards(cards, reserved_bits, try_len=4):
 # the entries are in binary form of a fixed length of x + y;
 # first x bits are the blake2b hash of the card's name, last y bits
 # encode the set number
-def write_card_lut(allsets, output_dir):
-	sets_by_release_date = list(allsets.keys())
-	sets_by_release_date.sort(reverse=True, key = lambda x: allsets[x]['releaseDate'])
+def write_card_lut(card_idx, output_dir):
+	sets_sorted = sorted(card_idx['by_set'].keys())
 
-	write_compressed_json(output_dir + 'set_codes.json.gz', sets_by_release_date)
+	write_compressed_json(output_dir + 'set_codes.json.gz', sets_sorted)
 
-	cards = {}
+	set_ids = {}
+	for idx, setcode in enumerate(sets_sorted):
+		set_ids[setcode] = idx
 
-	def add(name, idx):
-		if cards.get(name) is None:
-			cards[name] = idx
-
-	for idx, mtgset in enumerate(sets_by_release_date):
-		for card in allsets[mtgset]['cards']:
-			add(card['name'], idx)
-			if card.get('faceName') is not None:
-				add(card['faceName'], idx)
-
-	setnum_bits = get_bits_needed(len(sets_by_release_date))
-	hashed_cards, elem_size = hash_cards(cards, setnum_bits)
+	setnum_bits = get_bits_needed(len(sets_sorted))
+	hashed_cards, elem_size = hash_cards(card_idx['by_name'], set_ids, setnum_bits)
 
 	with gzip.open(output_dir + 'card_lut.bin.gz', mode='wb', compresslevel=9) as f:
 		for hc in hashed_cards:
@@ -120,89 +114,190 @@ def pick(srcdict, keys):
 
 	return rv
 
-def join_words(srcdict, key):
-	if srcdict.get(key) is None:
-		return ''
-	else:
-		return ' '.join(srcdict[key])
+def parse_types(typeline):
+	supertypes = [ 'Basic', 'Legendary', 'Ongoing', 'Snow', 'World', 'Elite', 'Host' ]
+	longdash = ' — '
+
+	categories = typeline.split(longdash, 2)
+
+	rv = { 'supertypes': [], 'types': [], 'subtypes': [],
+			'supertypes_str': '', 'types_str': '', 'subtypes_str': '' }
+
+	for word in categories[0].split(' '):
+		if word in supertypes:
+			rv['supertypes'].append(word)
+		else:
+			rv['types'].append(word)
+	
+	if len(categories) > 1:
+		for word in categories[1].split(' '):
+			rv['subtypes'].append(word)
+
+	rv['supertypes_str'] = ' '.join(rv['supertypes'])
+	rv['types_str'] = ' '.join(rv['types'])
+	rv['subtypes_str'] = ' '.join(rv['subtypes'])
+
+	return rv
 
 def extract_important_simple(card):
-	rv = pick(card, ['name', 'text', 'manaCost',
-		'setCode', 'convertedManaCost',
-		'rarity', 'power', 'toughness', 'rulings',
-		'layout', 'otherFaceIds', 'side', 'uuid',
-		'faceName', 'loyalty'])
+	rv = pick(card, ['name', 'oracle_text', 'mana_cost',
+		'set', 'cmc', 'rarity', 'power', 'toughness',
+		'layout', 'loyalty', 'color_identity',
+		'collector_number'])
 
-	rv['type'] = join_words(card, 'types')
-	rv['subtype'] = join_words(card, 'subtypes')
-	rv['colors'] = card['colorIdentity']
+	if card.get('type_line'):
+		types = parse_types(card['type_line'])
 
-	if card['identifiers'].get('multiverseId') is not None:
-		rv['multiverseId'] = card['identifiers']['multiverseId']
+		rv['type'] = types['types_str']
+		rv['subtype'] = types['subtypes_str']
+		rv['supertype'] = types['supertypes_str']
+
+	return rv
+
+def add_image(dst, card):
+	uris = card.get('image_uris')
+	if uris is None:
+		print(f'\nno image for {card["name"]}', file=sys.stderr)
+		return
+
+	dst['display_imgs'].append(uris['border_crop'])
+	dst['print_imgs'].append(uris['large'])
+
+def add_faces(dst, card):
+	dst['faces'] = []
+
+	for face in card['card_faces']:
+		dst['faces'].append(extract_important_simple(face))
+
+def find_meld_result(card_parts, card_id_idx):
+	for part in card_parts:
+		if part['component'] == 'meld_result':
+			return card_id_idx[part['id']]['scryfall_data']
+
+	raise LookupError(f'meld result not found')
+
+def process_meld(dst, card, card_id_idx):
+	result = find_meld_result(card['all_parts'], card_id_idx)
+	add_image(dst, card)
+	add_image(dst, result)
+	dst['faces'] = list(map(lambda x: extract_important_simple(x), [card, result]))
+
+def extract_important(card, card_id_idx):
+	cdata = card['scryfall_data']
+	rv = extract_important_simple(cdata)
+	rv['scryfallId'] = cdata['id']
+	rv['rulings'] = card['scryfall_rulings']
+
+	rv['display_imgs'] = []
+	rv['print_imgs'] = []
+
+	if cdata['layout'] == 'meld':
+		process_meld(rv, cdata, card_id_idx)
+	elif any(cdata['layout'] == el for el in ['split', 'flip', 'adventure']):
+		add_faces(rv, cdata)
+		add_image(rv, cdata)
+	elif any(cdata['layout'] == el for el in ['transform', 'modal_dfc', 'double_faced_token']):
+		add_faces(rv, cdata)
+		add_image(rv, cdata['card_faces'][0])
+		add_image(rv, cdata['card_faces'][1])
 	else:
-		#print(f'no mvid for {card["uuid"]}', file=sys.stderr)
-		pass
-	rv['scryfallId'] = card['identifiers']['scryfallId']
-
-	return rv
-
-def find_other_faces(src_card, set_cards):
-	rv = []
-	for card in set_cards:
-		if card['uuid'] in src_card['otherFaceIds']:
-			rv.append(card)
-
-	return rv
-
-def extract_important(card, set_cards):
-	rv = extract_important_simple(card)
-
-	if card.get('side') is not None:
-		if card['side'] == 'a':
-			others = find_other_faces(card, set_cards)
-			rv['otherFaces'] = list(map(lambda x: extract_important_simple(x), others))
-		else:
-			return None
+		add_image(rv, cdata)
 
 	return rv
 
 def progress(string):
 	print(string, file=sys.stderr, flush=True, end='')
 
-def write_sets(allsets, output_dir):
+def write_sets(card_idx, output_dir):
 	try:
 		os.mkdir(output_dir + 'sets')
 	except:
 		pass
 
 	count = 1
-	for set_code, set_data in allsets.items():
-		progress(f'\r[{count}/{len(allsets)}] {set_code}...   ')
+	for set_code, set_data in card_idx['by_set'].items():
+		progress(f'\r[{count}/{len(card_idx["by_set"])}] {set_code}...   ')
 		count += 1
 
 		cards = {}
-		for card in set_data['cards']:
-			imp = extract_important(card, set_data['cards'])
+		for card_num, card_data in set_data.items():
+			imp = extract_important(card_data, card_idx['by_id'])
 
 			if imp is not None:
-				if cards.get(card['number']):
-					raise ValueError(f'set {set_code} has duplicate card number {card["number"]}')
-				cards[card['number']] = imp
+				cards[card_num] = imp
 
 		write_compressed_json(output_dir + 'sets/' + set_code + '.json.gz', cards)
 
-def recreate_sets(allprintings, output_dir):
-	allsets = allprintings['data']
-	progress('generating lookup table... ')
-	write_card_lut(allsets, output_dir)
+def index_rulings(rulings):
+	rv = {}
+
+	for ruling in rulings:
+		orid = ruling['oracle_id']
+		entry = rv.get(orid) or []
+		entry.append({'text': ruling['comment']})
+		rv[orid] = entry
+
+	return rv
+
+def index_cards(cards, rulings_idx):
+	rv = { 'by_set': {}, 'by_name': {}, 'by_id': {} }
+
+	def index_card_by_set(setcode, cardnum, card):
+		setdata = rv['by_set'].get(setcode) or {}
+		if setdata.get(cardnum):
+			raise RuntimeError(f'card {cardnum} is duplicated in set {setcode}')
+		setdata[cardnum] = card
+		rv['by_set'][setcode] = setdata
+
+	def index_card_by_name(name, card):
+		prev = rv['by_name'].get(name)
+		if prev and prev['scryfall_data']['released_at'] > card['scryfall_data']['released_at']:
+			return
+		rv['by_name'][name] = card
+		faces = card['scryfall_data'].get('card_faces') or []
+		for face in faces:
+			rv['by_name'][face['name']] = card
+
+	def index_card_by_id(id_, card):
+		if rv['by_id'].get(id_) is not None:
+			raise RuntimeError(f'card id {id_} is duplicated')
+		rv['by_id'][id_] = card
+
+	for card in cards:
+		if card['layout'] == 'reversible_card':
+			# reversible cards seem not to have an oracle_id, despite the
+			# API docs saying all cards have it. We can skip them, because
+			# there always exists a non-reversible version of it (with
+			# a more reasonable artwork)
+			continue
+		if card['layout'] == 'art_series':
+			# these cards often don't contain images, and are pretty useless too
+			continue
+		recard = { 'scryfall_data': card, 'scryfall_rulings': rulings_idx.get(card['oracle_id']) }
+		index_card_by_set(card['set'], card['collector_number'], recard)
+		index_card_by_name(card['name'], recard)
+		index_card_by_id(card['id'], recard)
+
+	return rv
+
+def recreate_sets(cards, rulings, output_dir):
+	progress('indexing rulings... ')
+	rulings_idx = index_rulings(rulings)
+	progress('done.\nindexing cards... ')
+	card_idx = index_cards(cards, rulings_idx)
+	progress('done.\ngenerating lookup table... ')
+	write_card_lut(card_idx, output_dir)
 	progress('done.\ngenerating sets...\n')
-	write_sets(allsets, output_dir)
+	write_sets(card_idx, output_dir)
 
 if __name__ == '__main__':
-	output_dir = sys.argv[1] + '/'
+	output_dir = sys.argv[2] + '/'
 	progress('loading stdin... ')
-	allprintings = json.load(sys.stdin)
+	cards = json.load(sys.stdin)
+	progress('done.\nloading rulings... ')
+	with open(sys.argv[1], 'r') as r:
+		rulings = json.load(r)
 	progress('done.\n')
 
-	recreate_sets(allprintings, output_dir)
+	recreate_sets(cards, rulings, output_dir)
 	progress('\nall done.\n')

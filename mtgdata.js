@@ -33,12 +33,11 @@ class MTGSet {
 
 		for(const [cnum, cdata] of Object.entries(this.#data)) {
 			this.#name_idx[cdata['name']] = cnum
-			const faceName = cdata['faceName']
-			if(faceName) {
-				this.#name_idx[faceName] = cnum
-			}
 
-			this.augment_data(cnum)
+			for(const face of cdata['faces'] || []) {
+				const facename = face['name']
+				this.#name_idx[facename] = cnum
+			}
 		}
 	}
 
@@ -89,27 +88,6 @@ class MTGSet {
 		await this.#mtgen.runWithoutBrowser(options, '', () => {}, () => {})
 	}
 
-	// private
-	augment_data(num) {
-		const datum = this.#data[num]
-		datum['number'] = num
-
-		function add_image(c) {
-			const id = c['scryfallId']
-			const trail = `${id[0]}/${id[1]}/${id}.jpg`
-			c['image_display'] = `https://cards.scryfall.io/normal/front/${trail}`
-			c['image_print'] = `https://cards.scryfall.io/large/front/${trail}`
-		}
-
-		add_image(datum)
-
-		const others = datum.otherFaces || []
-		for (const otherFace of others) {
-			add_image(otherFace)
-		}
-
-	}
-
 	get_card_by_num(num) {
 		let mynum = '' + num // we sometimes get ints
 		mynum = mynum.replace(/^0*/, '') // we sometimes get leading zeroes
@@ -145,18 +123,18 @@ class MTGSet {
 		for(const i of booster) {
 			if(i.usableForDeckBuilding) {
 				let rv
-				const ucset = i['set'].toUpperCase()
+				const lcset = i['set'].toLowerCase()
 
 				// an EMN booster can produce cards from SOI (ie. a Forest)
-				if(ucset == this.code) {
+				if(lcset == this.code) {
 					rv = this.get_card_by_num(i['num'])
 				} else {
-					rv = await this.#mtgdata.lookup_card_by_set_and_num(ucset, i['num'])
+					rv = await this.#mtgdata.lookup_card_by_set_and_num(lcset, i['num'])
 				}
 
 				// KLD has "Revoke Privileges" with "num":"00?"
 				if(rv === undefined) {
-					rv = await this.#mtgdata.lookup_card_by_set_and_name(ucset, i['title'])
+					rv = await this.#mtgdata.lookup_card_by_set_and_name(lcset, i['title'])
 				}
 				if(rv === undefined) {
 					rv = await this.#mtgdata.lookup_card_by_name(i['title'])
