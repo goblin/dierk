@@ -24,7 +24,8 @@ of this format:
 
 https://goblin.github.io/dierk/#players=alice,bob;sets=30soi,20emn,30kld,20aer
 
-The order in which boosters are listed matters.
+The order in which boosters are listed no longer matters (since December
+2022).
 
 Newer sets may require an mtgen product name (currently you have to look
 it up manually on mtgen.net), such as 'bro-draft' from the 'bro' set:
