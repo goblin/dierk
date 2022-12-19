@@ -62,7 +62,7 @@ class Card {
 }
 
 class CardList {
-	async export_(full) {
+	async export_(full, showseed) {
 		var res = '';
 		var last;
 		var cnt = 0;
@@ -83,9 +83,13 @@ class CardList {
 
 			cnt++;
 			last = name;
-		}, function() {
+		}, function(seed) {
 			flush();
 			res += "\n";
+		}, function(seed) {
+			if(showseed) {
+				res += `# ${seed}\n`
+			}
 		});
 		flush();
 
@@ -141,7 +145,6 @@ class SeedCardList extends CardList {
 	// private
 	async *for_each_booster() {
 		const setlist = this.#setstr.split(',');
-		let idx = 0
 		for(const i in setlist) {
 			let match = setlist[i].match(/^(\d+)(...)\.(.*)$/);
 			if(!match) {
@@ -156,25 +159,29 @@ class SeedCardList extends CardList {
 			const product = match[3] || set + '-standard';
 
 			for(let j = 0; j < num; j++) {
-				const curseed = this.#seed + '_' + idx
-				idx += 1
+				const curseed = this.#seed + '_' + set + '.' + product + '_' + j
 
 				const mtgset = await mtgdata.get_set_by_code(set.toUpperCase())
 				await mtgdata.init_mtgen(mtgset)
 
 				mtgset.seed_mtgen(curseed)
-				yield mtgset.generate_booster(product)
+				yield [curseed, mtgset.generate_booster(product)]
 			}
 		}
 	}
 
-	async for_each(cb, booster_done_cb) {
-		for await (const boost of this.for_each_booster()) {
+	async for_each(cb, booster_done_cb, seed_cb) {
+		for await (const pair of this.for_each_booster()) {
+			const seed = pair[0]
+			const boost = pair[1]
+			if(seed_cb) {
+				seed_cb(seed)
+			}
 			for await (const card of boost) {
 				cb(card)
 			}
 			if(booster_done_cb) {
-				booster_done_cb()
+				booster_done_cb(seed)
 			}
 		}
 	}
