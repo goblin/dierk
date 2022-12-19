@@ -86,6 +86,7 @@ After checking out, run this:
 $ mkdir data
 $ cp -R /path/to/mtgen/mtgen/wwwroot data/mtgen
 $ ./recreate_data.py rulings-*.json data < default-cards-*.json
+$ ./get_symbology.py > symbology.json
 $ npm install
 $ ./node_modules/.bin/browserify de.js -o de_bundle.js
 $ ./node_modules/.bin/browserify dierk.js -o dierk_bundle.js

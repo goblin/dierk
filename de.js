@@ -1,5 +1,6 @@
 const MTGData = require('./mtgdata.js')
 const mtgdata = new MTGData()
+const symbology = require('./symbology.json')
 
 // I don't want to convert all the Card objects in the JSON
 class Card {
@@ -278,6 +279,7 @@ function to_export(on_decklist_change) {
 		"SeedCardList": SeedCardList,
 		"ArrayCardList": ArrayCardList,
 		"deck_list": new DeckList(on_decklist_change),
+		"symbology": symbology,
 		"init": init
 	};
 }
