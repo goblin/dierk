@@ -148,6 +148,11 @@ span.card_text i {
 	color: #bbb;
 }
 
+img.symbol {
+	vertical-align: middle;
+	width: 1.1em;
+}
+
 @supports (display: flex) {
 	div .div_table_main {
 		overflow: hidden;
@@ -245,15 +250,19 @@ function get_args() {
 }
 
 function mana_escape(text) {
-	var res = text;
+	let res = text;
 	if(res === undefined)
 		res = ''
 	res = res.toString();
 
+	const syms = deck_editor.symbology;
+
 	res = res.
 		replace(/\n/g, '<br />').
-		replace(/\{T\}/g, '{tap}').
-		replace(/\{([0-9A-Za-z]+)\}/g, '<img src="https://gatherer.wizards.com/Handlers/Image.ashx?size=small&name=$1&type=symbol" alt="{$1}" align="absbottom"></img>');
+		replace(/\{([^}]*)\}/g, (m, p1) => {
+			sym = syms[p1]
+			return `<img class="symbol" src="${sym['uri']}" alt="${sym['alt']}"></img>`
+		})
 
 	return res;
 }
