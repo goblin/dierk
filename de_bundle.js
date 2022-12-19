@@ -12,7 +12,7 @@ class Card {
 		let num = '00' + card.collector_number.replace(/a$/, '');
 		num = num.substr(num.length-3, 3);
 
-		return (prepend_set ? (card.set + ':') : '') + num;
+		return (prepend_set ? (card.set.toUpperCase() + ':') : '') + num;
 	}
 
 	static fmt_pt(c) {
