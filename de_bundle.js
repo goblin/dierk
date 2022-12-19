@@ -5,14 +5,14 @@ const mtgdata = new MTGData()
 // I don't want to convert all the Card objects in the JSON
 class Card {
 	static fmt_setnum(card, prepend_set) {
-		if(card.number === undefined)
+		if(card.collector_number === undefined)
 			return undefined;
 
 		// TODO: dubious
-		let num = '00' + card.number.replace(/a$/, '');
+		let num = '00' + card.collector_number.replace(/a$/, '');
 		num = num.substr(num.length-3, 3);
 
-		return (prepend_set ? (card.setCode + ':') : '') + num;
+		return (prepend_set ? (card.set + ':') : '') + num;
 	}
 
 	static fmt_pt(c) {
@@ -39,25 +39,25 @@ class Card {
 			if(!submatch)
 				throw "invalid card setnum: " + str;
 
-			let set = submatch[1].toUpperCase();
+			let set = submatch[1].toLowerCase();
 
 			// TODO: check if it works; for now I think mtgdata doesn't contain leading zeroes
 			//let num = '00' + parseInt(submatch[2]).toString();
 			//num = num.substr(num.length-3, 3);
 			let num = submatch[2]
 
-			try {
-				return await mtgdata.lookup_card_by_set_and_num(set, num)
-			} catch(e) {
-				throw `card not found: ${str} (${e})`
+			const rv = await mtgdata.lookup_card_by_set_and_num(set, num)
+			if(!rv) {
+				throw 'card not found'
 			}
+			return rv
 		}
 
-		try {
-			return await mtgdata.lookup_card_by_name(name)
-		} catch(e) {
-			throw `card not found: ${str} (${e})`
+		const rv = await mtgdata.lookup_card_by_name(name)
+		if(!rv) {
+			throw 'card not found'
 		}
+		return rv
 	}
 }
 
@@ -76,7 +76,7 @@ class CardList {
 
 		await this.for_each(function(c) {
 			var setnum = '[' + Card.fmt_setnum(c, true) + '] ';
-			var name = (full ? setnum: '') + (c.faceName || c.name);
+			var name = (full ? setnum: '') + c.name;
 
 			if(last != name)
 				flush();
@@ -161,7 +161,7 @@ class SeedCardList extends CardList {
 			for(let j = 0; j < num; j++) {
 				const curseed = this.#seed + '_' + set + '.' + product + '_' + j
 
-				const mtgset = await mtgdata.get_set_by_code(set.toUpperCase())
+				const mtgset = await mtgdata.get_set_by_code(set)
 				await mtgdata.init_mtgen(mtgset)
 
 				mtgset.seed_mtgen(curseed)
@@ -222,7 +222,7 @@ class ArrayCardList extends CardList {
 				try {
 					for(var j = 0; j < cnt; j++) {
 						const card = await Card.from_str(name)
-						await this.#cards.push(card);
+						this.#cards.push(card);
 					}
 				} catch(e) {
 					err += "error with line " + line + ": " + e + "\n";
@@ -323,12 +323,11 @@ class MTGSet {
 
 		for(const [cnum, cdata] of Object.entries(this.#data)) {
 			this.#name_idx[cdata['name']] = cnum
-			const faceName = cdata['faceName']
-			if(faceName) {
-				this.#name_idx[faceName] = cnum
-			}
 
-			this.augment_data(cnum)
+			for(const face of cdata['faces'] || []) {
+				const facename = face['name']
+				this.#name_idx[facename] = cnum
+			}
 		}
 	}
 
@@ -379,27 +378,6 @@ class MTGSet {
 		await this.#mtgen.runWithoutBrowser(options, '', () => {}, () => {})
 	}
 
-	// private
-	augment_data(num) {
-		const datum = this.#data[num]
-		datum['number'] = num
-
-		function add_image(c) {
-			const id = c['scryfallId']
-			const trail = `${id[0]}/${id[1]}/${id}.jpg`
-			c['image_display'] = `https://cards.scryfall.io/normal/front/${trail}`
-			c['image_print'] = `https://cards.scryfall.io/large/front/${trail}`
-		}
-
-		add_image(datum)
-
-		const others = datum.otherFaces || []
-		for (const otherFace of others) {
-			add_image(otherFace)
-		}
-
-	}
-
 	get_card_by_num(num) {
 		let mynum = '' + num // we sometimes get ints
 		mynum = mynum.replace(/^0*/, '') // we sometimes get leading zeroes
@@ -435,18 +413,18 @@ class MTGSet {
 		for(const i of booster) {
 			if(i.usableForDeckBuilding) {
 				let rv
-				const ucset = i['set'].toUpperCase()
+				const lcset = i['set'].toLowerCase()
 
 				// an EMN booster can produce cards from SOI (ie. a Forest)
-				if(ucset == this.code) {
+				if(lcset == this.code) {
 					rv = this.get_card_by_num(i['num'])
 				} else {
-					rv = await this.#mtgdata.lookup_card_by_set_and_num(ucset, i['num'])
+					rv = await this.#mtgdata.lookup_card_by_set_and_num(lcset, i['num'])
 				}
 
 				// KLD has "Revoke Privileges" with "num":"00?"
 				if(rv === undefined) {
-					rv = await this.#mtgdata.lookup_card_by_set_and_name(ucset, i['title'])
+					rv = await this.#mtgdata.lookup_card_by_set_and_name(lcset, i['title'])
 				}
 				if(rv === undefined) {
 					rv = await this.#mtgdata.lookup_card_by_name(i['title'])
