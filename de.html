@@ -16,6 +16,12 @@ body {
 input {
 	font-size: 8pt;
 }
+button {
+	font-size: 8pt;
+}
+select {
+	font-size: 8pt;
+}
 span {
 	font-size: 8pt;
 }
@@ -27,21 +33,24 @@ li {
 }
 table.tablesorter {
 	background-color: gray;
+	border-collapse: collapse;
 }
 table.tablesorter tbody td {
 	background-color: #1f1e1e;
 	color: white;
+	border: 1px solid black;
+	padding-top: 1px;
+	padding-bottom: 1px;
 }
 table.tablesorter thead th {
 	color: black;
+	border: 1px solid black;
 }
 table.tablesorter tr.clicked td {
 	background-color: #404040;
 }
 table.tablesorter tr .popup {
 	display: none;
-}
-table.tablesorter tr:hover .popup {
 	position: fixed; 
 	left: 20em; 
 	top: 10em;
@@ -52,7 +61,10 @@ table.tablesorter tr:hover .popup {
 	color: lightgray;
 	padding: 1em;       
 	margin-top: 0em;
-	z-index: 100;
+}
+div.div_table_main.active table.tablesorter tbody tr.cursor {
+	outline: 2px solid darkblue;
+	outline-offset: -2px;
 }
 
 #div_superparent {
@@ -121,6 +133,33 @@ div .div_table_main {
 	overflow: auto;
 }
 
+div.div_table_main.active b.tblname {
+	color: lightgreen;
+}
+
+/* fancy but meh */
+/* 
+div.div_table_main.active span.kbd::before {
+	content: '[';
+}
+div.div_table_main.active span.kbd::after {
+	content: ']';
+}
+*/
+
+div.div_table_main.active span.kbd {
+	color: lightgreen;
+	text-decoration: underline;
+}
+
+div.div_table_main.active button span.kbd {
+	color: darkgreen;
+}
+
+span.kbd.hidden {
+	display: none;
+}
+
 div .div_table_top {
 	font-size: 12pt;
 }
@@ -144,13 +183,21 @@ div .popup-rulings {
 	max-width: 66em;
 }
 
-span.card_text i {
+div.card_text {
+	padding-bottom: 1ex;
+}
+
+div.card_text i {
 	color: #bbb;
 }
 
 img.symbol {
 	vertical-align: middle;
 	width: 1.1em;
+	margin-left: 0.1em;
+	margin-right: 0.1em;
+	margin-top: -0.1em;
+	margin-bottom: -0.1em;
 }
 
 @supports (display: flex) {
@@ -177,51 +224,42 @@ img.symbol {
 	height: 4px;
 }
 
-</style>
-<style>
-#T1 td {
+div.div_table_main td {
 	user-select: none;
 	cursor: default;
 }
-#T1 tr:hover .popup {
+div.div_table_main.selectable_enabled td {
+	user-select: auto;
+	cursor: auto;
+}
+
+div.div_table_main tr:hover .popup {
+	display: none;
+}
+div.div_table_main.overlay_enabled tr:hover .popup {
+	display: block;
+	z-index: 101;
+}
+
+div.div_table_main.cursor_overlay_enabled tr.cursor .popup {
+	display: block;
+	z-index: 100;
+}
+
+div.div_table_main div.card_text {
+	display: none;
+}
+div.div_table_main.cardtext_enabled div.card_text {
 	display: block;
 }
-#T1 span.card_text {
-	display: inline;
-}
-#T1 .exp {
+
+div.div_table_main .exp {
 	display: table-cell;
 }
-</style>
-<style>
-#T2 td {
-	user-select: none;
-	cursor: default;
-}
-#T2 tr:hover .popup {
-	display: block;
-}
-#T2 span.card_text {
+div.div_table_main.compact_enabled .exp {
 	display: none;
 }
-#T2 .exp {
-	display: none;
-}
-</style>
-<style>
-#T3 td {
-	user-select: none;
-	cursor: default;
-}
-#T3 tr:hover .popup {
-	display: block;
-}
-#T3 span.card_text {
-	display: none;
-}
-#T3 .exp {
-	display: none;
-}
+
 </style>
 </head>
 <body onload="start();">
@@ -235,7 +273,8 @@ img.symbol {
 
 
 <script>
-var deck_editor;
+let deck_editor
+let active_table = 'T1'
 
 function get_args() {
 	var rv = {};
@@ -297,16 +336,22 @@ function get_popup_for_card(c) {
 	return '<div style="display: inline-block;">' + rv + '</div>';
 }
 
+function set_active_table(tbl) {
+	$(`#div_${active_table}`)[0].classList.remove('active')
+	active_table = tbl
+	$(`#div_${tbl}`)[0].classList.add('active')
+}
+
 function select_all_rows_between(tbl, a, b) {
 	var selecting = false;
 	for(var i = 0; i < tbl.rows.length; i++) {
 		if(!selecting) {
 			if(tbl.rows[i] === a || tbl.rows[i] === b) {
 				selecting = true;
-				tbl.rows[i].className = 'clicked';
+				tbl.rows[i].classList.add('clicked');
 			}
 		} else {
-			tbl.rows[i].className = 'clicked';
+			tbl.rows[i].classList.add('clicked');
 			if(tbl.rows[i] === a || tbl.rows[i] === b) {
 				return;
 			}
@@ -325,13 +370,19 @@ function row_click(where, ev, tbl, tbln) {
 		return;
 	}
 
-	if(where.className == 'clicked') {
-		where.className = '';
+	if(where.classList.contains('clicked')) {
+		where.classList.remove('clicked');
 		last_clicked = undefined;
 	} else {
-		where.className = 'clicked';
+		where.classList.add('clicked');
 		last_clicked = where;
 	}
+	
+	var cur = $(tbl).find('tr.cursor')
+	if(cur.length > 0) {
+		cur[0].classList.remove('cursor')
+	}
+	where.classList.add('cursor')
 }
 
 function pt(c) {
@@ -362,23 +413,26 @@ function card2row(c, table_el, tbln) {
 
 	let first_row = '<b>' + c.name + '</b><b>' + pt(c) + '</b>' + 
 		'<span style="float: right;">' + me(mana_cost) + '</span>' +
-		'<br /><span class="card_text">' + me(c.oracle_text);
+		'<div class="card_text">' + me(c.oracle_text);
 
+	let extra_br = ''
 	if(c.layout == 'meld') {
 		faces = [faces[1]]
+		extra_br = '<br />'
 	}
 
 	for(const i in faces) {
 		const face = faces[i]
 		const str = (c.layout == 'meld') ? 'melds into' : ('face ' + (parseInt(i)+1));
 
-		first_row += '<br /><i>' + str + ':</i><br /><b>' + face.name + 
-			pt(face) + '</b> ' +
+		first_row += `${extra_br}<i>${str}:</i><br /><b>` +
+			face.name + pt(face) + '</b> ' +
 			'(' + me(face.subtype) + ')<br />' +
 			me(face.oracle_text);
+		extra_br = '<br />'
 	}
 
-	first_row += '</span><div class="popup">' + popup + '</div>';
+	first_row += '</div><div class="popup">' + popup + '</div>';
 
 	let tr = document.createElement('tr');
 	tr.addEventListener('click', function(ev) {
@@ -444,10 +498,32 @@ function get_delete_func(deckname) {
 	}
 }
 
+function empty_decklists() {
+	const sels = $.find('select.deck_selector')
+	for(const sel of sels) {
+		$(sel).empty()
+	}
+}
+
+function populate_decklists(idx, deckname, deck) {
+	const sels = $.find('select.deck_selector')
+
+	for(const sel of sels) {
+		const jsel = $(sel)
+		let txt = `${idx}. ${deckname}`
+		if(deckname.length > 30) {
+			txt = txt.substring(0, 30) + '…'
+		}
+		jsel.append(`<option value="${idx}">${txt}</option>`)
+	}
+}
+
 async function decklist_changed(decklist) {
 	var el = document.getElementById('decklist');
 	while(el.firstChild)
 		el.removeChild(el.firstChild);
+
+	empty_decklists()
 
 	var decknames = Object.keys(decklist.decks);
 	for(var i in decknames) {
@@ -456,7 +532,7 @@ async function decklist_changed(decklist) {
 
 		var n = document.createElement('li');
 		var boldname = document.createElement('b');
-		boldname.appendChild(document.createTextNode(deckname));
+		boldname.appendChild(document.createTextNode(`${parseInt(i)+1}. ${deckname}`));
 		n.appendChild(boldname);
 		n.appendChild(document.createElement('br'));
 		n.appendChild(document.createTextNode(await deck.stats()));
@@ -467,6 +543,8 @@ async function decklist_changed(decklist) {
 		n.appendChild(create_button('T3', get_load_func('T3', deck)));
 		n.appendChild(create_button('delete', get_delete_func(deckname)));
 		el.appendChild(n);
+
+		populate_decklists(parseInt(i)+1, deckname, deck)
 	}
 
 	do_sizing();
@@ -483,20 +561,291 @@ async function deck_from_argseed() {
 	return seed_list;
 }
 
+function intertable_option_changed(opt_sel, tbl, newdeck, pickdeck, T_btns, deck_btn) {
+	const opt = opt_sel.val()
+	if(opt == 'diff') {
+		newdeck.hide()
+		pickdeck.show()
+	} else {
+		newdeck.show()
+		pickdeck.hide()
+	}
+
+	let pre_text
+	if(opt == 'copy') {
+		pre_text = `Copy all cards selected in ${tbl} to `
+		deck_btn.prop('title', pre_text + 'the named deck')
+	} else if(opt == 'move') {
+		pre_text = `Move all cards selected in ${tbl} to `
+		deck_btn.prop('title', pre_text + 'the named deck')
+	} else if(opt == 'diff') {
+		pre_text = `Select all cards in ${tbl} that are also present in `
+		deck_btn.prop('title', pre_text + 'the selected deck')
+	}
+
+	for(const btn of T_btns) {
+		btn.prop('title', pre_text + btn.val())
+	}
+}
+
+function intertable_T_clicked(btn, opt_sel, tbl) {
+	const opt = opt_sel.val()
+	if(opt == 'diff') {
+		// TODO: implement
+	} else {
+		to_table(tbl, btn.val())
+		if(opt == 'move') {
+			delete_cards(tbl, 1)
+		}
+	}
+}
+
+function intertable_deck_clicked(btn, opt_sel, tbl, newdeck, pickdeck) {
+	const opt = opt_sel.val()
+	if(opt == 'diff') {
+		// TODO: implement
+	} else {
+		to_deck(tbl, newdeck.val())
+		if(opt == 'move') {
+			delete_cards(tbl, 1)
+		}
+	}
+}
+
+function create_intertable_operations(dst, tbl, other_tbls) {
+	const opt_sel = $('<select>')
+	for(const o of [
+			['copy', '<span class="kbd">[c]</span>opy selection to'],
+			['move', '<span class="kbd">[m]</span>ove selection to'],
+			// ['diff', 'select all from'] // TODO: implement
+			]) {
+		const [brief, desc] = o
+		opt_sel.append($(`<option value="${brief}">${desc}: </option>`))
+	}
+
+	const T_btns = []
+	for(const t of other_tbls) {
+		const txt = t.replace(/([0-9]+)/, '<span class="kbd">$1</span>')
+		T_btns.push($(`<button value="${t}">${txt}</button>`))
+	}
+
+	const deck_btn = $('<button>d<span class="kbd">e</span>ck named:</button>')
+	const newdeck = $(`<input type="text" value="Deck from ${tbl}" size="30" />`)
+	const pickdeck = $(`<select class="deck_selector">`)
+	pickdeck.hide()
+	intertable_option_changed(opt_sel, tbl, newdeck, pickdeck, T_btns, deck_btn)
+
+	opt_sel.change(() => intertable_option_changed(opt_sel, tbl, newdeck, pickdeck, T_btns, deck_btn))
+	for(const t of T_btns) {
+		t.click(() => intertable_T_clicked(t, opt_sel, tbl))
+	}
+	deck_btn.click(() => intertable_deck_clicked(deck_btn, opt_sel, tbl, newdeck, pickdeck))
+
+	dst.append(opt_sel).append(T_btns).append(deck_btn).append(newdeck).append(pickdeck)
+}
+
+function create_iface_btns(div, tbl, other_tbls, chkmap) {
+	const subdiv = $(`<div class="div_table_top" id="div_${tbl}_top">`)
+	subdiv.append(`<b class="tblname">${tbl}: </b>`)
+	create_intertable_operations(subdiv, tbl, other_tbls)
+	subdiv.append('<br />')
+	for(const btn of [
+			[`select_all('${tbl}', true)`, '<span class="kbd">a</span>ll', `Select all cards in ${tbl}.`],
+			[`select_all('${tbl}', false)`, '<span class="kbd">n</span>one', `Unselect all cards in ${tbl}.`],
+			[`invert_selection('${tbl}')`, '<span class="kbd">i</span>nv', `Invert selection in ${tbl}.`],
+			[`cap24('${tbl}')`, 'ca<span class="kbd">p</span>4', `Leave up to 4 duplicates and remove all lands in ${tbl}.`],
+			[`delete_cards('${tbl}', 1)`, '<span class="kbd">del</span>', `Delete selected cards in ${tbl}.`],
+			[`delete_cards('${tbl}', 0)`, '<span class="kbd hidden">ins</span> keep', `[ins] Keep only selected cards in ${tbl}.`],
+			]) {
+		const [hand, lab, tit] = btn
+		subdiv.append(`<button onclick="${hand};" title="${tit}">${lab}</button>`)
+	}
+	const options = [
+		['cardtext', '<span class="kbd">t</span>xt', `Display card's oracle text in ${tbl}.`],
+		['selectable', '<span class="kbd">s</span>el', `Make cards selectable in ${tbl} (use Shift to select a range of cards).`],
+		['overlay', '<span class="kbd">o</span>verM', `Show full card image and rulings when mouse hovering in ${tbl}.`],
+		['cursor_overlay', '<span class="kbd">O</span>verC', `Show full card image and rulings when selected by cursor in ${tbl}.`],
+		['compact', 's<span class="kbd">h</span>ort', `Make ${tbl} compact (display only name and mana cost in header).`],
+	]
+	for(const opt_idx in options) {
+		const opt = options[opt_idx]
+		const [hand, val, tit] = opt
+		const checked = chkmap[opt_idx] == 1
+		const chk = checked ? 'checked="checked"' : ''
+		const fns = `set_${hand}`
+		subdiv.append(`<label title="${tit}"><input type="checkbox" onchange="${fns}('${tbl}', this);" id="${hand}_${tbl}" title="${tit}" ${chk} />${val}</label>`)
+		const fn = eval(fns)
+		fn(tbl, { 'checked': checked })
+	}
+	div.append(subdiv)
+}
+
+function create_table(div, tblname) {
+	const subdiv = $(`<div class="div_table_bottom" id="div_${tblname}_bottom">`)
+	const tbl = $(`<table id="${tblname}" class="tablesorter">`) 
+	const thead = $('<thead>')
+
+	const head_row = $('<tr>')
+	head_row.append($('<th title="Card Name">Name</th>'))
+	for(const def of [
+			['Set Code', 'Set'],
+			['Collector Number', 'Num'],
+			['Converted Mana Cost', 'CMC'],
+			['Color', 'Col'],
+			['Type', 'Type'],
+			['Subtype', 'Subtype'],
+			['Rarity', 'Rar'],
+			['Power', 'P'],
+			['Toughness', 'T']
+			]){
+		const [full, brief] = def
+		head_row.append($(`<th class="exp" title="${full}">${brief}</th>`))
+	}
+
+	const tbody = $(`<tbody id="${tblname}b">`)
+
+	div.append(subdiv.append(tbl.append(thead.append(head_row)).append(tbody)))
+}
+
+function create_interface_for(tbl, other_tbls, chkmap) {
+	const div = $(`div#div_${tbl}`)
+	create_iface_btns(div, tbl, other_tbls, chkmap)
+	create_table(div, tbl)
+}
+
+function create_interface() {
+	create_interface_for('T1', ['T2', 'T3'], [1, 1, 1, 0, 0])
+	create_interface_for('T2', ['T1', 'T3'], [0, 1, 1, 0, 1])
+	create_interface_for('T3', ['T1', 'T2'], [0, 1, 1, 0, 1])
+}
+
+function get_cursor(first=true) {
+	const el = $('div.div_table_main.active table.tablesorter tr.cursor')
+	if(el.length == 0) {
+		let rv = $('div.div_table_main.active table.tablesorter tr')
+		if(first) {
+			rv = rv[1] // 0 is the header
+		} else {
+			rv = rv[rv.length-1]
+		}
+		rv.classList.add('cursor')
+		return rv
+	}
+	return el[0]
+}
+
+function move_cursor(dir) {
+	const old = get_cursor(dir == 'up')
+	old.classList.remove('cursor')
+
+	let new_
+	if(dir == 'down') {
+		new_ = $(old).next()[0]
+	} else {
+		new_ = $(old).prev()[0]
+	}
+	if(!new_) {
+		new_ = get_cursor(dir == 'down')
+	}
+	new_.classList.add('cursor')
+	new_.scrollIntoView({block: 'nearest'})
+}
+
+function click_cursor(shift=false) {
+	const cl = new MouseEvent("click", {shiftKey: shift})
+	get_cursor().dispatchEvent(cl)
+}
+
+function unclick_cursor() {
+	get_cursor().classList.remove('cursor')
+}
+
+function keypress(evt) {
+	//console.log(evt)
+	let key = evt.key
+
+	if(['j', 'ArrowDown'].includes(key)) {
+		move_cursor('down')
+		return
+	}
+
+	if(['k', 'ArrowUp'].includes(key)) {
+		move_cursor('up')
+		return
+	}
+
+	if(key == ' ') {
+		click_cursor(evt.shiftKey)
+		return
+	}
+
+	if(key == 'Backspace') {
+		unclick_cursor()
+	}
+
+	// for now, until we figure out how to format option
+	if(key == 'c') {
+		const el = $('div.div_table_main.active div.div_table_top select')[0]
+		el.selectedIndex = 0
+		$(el).trigger('change')
+		return
+	}
+	if(key == 'm') {
+		const el = $('div.div_table_main.active div.div_table_top select')[0]
+		el.selectedIndex = 1
+		$(el).trigger('change')
+		return
+	}
+
+	// switching to different tables
+	if(evt.shiftKey) {
+		const map = '!@#'
+		const idx = map.search(key) + 1
+		if(idx > 0) {
+			set_active_table('T' + idx)
+			return
+		}
+	}
+
+	const map = {
+		'Delete': 'del',
+		'Insert': 'ins'
+	}
+
+	if(map[key]) {
+		key = map[key]
+	}
+
+	for(const el of $('div.div_table_main.active span.kbd')) {
+		if(el.textContent == key) {
+			el.click()
+			return
+		}
+	}
+}
+
 async function start() {
 	if(typeof(Storage) === 'undefined') {
 		alert("This browser doesn't support Web Storage. The decks won't get saved.");
 	}
+
+	create_interface()
+	init_libs()
 
 	document.getElementById('loading').innerHTML = 'Indexing cards, almost there...';
 
 	deck_editor = new window.deck_editor(decklist_changed);
 	await deck_editor.init()
 
-	document.getElementById('loading').style.display = 'none';
 	var argseed = await deck_from_argseed();
-
 	load_deck('T1', argseed);
+
+	await deck_editor.deck_list.load()
+	decklist_changed(deck_editor.deck_list)
+
+	window.onkeydown = keypress
+
+	document.getElementById('loading').style.display = 'none';
 }
 
 function iterate_selection(tbln, cb) {
@@ -504,21 +853,20 @@ function iterate_selection(tbln, cb) {
 
 	for(var i = 1; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
-		if(row.className == 'clicked') {
+		if(row.classList.contains('clicked')) {
 			cb(row.card);
 		}
 	}
 }
 
-async function to_deck(tbln) {
+async function to_deck(tbln, newdeckname) {
 	var deck = new deck_editor.ArrayCardList();
 
 	iterate_selection(tbln, function(card) {
 		deck.add_card(card);
 	});
 
-	var name = document.getElementById(tbln + 'name').value;
-	await deck_editor.deck_list.add_deck(name, deck);
+	await deck_editor.deck_list.add_deck(newdeckname, deck);
 }
 
 function to_table(from, to) {
@@ -526,7 +874,7 @@ function to_table(from, to) {
 	var tgt = document.getElementById(tgtn);
 
 	iterate_selection(from, function(card) {
-		tgt.appendChild(card2row(card, tgt, tgtn));
+		tgt.appendChild(card2row(card, tgt, to));
 	});
 }
 
@@ -535,7 +883,11 @@ function select_all(tbln, all) {
 
 	for(var i = 1; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
-		row.className = all ? 'clicked' : '';
+		if(all) {
+			row.classList.add('clicked')
+		} else {
+			row.classList.remove('clicked')
+		}
 	}
 }
 
@@ -544,31 +896,38 @@ function invert_selection(tbln) {
 
 	for(var i = 1; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
-		var old = row.className == 'clicked';
-		row.className = old ? '' : 'clicked';
+		var old = row.classList.contains('clicked');
+		if(old) {
+			row.classList.remove('clicked')
+		} else {
+			row.classList.add('clicked')
+		}
 	}
 }
 
-function get_css_for(tbln, pos) {
-	var base = parseInt(tbln.replace(/^T/, '')) - 1;
-	return document.styleSheets[3 + base].cssRules[pos].style;
+function set_table_prop(tbln, propn, val) {
+	const div = $($(`div#div_${tbln}`)[0])
+	div.toggleClass(propn + '_enabled', val)
 }
 
 function set_selectable(tbln, chkbx) {
-	get_css_for(tbln, 0).userSelect = chkbx.checked ? 'none' : 'auto';
-	get_css_for(tbln, 0).cursor = chkbx.checked ? 'default' : 'auto';
+	set_table_prop(tbln, 'selectable', chkbx.checked)
 }
 
 function set_overlay(tbln, chkbx) {
-	get_css_for(tbln, 1).display = chkbx.checked ? 'block' : 'none';
+	set_table_prop(tbln, 'overlay', chkbx.checked)
+}
+
+function set_cursor_overlay(tbln, chkbx) {
+	set_table_prop(tbln, 'cursor_overlay', chkbx.checked)
 }
 
 function set_cardtext(tbln, chkbx) {
-	get_css_for(tbln, 2).display = chkbx.checked ? 'inline' : 'none';
+	set_table_prop(tbln, 'cardtext', chkbx.checked)
 }
 
 function set_compact(tbln, chkbx) {
-	get_css_for(tbln, 3).display = chkbx.checked ? 'none' : 'table-cell';
+	set_table_prop(tbln, 'compact', chkbx.checked)
 }
 
 //FIXME
@@ -608,12 +967,15 @@ function cap24(tbln) {
 	$('#' + tbln).trigger('update');
 }
 
-function limit_to_selected(tbln) {
+// which: 0=unselected, 1=selected
+function delete_cards(tbln, which) {
 	tbl = document.getElementById(tbln);
 
-	for(var i = 1; i < tbl.rows.length; i++) {
-		var row = tbl.rows[i];
-		if(row.className != 'clicked') {
+	for(let i = 1; i < tbl.rows.length; i++) {
+		const row = tbl.rows[i];
+		const clicked = (row.classList.contains('clicked')) ? 1 : 0
+
+		if(clicked == which) {
 			tbl.deleteRow(i);
 			i--;
 		}
@@ -654,7 +1016,7 @@ function do_sizing() {
 	$('#div_side_right').width($('#div_sides').width() - $('#div_side_left').width() - 8);
 }
 
-$(document).ready(function() {
+function init_libs() {
 	// http://stackoverflow.com/questions/5889232/tablesorter-jquery-plugin-fails-in-ff-3-6-12-with-msg-table-config-parsersc-i
 	$('#T1').tablesorter({debug:false});
 	$('#T2').tablesorter({debug:false});
@@ -676,51 +1038,14 @@ $(document).ready(function() {
 	$(window).resize(do_sizing);
 
 	do_sizing();
-});
+}
 
 </script>
 
 <div id="div_superparent">
 
 	<div id="div_left">
-		<div class="div_table_main" id="div_T1">
-			<div class="div_table_top" id="div_T1_top">
-				<b>T1: </b><span>copy selection to:</span>
-				<input type="button" onclick="to_table('T1', 'T2');" value="T2" />
-				<input type="button" onclick="to_table('T1', 'T3');" value="T3" />
-				<input type="button" onclick="to_deck('T1');" value="deck named: " />
-				<input type="text" value="Deck from T1" size="30" id="T1name" />
-				<br />
-				<input type="button" onclick="select_all('T1', true);" value="select all" />
-				<input type="button" onclick="select_all('T1', false);" value="select none" />
-				<input type="button" onclick="invert_selection('T1');" value="invert selection" />
-				<input type="button" onclick="cap24('T1');" value="cap to 4" />
-				<input type="button" onclick="limit_to_selected('T1');" value="delete unselected" />
-				<label><input type="checkbox" onchange="set_cardtext('T1', this);" checked="checked"/>card text</label>
-				<label><input type="checkbox" onchange="set_selectable('T1', this);" id="selectable_T1" checked="checked"/>selectable</label>
-				<label><input type="checkbox" onchange="set_overlay('T1', this);" checked="checked"/>overlay</label>
-				<label><input type="checkbox" onchange="set_compact('T1', this);" />compact</label>
-			</div>
-			<div class="div_table_bottom" id="div_T1_bottom">
-				<table id="T1" class="tablesorter">
-				<thead>
-				<tr>
-					<th>Name</th>
-					<th class="exp">Set</th>
-					<th class="exp">Num</th>
-					<th class="exp">CMC</th>
-					<th class="exp">Col</th>
-					<th class="exp">Type</th>
-					<th class="exp">Subtype</th>
-					<th class="exp">Rar</th>
-					<th class="exp">P</th>
-					<th class="exp">T</th>
-				</tr>
-				</thead>
-				<tbody id="T1b">
-				</tbody>
-				</table>
-			</div>
+		<div class="div_table_main active" id="div_T1" onclick="set_active_table('T1')">
 		</div>
 	</div>
 	<div id="div_right">
@@ -734,89 +1059,20 @@ $(document).ready(function() {
 				<textarea rows="4" cols="40" id="deck"></textarea>
 				<input type="text" value="Imported Deck" size="30" id="imp_name" />
 				<input type="button" onclick="import_deck();" value="import" />
+
+				<!-- TODO: implement
+				<input type="text" value="" size="30" id="scryfall_search" />
+				<input type="button" onclick="scryfall_search();" value="search scryfall" />
+				-->
 			</div>
 		</div>
 		<div id="div_sides">
 			<div id="div_side_left">
-				<div class="div_table_main" id="div_T2">
-					<div class="div_table_top" id="div_T2_top">
-						<b>T2: </b><span>copy selection to:</span>
-						<input type="button" onclick="to_table('T2', 'T1');" value="T1" />
-						<input type="button" onclick="to_table('T2', 'T3');" value="T3" />
-						<input type="button" onclick="to_deck('T2');" value="deck named: " />
-						<input type="text" value="Deck from T2" size="30" id="T2name" />
-						<br />
-						<input type="button" onclick="select_all('T2', true);" value="select all" />
-						<input type="button" onclick="select_all('T2', false);" value="select none" />
-						<input type="button" onclick="invert_selection('T2');" value="invert selection" />
-						<input type="button" onclick="cap24('T2');" value="cap to 4" />
-						<input type="button" onclick="limit_to_selected('T2');" value="delete unselected" />
-						<label><input type="checkbox" onchange="set_cardtext('T2', this);" />card text</label>
-						<label><input type="checkbox" onchange="set_selectable('T2', this);" id="selectable_T2" checked="checked"/>selectable</label>
-						<label><input type="checkbox" onchange="set_overlay('T2', this);" checked="checked"/>overlay</label>
-						<label><input type="checkbox" onchange="set_compact('T2', this);" checked="checked"/>compact</label>
-					</div>
-					<div class="div_table_bottom" id="div_T2_bottom">
-						<table id="T2" class="tablesorter">
-						<thead>
-						<tr>
-							<th>Name</th>
-							<th class="exp">Set</th>
-							<th class="exp">Num</th>
-							<th class="exp">CMC</th>
-							<th class="exp">Col</th>
-							<th class="exp">Type</th>
-							<th class="exp">Subtype</th>
-							<th class="exp">Rar</th>
-							<th class="exp">P</th>
-							<th class="exp">T</th>
-						</tr>
-						</thead>
-						<tbody id="T2b">
-						</tbody>
-						</table>
-					</div>
+				<div class="div_table_main" id="div_T2" onclick="set_active_table('T2')">
 				</div>
 			</div>
 			<div id="div_side_right">
-				<div class="div_table_main" id="div_T3">
-					<div class="div_table_top" id="div_T3_top">
-						<b>T3: </b><span>copy selection to:</span>
-						<input type="button" onclick="to_table('T3', 'T1');" value="T1" />
-						<input type="button" onclick="to_table('T3', 'T2');" value="T2" />
-						<input type="button" onclick="to_deck('T3');" value="deck named: " />
-						<input type="text" value="Deck from T3" size="30" id="T3name" />
-						<br />
-						<input type="button" onclick="select_all('T3', true);" value="select all" />
-						<input type="button" onclick="select_all('T3', false);" value="select none" />
-						<input type="button" onclick="invert_selection('T3');" value="invert selection" />
-						<input type="button" onclick="cap24('T3');" value="cap to 4" />
-						<input type="button" onclick="limit_to_selected('T3');" value="delete unselected" />
-						<label><input type="checkbox" onchange="set_cardtext('T3', this);" />card text</label>
-						<label><input type="checkbox" onchange="set_selectable('T3', this);" id="selectable_T3" checked="checked"/>selectable</label>
-						<label><input type="checkbox" onchange="set_overlay('T3', this);" checked="checked"/>overlay</label>
-						<label><input type="checkbox" onchange="set_compact('T3', this);" checked="checked"/>compact</label>
-					</div>
-					<div class="div_table_bottom" id="div_T3_bottom">
-						<table id="T3" class="tablesorter">
-						<thead>
-						<tr>
-							<th>Name</th>
-							<th class="exp">Set</th>
-							<th class="exp">Num</th>
-							<th class="exp">CMC</th>
-							<th class="exp">Col</th>
-							<th class="exp">Type</th>
-							<th class="exp">Subtype</th>
-							<th class="exp">Rar</th>
-							<th class="exp">P</th>
-							<th class="exp">T</th>
-						</tr>
-						</thead>
-						<tbody id="T3b">
-						</tbody>
-						</table>
-					</div>
+				<div class="div_table_main" id="div_T3" onclick="set_active_table('T3')">
 				</div>
 			</div>
 		</div>

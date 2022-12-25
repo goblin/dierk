@@ -281,5 +281,4 @@ class MTGData {
 
 if(typeof(module) == 'object') {
 	module.exports = MTGData;
-	console.log(MTGData); // TODO: remove this
 }
