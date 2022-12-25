@@ -1,5 +1,5 @@
 /*
-MtG Generator script v2.7.2
+MtG Generator script v2.7.3
 
 Author: Cam Marsollier cam.marsollier@gmail.com
 
@@ -26,6 +26,7 @@ Normally 15 cards per booster:
 Quick How Tos:
 - to add a caveat (yellow note banner above), add an array of 'caveats' to the products.json product. See set MID.
 
+20221216: Can now randomly choose from all packs if products.json/products/options/presets/packs/randomDefaultPackName specified with no array of packs to choose from.
 20221113: No longer crashes on export if a set code doesn't exist in sets.json. Now defaults to using that set code in place of set name.
 20220421: Includes card num on rendered HTML.
 20220414: Added family support for SNC.
@@ -146,7 +147,7 @@ var mtgGen = (function (my) {
             // Render the Product views
             Object.values(this.ProductViews).forEach(view => view.renderType());
 
-            // If there is only one Product view, hide it the tab button (we need to render it so it will auto-execute the main Product)
+            // If there is only one Product view, hide the tab button (we need to render it so it will auto-execute the main Product)
             if (Object.keys(this.ProductViews).length < 2) {
                 document.querySelector('#products>a.button').style.display = 'none';
             }
@@ -511,7 +512,6 @@ var mtgGen = (function (my) {
             this.isGenerated = this.options.isGenerated || false;
             this.hasOptions = (this.hasOwnProperty('options') && this.options.hasOwnProperty('options'));
             this.hasPackPresets = (this.hasOptions && this.options.options.hasOwnProperty('presets'));
-            this.hasButtonOptions = (this.hasOptions && this.options.options.hasOwnProperty('buttons'));
 
             return this;
         }
@@ -552,10 +552,6 @@ var mtgGen = (function (my) {
                 events["click #product-content ." + this.productName + " .options .remove-input"] = "removeBooster";
                 events["click #product-content ." + this.productName + " .options #generate"] = "renderResultsFromOptions";
                 events["click #product-content ." + this.productName + " .options #use-custom-seed"] = "toggleCustomSeed";
-            }
-
-            if (this.hasButtonOptions) {
-                events["click #product-content ." + this.productName + " .options a.button"] = "renderPack";
             }
 
             events["click #product-content ." + this.productName + " .card .transform-button"] = "transformCard";
@@ -808,25 +804,7 @@ var mtgGen = (function (my) {
             return this;
         }
 
-        , renderPack: function (event) {
-            Array.from(event.target.parentNode.querySelectorAll('a.button')).forEach(n => n.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const packName = event.target.getAttribute('data-pack');
-
-            this.generatedSets = [];
-            // TODO: does this need seedRNGFromInput? Is renderPack even used?
-            this.generatedSets.push(my.generateCardSetFromPack(packName));
-
-            this.renderResults(this.generatedSets);
-
-            // Triggers google analytics booster-generation tracking event on index.html
-            window.dispatchEvent(new CustomEvent('cardSetsGenerated', { detail: { setCode: my.setCode } }));
-
-            return false;
-        }
-
-        // Should only be called from renderPack and renderResultsFromOptions
+        // Should only be called from renderResultsFromOptions
         , renderResults: function (sets) {
             this.allCards = sets.reduce((sets, set) => sets.concat(set), []);
             if (sets.length === 1 && sets[0].setDesc) {
@@ -1142,7 +1120,14 @@ var mtgGen = (function (my) {
 
             // If randomDefaultPackName is specified, choose one and use that in place of defaultPackName
             if (inputSettings && inputSettings.hasOwnProperty('randomDefaultPackName') && Array.isArray(inputSettings.randomDefaultPackName)) {
-                inputSettings.defaultPackName = inputSettings.randomDefaultPackName[Math.floor(Math.random() * inputSettings.randomDefaultPackName.length)];
+                // If pack names were specified, choose one of those.
+                if (inputSettings.randomDefaultPackName.length > 0) {
+                    inputSettings.defaultPackName = inputSettings.randomDefaultPackName[Math.floor(Math.random() * inputSettings.randomDefaultPackName.length)];
+                }
+                // Otherwise choose a random one from all available packs.
+                else {
+                    inputSettings.defaultPackName = packsInDropdown[Math.floor(Math.random() * packsInDropdown.length)];
+                }
             }
             packsInDropdown.forEach(packName => {
                 let selected = '';

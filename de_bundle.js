@@ -190,6 +190,14 @@ class SeedCardList extends CardList {
 	get_name() {
 		return 'seed ' + this.#seed.replace(/(........)/g, "$1 ") + '; ' + this.#setstr.replace(/,/g, ', ');
 	}
+
+	async store() {
+		return { 
+			type: 'seed', 
+			seed: this.#seed, 
+			setstr: this.#setstr
+		}
+	}
 }
 
 class ArrayCardList extends CardList {
@@ -241,6 +249,40 @@ class ArrayCardList extends CardList {
 		this.#cards.push(card);
 	}
 
+	async store() {
+		return {
+			type: 'list',
+			cards: await this.export_(true, false)
+		}
+	}
+}
+
+class MyStorage {
+	static set(name, data) {
+		if(window && window.localStorage) {
+			window.localStorage.setItem(name, JSON.stringify(data))
+		}
+	}
+	static get(name) {
+		if(window && window.localStorage) {
+			return JSON.parse(window.localStorage.getItem(name))
+		}
+		return null
+	}
+	static remove(name) {
+		if(window && window.localStorage) {
+			window.localStorage.removeItem(name)
+		}
+	}
+	static *all() {
+		if(window && window.localStorage) {
+			for(let i = 0; i < window.localStorage.length; i++) {
+				const k = window.localStorage.key(i)
+				const v = window.localStorage.getItem(k)
+				yield [k, v]
+			}
+		}
+	}
 }
 
 class DeckList {
@@ -258,15 +300,34 @@ class DeckList {
 		await this.#onchange(this);
 	}
 
+	async load() {
+		for(let i of MyStorage.all()) {
+			let [name, data] = i
+			data = JSON.parse(data)
+			let deck
+			if(data['type'] == 'seed') {
+				deck = new SeedCardList(data['seed'], data['setstr'])
+			} else if(data['type'] == 'list') {
+				deck = new ArrayCardList()
+				deck.import_(data['cards'])
+			}
+			if(deck) {
+				this.decks[name] = deck
+			}
+		}
+	}
+
 	// the deck should be a *CardList, actually
 	async add_deck(name, deck) {
 		this.decks[name] = deck;
 		await this.changed();
+		MyStorage.set(name, await deck.store())
 	}
 
 	async delete_deck(name) {
 		delete this.decks[name];
 		await this.changed();
+		MyStorage.remove(name);
 	}
 }
 
@@ -573,7 +634,6 @@ class MTGData {
 
 if(typeof(module) == 'object') {
 	module.exports = MTGData;
-	console.log(MTGData); // TODO: remove this
 }
 
 },{"@stablelib/blake2b":4,"pako":8,"seedrandom":24}],3:[function(require,module,exports){
