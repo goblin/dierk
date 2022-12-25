@@ -555,10 +555,14 @@ async function deck_from_argseed() {
 	var seed = args.seed;
 	var setstr = args.sets;
 	
-	var seed_list = new deck_editor.SeedCardList(seed, setstr);
-	await deck_editor.deck_list.add_deck(seed_list.get_name(), seed_list);
+	if(seed && setstr) {
+		var seed_list = new deck_editor.SeedCardList(seed, setstr);
+		await deck_editor.deck_list.add_deck(seed_list.get_name(), seed_list);
 
-	return seed_list;
+		return seed_list;
+	} else {
+		return null;
+	}
 }
 
 function intertable_option_changed(opt_sel, tbl, newdeck, pickdeck, T_btns, deck_btn) {
@@ -837,8 +841,10 @@ async function start() {
 	deck_editor = new window.deck_editor(decklist_changed);
 	await deck_editor.init()
 
-	var argseed = await deck_from_argseed();
-	load_deck('T1', argseed);
+	const argseed = await deck_from_argseed();
+	if(argseed) {
+		load_deck('T1', argseed);
+	}
 
 	await deck_editor.deck_list.load()
 	decklist_changed(deck_editor.deck_list)
