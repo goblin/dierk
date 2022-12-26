@@ -308,12 +308,13 @@ class DeckList {
 				deck = new SeedCardList(data['seed'], data['setstr'])
 			} else if(data['type'] == 'list') {
 				deck = new ArrayCardList()
-				deck.import_(data['cards'])
+				await deck.import_(data['cards'])
 			}
 			if(deck) {
 				this.decks[name] = deck
 			}
 		}
+		await this.changed()
 	}
 
 	// the deck should be a *CardList, actually
