@@ -225,12 +225,12 @@ img.symbol {
 }
 
 div.div_table_main td {
-	user-select: none;
-	cursor: default;
-}
-div.div_table_main.selectable_enabled td {
 	user-select: auto;
 	cursor: auto;
+}
+div.div_table_main.selectable_enabled td {
+	user-select: none;
+	cursor: default;
 }
 
 div.div_table_main tr:hover .popup {
@@ -260,11 +260,40 @@ div.div_table_main.compact_enabled .exp {
 	display: none;
 }
 
+div#loading {
+	background-color: darkgreen;
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	min-height: 10vh;
+	min-width: 10vw;
+	max-width: 90vw;
+	align-items: center;
+	justify-content: center;
+	padding-left: 5vw;
+	padding-right: 5vw;
+	padding-top: 5vh;
+	padding-bottom: 5vh;
+	font-size: 2vw;
+	font-weight: bold;
+	transform: translate(-50%, -50%);
+	z-index: 200;
+}
+
+div#loading.active {
+	display: flex;
+}
+
+span.counter, span.mana {
+	float: right;
+}
+
 </style>
 </head>
 <body onload="start();">
 
-<p id="loading"> Loading, please be patient... </p>
+<div id="loading" class="active">Loading... </div>
 
 <script src="./de_bundle.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -275,6 +304,17 @@ div.div_table_main.compact_enabled .exp {
 <script>
 let deck_editor
 let active_table = 'T1'
+
+function set_loading(text) {
+	const div = $('div#loading')
+
+	if(text) {
+		div.addClass('active')
+		div.text(text)
+	} else {
+		div.removeClass('active')
+	}
+}
 
 function get_args() {
 	var rv = {};
@@ -342,21 +382,41 @@ function set_active_table(tbl) {
 	$(`#div_${tbl}`)[0].classList.add('active')
 }
 
-function select_all_rows_between(tbl, a, b) {
-	var selecting = false;
+function update_counter_by(tbln, diff) {
+	const cntr = $(`span#${tbln}_cnt`)[0]
+	const old = parseInt(cntr.innerText)
+	const new_ = old + parseInt(diff)
+	cntr.innerText = new_
+}
+function update_counter_to(tbln, dst) {
+	$(`span#${tbln}_cnt`)[0].innerText = dst
+}
+
+function select_all_rows_between(tbl, tbln, a, b) {
+	let selecting = false
+	let diff = 0
 	for(var i = 0; i < tbl.rows.length; i++) {
+		const rowcl = tbl.rows[i].classList
 		if(!selecting) {
 			if(tbl.rows[i] === a || tbl.rows[i] === b) {
 				selecting = true;
-				tbl.rows[i].classList.add('clicked');
+				if(!rowcl.contains('clicked')) {
+					rowcl.add('clicked')
+					diff++
+				}
 			}
 		} else {
-			tbl.rows[i].classList.add('clicked');
+			if(!rowcl.contains('clicked')) {
+				tbl.rows[i].classList.add('clicked');
+				diff++
+			}
 			if(tbl.rows[i] === a || tbl.rows[i] === b) {
+				update_counter_by(tbln, diff)
 				return;
 			}
 		}
 	}
+	update_counter_by(tbln, diff)
 }
 
 var last_clicked;
@@ -365,19 +425,23 @@ function row_click(where, ev, tbl, tbln) {
 		return;
 
 	if(last_clicked !== undefined && ev.shiftKey) {
-		select_all_rows_between(tbl, where, last_clicked);
+		select_all_rows_between(tbl, tbln, where, last_clicked);
 		last_clicked = where;
 		return;
 	}
+	let diff = 0
 
 	if(where.classList.contains('clicked')) {
 		where.classList.remove('clicked');
 		last_clicked = undefined;
+		diff -= 1
 	} else {
 		where.classList.add('clicked');
 		last_clicked = where;
+		diff += 1
 	}
-	
+	update_counter_by(tbln, diff)
+
 	var cur = $(tbl).find('tr.cursor')
 	if(cur.length > 0) {
 		cur[0].classList.remove('cursor')
@@ -412,7 +476,7 @@ function card2row(c, table_el, tbln) {
 	}
 
 	let first_row = '<b>' + c.name + '</b><b>' + pt(c) + '</b>' + 
-		'<span style="float: right;">' + me(mana_cost) + '</span>' +
+		'<span class="mana">' + me(mana_cost) + '</span>' +
 		'<div class="card_text">' + me(c.oracle_text);
 
 	let extra_br = ''
@@ -651,6 +715,7 @@ function create_intertable_operations(dst, tbl, other_tbls) {
 function create_iface_btns(div, tbl, other_tbls, chkmap) {
 	const subdiv = $(`<div class="div_table_top" id="div_${tbl}_top">`)
 	subdiv.append(`<b class="tblname">${tbl}: </b>`)
+	subdiv.append(`<span class="counter" id="${tbl}_cnt">0</span>`)
 	create_intertable_operations(subdiv, tbl, other_tbls)
 	subdiv.append('<br />')
 	for(const btn of [
@@ -765,26 +830,35 @@ function unclick_cursor() {
 }
 
 function keypress(evt) {
-	//console.log(evt)
+	//console.log(evt.target)
+	if(['text', 'textarea'].includes(evt.target.type)) {
+		return
+	}
+
 	let key = evt.key
 
 	if(['j', 'ArrowDown'].includes(key)) {
 		move_cursor('down')
+		evt.preventDefault()
 		return
 	}
 
 	if(['k', 'ArrowUp'].includes(key)) {
 		move_cursor('up')
+		evt.preventDefault()
 		return
 	}
 
 	if(key == ' ') {
 		click_cursor(evt.shiftKey)
+		evt.preventDefault()
 		return
 	}
 
 	if(key == 'Backspace') {
 		unclick_cursor()
+		evt.preventDefault()
+		return
 	}
 
 	// for now, until we figure out how to format option
@@ -792,12 +866,14 @@ function keypress(evt) {
 		const el = $('div.div_table_main.active div.div_table_top select')[0]
 		el.selectedIndex = 0
 		$(el).trigger('change')
+		evt.preventDefault()
 		return
 	}
 	if(key == 'm') {
 		const el = $('div.div_table_main.active div.div_table_top select')[0]
 		el.selectedIndex = 1
 		$(el).trigger('change')
+		evt.preventDefault()
 		return
 	}
 
@@ -807,6 +883,7 @@ function keypress(evt) {
 		const idx = map.search(key) + 1
 		if(idx > 0) {
 			set_active_table('T' + idx)
+			evt.preventDefault()
 			return
 		}
 	}
@@ -823,6 +900,7 @@ function keypress(evt) {
 	for(const el of $('div.div_table_main.active span.kbd')) {
 		if(el.textContent == key) {
 			el.click()
+			evt.preventDefault()
 			return
 		}
 	}
@@ -836,7 +914,7 @@ async function start() {
 	create_interface()
 	init_libs()
 
-	document.getElementById('loading').innerHTML = 'Indexing cards, almost there...';
+	set_loading('Indexing cards, almost there...')
 
 	deck_editor = new window.deck_editor(decklist_changed);
 	await deck_editor.init()
@@ -847,11 +925,10 @@ async function start() {
 	}
 
 	await deck_editor.deck_list.load()
-	decklist_changed(deck_editor.deck_list)
 
-	window.onkeydown = keypress
+	window.addEventListener('keydown', keypress)
 
-	document.getElementById('loading').style.display = 'none';
+	set_loading(null)
 }
 
 function iterate_selection(tbln, cb) {
@@ -885,7 +962,7 @@ function to_table(from, to) {
 }
 
 function select_all(tbln, all) {
-	var tbl = document.getElementById(tbln);
+	let tbl = document.getElementById(tbln);
 
 	for(var i = 1; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
@@ -895,20 +972,25 @@ function select_all(tbln, all) {
 			row.classList.remove('clicked')
 		}
 	}
+	update_counter_to(tbln, all ? (tbl.rows.length-1) : 0)
 }
 
 function invert_selection(tbln) {
-	var tbl = document.getElementById(tbln);
+	let tbl = document.getElementById(tbln);
+	let diff = 0
 
 	for(var i = 1; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
 		var old = row.classList.contains('clicked');
 		if(old) {
 			row.classList.remove('clicked')
+			diff -= 1
 		} else {
 			row.classList.add('clicked')
+			diff += 1
 		}
 	}
+	update_counter_by(tbln, diff)
 }
 
 function set_table_prop(tbln, propn, val) {
@@ -937,14 +1019,26 @@ function set_compact(tbln, chkbx) {
 }
 
 //FIXME
+// when 10 identical cards get copied from T1 to T2, then cap24 seems
+// to break in T2 (results in 'table.config.parsers is undefined' exception).
+// However, if those same cards get imported from a deck (ArrayCardList), 
+// then cap24 works fine.
+// also see init_libs() and:
+// http://stackoverflow.com/questions/5889232/tablesorter-jquery-plugin-fails-in-ff-3-6-12-with-msg-table-config-parsersc-i
+// (the exception was thrown there too I guess)
+
+// sometimes clicking once isn't enough to cap properly
+
+// There's possibly more bugs in this function
 function cap24(tbln) {
-	var tbl = $('#' + tbln);
+	let tbl = $('#' + tbln);
 	// colour, type, cmc, rarity, name
-	tbl.trigger('sorton', [[[4, 0], [5, 0], [3, 0], [7, 0], [0, 0]]]);
+	tbl.trigger('sorton', [[[4, 'a'], [5, 'a'], [3, 'a'], [7, 'a'], [0, 'a']]]);
 	tbl = document.getElementById(tbln);
 
-	var last = '';
-	var cnt = 0;
+	let last = '';
+	let cnt = 0;
+	let diff = 0
 	for(var i = 1; i < tbl.rows.length; i++) {
 		var row = tbl.rows[i];
 		var name = row.card.name;
@@ -965,17 +1059,22 @@ function cap24(tbln) {
 		last = name;
 
 		if(delme) {
+			if(row.classList.contains('clicked')) {
+				diff--;
+			}
 			tbl.deleteRow(i);
 			i--;
 		}
 	}
 
 	$('#' + tbln).trigger('update');
+	update_counter_by(tbln, diff)
 }
 
 // which: 0=unselected, 1=selected
 function delete_cards(tbln, which) {
-	tbl = document.getElementById(tbln);
+	let tbl = document.getElementById(tbln);
+	let diff = 0
 
 	for(let i = 1; i < tbl.rows.length; i++) {
 		const row = tbl.rows[i];
@@ -984,23 +1083,29 @@ function delete_cards(tbln, which) {
 		if(clicked == which) {
 			tbl.deleteRow(i);
 			i--;
+			diff -= which;
 		}
 	}
 
 	$('#' + tbln).trigger('update');
+	update_counter_by(tbln, diff)
 }
 
 async function import_deck() {
-	var data = document.getElementById('deck').value;
-	var deck = new deck_editor.ArrayCardList();
-	let res = await deck.import_(data);
+	set_loading('importing deck...')
+
+	const data = document.getElementById('deck').value;
+	const deck = new deck_editor.ArrayCardList();
+	const res = await deck.import_(data);
 
 	if(res != '') {
 		alert("Import problems:\n" + res);
 	}
 
-	var name = document.getElementById('imp_name').value;
+	const name = document.getElementById('imp_name').value;
 	await deck_editor.deck_list.add_deck(name, deck);
+
+	set_loading(null)
 }
 
 function do_sizing() {
