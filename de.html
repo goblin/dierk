@@ -1018,6 +1018,16 @@ function set_compact(tbln, chkbx) {
 	set_table_prop(tbln, 'compact', chkbx.checked)
 }
 
+// default sort is: colour, type, cmc, rarity, name
+async function sort_table(tbl, key=[[[4, 'a'], [5, 'a'], [3, 'a'], [7, 'a'], [0, 'a']]]) {
+	return new Promise((resolve, reject) => {
+		tbl.one('sortEnd', (e, t) => {
+			resolve()
+		})
+		tbl.trigger('sorton', key);
+	})
+}
+
 //FIXME
 // when 10 identical cards get copied from T1 to T2, then cap24 seems
 // to break in T2 (results in 'table.config.parsers is undefined' exception).
@@ -1030,11 +1040,11 @@ function set_compact(tbln, chkbx) {
 // sometimes clicking once isn't enough to cap properly
 
 // There's possibly more bugs in this function
-function cap24(tbln) {
-	let tbl = $('#' + tbln);
-	// colour, type, cmc, rarity, name
-	tbl.trigger('sorton', [[[4, 'a'], [5, 'a'], [3, 'a'], [7, 'a'], [0, 'a']]]);
-	tbl = document.getElementById(tbln);
+async function cap24(tbln) {
+	const tblj = $('#' + tbln);
+
+	await sort_table(tblj)
+	const tbl = tblj[0]
 
 	let last = '';
 	let cnt = 0;
