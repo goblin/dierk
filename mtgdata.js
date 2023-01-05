@@ -83,9 +83,10 @@ class MTGSet {
 			'cardFiles': card_files.map((x) => packroot + x),
 			'packFiles': pack_files.map((x) => packroot + x),
 			'productFile': packroot + 'products.json',
-			'flags': {}
+			'drawCallback': () => {},
+			'playableCardLoadedCallback': () => {}
 		}
-		await this.#mtgen.runWithoutBrowser(options, '', () => {}, () => {})
+		await this.#mtgen.run(options)
 	}
 
 	get_card_by_num(num) {
@@ -240,7 +241,7 @@ class MTGData {
 	async init_mtgen(set) {
 		// haacky as fuucky
 		if(typeof(this.#mtgen_eval_str) == 'undefined') {
-			this.#mtgen_eval_str = await fetch(this.#url_prefix + 'data/mtgen/lib/mtg-generator-lib.js').then(resp => resp.text())
+			this.#mtgen_eval_str = await fetch(this.#url_prefix + 'data/mtgen/lib/mtg-generator-lib.js?v3.0.0').then(resp => resp.text())
 			this.#mtgen_eval_str += '\nmtgGen'
 		}
 		if(typeof(set.mtgen) == 'undefined') {

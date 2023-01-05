@@ -76,9 +76,7 @@ You can just serve the branch gh-pages.
 If you need to recreate gh-pages after changing the source (or want
 to update it), read on.
 
-You need the mtgen package from https://github.com/copperdogma/mtgen
-Actually, currently you need at least the 'modularity' branch from
-https://github.com/goblin/mtgen/tree/modularity.
+You need the mtgen package from https://github.com/copperdogma/mtgen .
 You'll also need the default-cards-*.json and rulings-*.json from
 https://scryfall.com/docs/api/bulk-data .
 
