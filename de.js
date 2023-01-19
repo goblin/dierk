@@ -35,7 +35,7 @@ class Card {
 		let name = match[2];
 
 		if(id) {
-			let submatch = id.match(/\[([A-Za-z]*):([0-9]*)\]/);
+			let submatch = id.match(/\[([A-Za-z0-9]*):([0-9]*)\]/);
 			if(!submatch)
 				throw "invalid card setnum: " + str;
 
