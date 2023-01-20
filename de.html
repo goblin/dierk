@@ -1159,7 +1159,7 @@ async function scryfall_search() {
 	let cards = ''
 	let obj = {}
 	let page = 0
-	let next_page_url = `http://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}`
+	let next_page_url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}`
 	do {
 		obj = await fetch(next_page_url).then((response) => response.json())
 		cards += cards_json2line(obj['data'])
