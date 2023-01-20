@@ -18,6 +18,15 @@ body {
     margin: 0;
     text-align: center;
 }
+body.error, body.status {
+    background: url(/images/error-bg.jpg) no-repeat 0 0 #000;
+}
+body.status td {
+    padding: .2em 1em;
+}
+body.status tr:nth-child(even) {
+    background-color: rgba(255,255,255,.1);
+}
 @media (min-width: 1920px) {
 	body {
         background-size: 100%;

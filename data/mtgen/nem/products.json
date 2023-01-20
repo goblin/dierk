@@ -1,0 +1,49 @@
+{
+  "_comment": "if there are no options the query/packNames will be auto-run",
+  "products": [
+    {
+      "productName": "{{setCode}}-all-cards",
+      "productDesc": "All Cards",
+      "sources": [
+        "http://mtgjson.com/json/{{setCode}}.json",
+        "http://gatherer.wizards.com/"
+      ],
+      "isGenerated": false,
+      "initialSort": "colour",
+      "packs": [
+        {
+          "packName": "{{setCode}}-all-cards"
+        }
+      ]
+    },
+    {
+      "productName": "{{setCode}}-boosters",
+      "productDesc": "Boosters",
+      "sources": [
+        "http://en.wikipedia.org/wiki/Masques_block"
+      ],
+      "isGenerated": true,
+      "initialSort": "set",
+      "packs": [
+        {
+          "packName": "{{setCode}}-standard"
+        }
+      ],
+      "options": {
+        "presets": [
+          {
+            "presetName": "{{setCode}}-boosters-six",
+            "presetDesc": "Six Boosters",
+            "default": true,
+            "packs": [
+              {
+                "count": 6,
+                "defaultPackName": "{{setCode}}-standard"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
