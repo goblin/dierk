@@ -259,26 +259,28 @@ class ArrayCardList extends CardList {
 class MyStorage {
 	static set(name, data) {
 		if(window && window.localStorage) {
-			window.localStorage.setItem(name, JSON.stringify(data))
+			window.localStorage.setItem(`deck/${name}`, JSON.stringify(data))
 		}
 	}
 	static get(name) {
 		if(window && window.localStorage) {
-			return JSON.parse(window.localStorage.getItem(name))
+			return JSON.parse(window.localStorage.getItem(`deck/${name}`))
 		}
 		return null
 	}
 	static remove(name) {
 		if(window && window.localStorage) {
-			window.localStorage.removeItem(name)
+			window.localStorage.removeItem(`deck/${name}`)
 		}
 	}
 	static *all() {
 		if(window && window.localStorage) {
 			for(let i = 0; i < window.localStorage.length; i++) {
 				const k = window.localStorage.key(i)
-				const v = window.localStorage.getItem(k)
-				yield [k, v]
+				if(k.startsWith('deck/')) {
+					const v = window.localStorage.getItem(k)
+					yield [k.replace(/^deck./, ''), v]
+				}
 			}
 		}
 	}

@@ -46,9 +46,6 @@ table.tablesorter thead th {
 	color: black;
 	border: 1px solid black;
 }
-table.tablesorter tr {
-	background-color: #1f1e1e;
-}
 table.tablesorter tr.clicked td, table.tablesorter tr.clicked {
 	background-color: #404040;
 }
@@ -65,8 +62,12 @@ table.tablesorter tr .popup {
 	padding: 1em;       
 	margin-top: 0em;
 }
+table.tablesorter td.art {
+	padding: 0px;
+}
 table.tablesorter td.art img {
-	height: 10ex;
+	max-width: 10em;
+	max-height: 14ex;
 }
 div.div_table_main.active table.tablesorter tbody tr.cursor {
 	outline: 2px solid darkblue;
@@ -263,7 +264,7 @@ div.div_table_main th.art, div.div_table_main td.art {
 	display: none;
 }
 div.div_table_main.display_art_enabled th.art, div.div_table_main.display_art_enabled td.art {
-	display: block;
+	display: table-cell;
 }
 
 div.div_table_main .exp {
@@ -302,13 +303,92 @@ span.counter, span.mana {
 	float: right;
 }
 
+nav div#burger_menu {
+	display: none;
+}
+nav div#burger_menu.active {
+	display: block;
+	width: 3vw;
+	height: 3vw;
+	position: fixed;
+	top: 1vh;
+	left: 96vw;
+	text-align: center;
+	font-size: 3vw;
+	z-index: 300;
+	cursor: pointer;
+}
+@keyframes settings_open {
+	0% { 
+		transform: scale(.0375);
+		top: 2vh;
+		left: 96vw;
+		opacity: 0%;
+	}
+	100% {
+		transform: scale(1);
+		top: 10vh;
+		left: 10vw;
+		opacity: 80%;
+	}
+}
+@keyframes settings_close {
+	0% {
+		transform: scale(1);
+		top: 10vh;
+		left: 10vw;
+		opacity: 80%;
+		visibility: visible;
+	}
+	100% {
+		transform: scale(.0375);
+		top: 2vh;
+		left: 96vw;
+		opacity: 0%;
+		visibility: visible;
+	}
+}
+nav div#settings_menu {
+	display: block;
+	position: fixed;
+	visibility: collapse;
+	animation-name: settings_close;
+	animation-duration: 1s;
+	background-color: black;
+	z-index: 300;
+	font-size: 150%;
+	width: min(80vw, 66ex);
+	height: 80vh;
+	transform-origin: top left;
+	overflow: scroll;
+}
+nav div#settings_menu.hidden {
+	display: none;
+}
+nav div#settings_menu.active {
+	display: block;
+	visibility: visible;
+	opacity: 80%;
+	top: 10vh;
+	left: 10vw;
+	animation-name: settings_open;
+	animation-duration: 1s;
+}
+nav div#settings_menu.active button#settings_closer {
+	position: sticky;
+	display: block;
+	float: right;
+	top: 0px;
+	right: 0px;
+}
+
 </style>
 </head>
 <body onload="start();">
 
 <div id="loading" class="active">Loading... </div>
 
-<script src="./de_bundle.js"></script>
+<script src="./de_bundle.js?1674240042"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdn.rawgit.com/christianbach/tablesorter/master/jquery.tablesorter.min.js"></script>
 <script src="jquery/jquery-ui-1.13.2/jquery-ui.min.js"></script>
@@ -593,7 +673,8 @@ function populate_decklists(idx, deckname, deck) {
 		if(deckname.length > 30) {
 			txt = txt.substring(0, 30) + '…'
 		}
-		jsel.append(`<option value="${idx}">${txt}</option>`)
+		// FIXME: probably needs escaping
+		jsel.append(`<option value="${deckname}">${txt}</option>`)
 	}
 }
 
@@ -671,10 +752,70 @@ function intertable_option_changed(opt_sel, tbl, newdeck, pickdeck, T_btns, deck
 	}
 }
 
+function run_diff(tbln, tgt) {
+	set_loading('comparing...')
+	const tbl = document.getElementById(tbln)
+
+	const left = []
+	const right = []
+
+	for(let i = 1; i < tbl.rows.length; i++) {
+		const row = tbl.rows[i]
+		left.push(row.card['name'])
+		row.classList.remove('clicked')
+	}
+	tgt((card) => {
+		right.push(card['name'])
+	})
+
+	left.sort()
+	right.sort()
+	const common = {}
+
+	let left_idx = 0
+	let right_idx = 0
+
+	while((left_idx < left.length) && (right_idx < right.length)) {
+		const l = left[left_idx]
+		const r = right[right_idx]
+		if(l == r) {
+			if(common[l]) {
+				common[l]++
+			} else {
+				common[l] = 1
+			}
+			left_idx++
+			right_idx++
+		} else if(l > r) {
+			right_idx++
+		} else {
+			left_idx++
+		}
+	}
+
+	for(let i = 1; i < tbl.rows.length; i++) {
+		const row = tbl.rows[i]
+		const cardn = row.card['name']
+		if(common[cardn]) {
+			row.classList.add('clicked')
+			common[cardn]--
+		}
+	}
+
+	set_loading(null)
+}
+
 function intertable_T_clicked(btn, opt_sel, tbl) {
 	const opt = opt_sel.val()
 	if(opt == 'diff') {
-		// TODO: implement
+			const tgt_tbl = document.getElementById(btn.val());
+			const tgt_iter = function(cb) {
+				for(let i = 1; i < tgt_tbl.rows.length; i++) {
+					let row = tgt_tbl.rows[i]
+					cb(row.card)
+				}
+			}
+			run_diff(tbl, tgt_iter)
 	} else {
 		to_table(tbl, btn.val())
 		if(opt == 'move') {
@@ -686,7 +827,9 @@ function intertable_T_clicked(btn, opt_sel, tbl) {
 function intertable_deck_clicked(btn, opt_sel, tbl, newdeck, pickdeck) {
 	const opt = opt_sel.val()
 	if(opt == 'diff') {
-		// TODO: implement
+		const tgt_deckname = pickdeck.val()
+		const tgt_deck = deck_editor.deck_list.decks[tgt_deckname]
+		run_diff(tbl, (cb) => { tgt_deck.for_each(cb) })
 	} else {
 		to_deck(tbl, newdeck.val())
 		if(opt == 'move') {
@@ -700,7 +843,7 @@ function create_intertable_operations(dst, tbl, other_tbls) {
 	for(const o of [
 			['copy', '<span class="kbd">[c]</span>opy selection to'],
 			['move', '<span class="kbd">[m]</span>ove selection to'],
-			// ['diff', 'select all from'] // TODO: implement
+			['diff', '<span class="kbd">[d]</span>iff: select cards also in']
 			]) {
 		const [brief, desc] = o
 		opt_sel.append($(`<option value="${brief}">${desc}: </option>`))
@@ -892,6 +1035,13 @@ function keypress(evt) {
 		evt.preventDefault()
 		return
 	}
+	if(key == 'd') {
+		const el = $('div.div_table_main.active div.div_table_top select')[0]
+		el.selectedIndex = 2
+		$(el).trigger('change')
+		evt.preventDefault()
+		return
+	}
 
 	// switching to different tables
 	if(evt.shiftKey) {
@@ -922,9 +1072,39 @@ function keypress(evt) {
 	}
 }
 
+function migrate_storage() {
+	const sett = window.localStorage.getItem('settings')
+	if(!sett) {
+		const torm = []
+		for(let i = 0; i < window.localStorage.length; i++) {
+			const k = window.localStorage.key(i)
+			const v = window.localStorage.getItem(k)
+			torm.push({'k': k, 'v': v})
+		}
+		for(rm of torm) {
+			window.localStorage.setItem(`deck/${rm['k']}`, rm['v'])
+			window.localStorage.removeItem(rm['k'])
+		}
+		window.localStorage.setItem('settings', "{}")
+	}
+}
+
+function open_menu() {
+	document.getElementById('burger_menu').classList.remove('active')
+	document.getElementById('settings_menu').classList.add('active')
+	document.getElementById('settings_menu').classList.remove('hidden')
+}
+
+function hide_menu() {
+	document.getElementById('burger_menu').classList.add('active')
+	document.getElementById('settings_menu').classList.remove('active')
+}
+
 async function start() {
 	if(typeof(Storage) === 'undefined') {
 		alert("This browser doesn't support Web Storage. The decks won't get saved.");
+	} else {
+		migrate_storage()
 	}
 
 	create_interface()
@@ -945,6 +1125,7 @@ async function start() {
 	window.addEventListener('keydown', keypress)
 
 	set_loading(null)
+	open_menu();
 }
 
 function iterate_selection(tbln, cb) {
@@ -1224,7 +1405,6 @@ function init_libs() {
 </script>
 
 <div id="div_superparent">
-
 	<div id="div_left">
 		<div class="div_table_main active" id="div_T1" onclick="set_active_table('T1')">
 		</div>
@@ -1241,11 +1421,6 @@ function init_libs() {
 				<input type="text" value="Imported Deck" size="30" id="imp_name" />
 				<input type="button" onclick="import_deck();" value="import" />
 				<input type="button" onclick="scryfall_search();" value="search scryfall" />
-
-				<!-- TODO: implement
-				<input type="text" value="" size="30" id="scryfall_search" />
-				<input type="button" onclick="scryfall_search();" value="search scryfall" />
-				-->
 			</div>
 		</div>
 		<div id="div_sides">
@@ -1259,7 +1434,36 @@ function init_libs() {
 			</div>
 		</div>
 	</div>
-
+	<nav>
+		<div id="burger_menu" onclick="open_menu()">☰</div>
+		<div id="settings_menu" class="hidden">
+			<button id="settings_closer" onclick="hide_menu()">close this help</button>
+			<h1>Welcome to Dierk, the MTG Deck editor!</h1>
+			<p>You have 3 Tables at your disposal, and pressing the right buttons copies or moves cards between them.</p>
+			<p>To actually see some cards, you need to do one of the following:
+			<li>
+				<ul>use the "seed" feature (poorly documented as of yet),</ul>
+				<ul>import it from a text file or</ul>
+				<ul>search for some cards via scryfall. </ul>
+			</li>
+			The largest text area in the upper-right portion serves both as an entry field for pasting decks to be imported as well as a query to be run on scryfall.
+			</p>
+			<p>Once you're happy with your cards you can save them into a deck by setting a name and clicking the "deck named" button.</p>
+			<p>Decks should be saved automatically in your browser and re-loaded at your next session; but if you really value them, you should export them and paste them to your favourite text editor and save them to your disk (having the "export for xmage" checked will export the specific card from a given set; having it unchecked will only export its name).</p>
+			<p>Beware that <b>there is no undo</b> implemented yet!</p>
+			<p>Keybindings which are not shown on screen:</p>
+			<li>
+				<ul>↑/k moves cursor up,</ul>
+				<ul>↓/j moves cursor down,</ul>
+				<ul>space (un)selects the card at cursor,</ul>
+				<ul>backspace removes the cursor,</ul>
+				<ul>shift+1..3 switches the active table.</ul>
+			</li>
+			<p>This editor is open-source and you can find its <a href="https://github.com/goblin/dierk">source on GitHub</a>.</p>
+			<p>Uses booster generation code from <a href="https://mtgen.net">mtgen</a> and card data and images from <a href="https://scryfall.com">Scryfall</a>.</p>
+			<button onclick="hide_menu()">close this help</button>
+		</div>
+	</nav>
 </div>
 
 </body>
