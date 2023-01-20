@@ -1121,12 +1121,9 @@ function delete_cards(tbln, which) {
 	update_counter_by(tbln, diff)
 }
 
-async function import_deck() {
-	set_loading('importing deck...')
-
-	const data = document.getElementById('deck').value;
+async function import_deck_work(cardlist) {
 	const deck = new deck_editor.ArrayCardList();
-	const res = await deck.import_(data);
+	const res = await deck.import_(cardlist);
 
 	if(res != '') {
 		alert("Import problems:\n" + res);
@@ -1134,6 +1131,49 @@ async function import_deck() {
 
 	const name = document.getElementById('imp_name').value;
 	await deck_editor.deck_list.add_deck(name, deck);
+}
+
+async function import_deck() {
+	set_loading('importing deck...')
+
+	const data = document.getElementById('deck').value;
+	import_deck_work(data)
+
+	set_loading(null)
+}
+
+function cards_json2line(data) {
+	let rv = ''
+	for(card of data) {
+		let num = card["collector_number"]
+		num = num.replace(/a$/, '')
+		rv += `1 [${card["set"].toUpperCase()}:${num}] ${card["name"]}\n`
+	}
+	return rv
+}
+
+async function scryfall_search() {
+	set_loading('searching scryfall...')
+
+	const query = document.getElementById('deck').value
+	let cards = ''
+	let obj = {}
+	let page = 0
+	let next_page_url = `http://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}`
+	do {
+		obj = await fetch(next_page_url).then((response) => response.json())
+		cards += cards_json2line(obj['data'])
+		page++;
+		set_loading(`found ${obj["total_cards"]} cards, fetched ${page} pages`)
+		if(obj['has_more']) {
+			next_page_url = obj['next_page']
+		} else {
+			next_page_url = null
+		}
+	} while(next_page_url)
+
+	set_loading(`importing ${obj["total_cards"]} cards...`)
+	import_deck_work(cards)
 
 	set_loading(null)
 }
@@ -1200,6 +1240,7 @@ function init_libs() {
 				<textarea rows="4" cols="40" id="deck"></textarea>
 				<input type="text" value="Imported Deck" size="30" id="imp_name" />
 				<input type="button" onclick="import_deck();" value="import" />
+				<input type="button" onclick="scryfall_search();" value="search scryfall" />
 
 				<!-- TODO: implement
 				<input type="text" value="" size="30" id="scryfall_search" />
