@@ -83,7 +83,7 @@ https://scryfall.com/docs/api/bulk-data .
 After checking out, run this:
 
 $ mkdir data
-$ cp -R /path/to/mtgen/mtgen/wwwroot data/mtgen
+$ cp -R /path/to/mtgen/public data/mtgen
 $ ./recreate_data.py rulings-*.json data < default-cards-*.json
 $ ./get_symbology.py > symbology.json
 $ npm install

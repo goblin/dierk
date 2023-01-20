@@ -160,6 +160,7 @@ def add_image(dst, card):
 		print(f'\nno image for {card["name"]}', file=sys.stderr)
 		return
 
+	dst['art_imgs'].append(uris['art_crop'])
 	dst['display_imgs'].append(uris['border_crop'])
 	dst['print_imgs'].append(uris['large'])
 
@@ -188,6 +189,7 @@ def extract_important(card, card_id_idx):
 	rv['scryfallId'] = cdata['id']
 	rv['rulings'] = card['scryfall_rulings']
 
+	rv['art_imgs'] = []
 	rv['display_imgs'] = []
 	rv['print_imgs'] = []
 

@@ -46,7 +46,10 @@ table.tablesorter thead th {
 	color: black;
 	border: 1px solid black;
 }
-table.tablesorter tr.clicked td {
+table.tablesorter tr {
+	background-color: #1f1e1e;
+}
+table.tablesorter tr.clicked td, table.tablesorter tr.clicked {
 	background-color: #404040;
 }
 table.tablesorter tr .popup {
@@ -61,6 +64,9 @@ table.tablesorter tr .popup {
 	color: lightgray;
 	padding: 1em;       
 	margin-top: 0em;
+}
+table.tablesorter td.art img {
+	height: 10ex;
 }
 div.div_table_main.active table.tablesorter tbody tr.cursor {
 	outline: 2px solid darkblue;
@@ -250,6 +256,13 @@ div.div_table_main div.card_text {
 	display: none;
 }
 div.div_table_main.cardtext_enabled div.card_text {
+	display: block;
+}
+
+div.div_table_main th.art, div.div_table_main td.art {
+	display: none;
+}
+div.div_table_main.display_art_enabled th.art, div.div_table_main.display_art_enabled td.art {
 	display: block;
 }
 
@@ -502,7 +515,9 @@ function card2row(c, table_el, tbln) {
 	tr.addEventListener('click', function(ev) {
 		row_click(tr, ev, table_el, tbln);
 	});
-	tr.innerHTML = '<td>' + first_row + '</td>' +
+	tr.innerHTML = 
+		'<td class="art"><img src="' + c.art_imgs[0] + '" /></td>' +
+		'<td>' + first_row + '</td>' +
 		'<td class="exp">' + c.set + '</td>' +
 		'<td class="exp">' + get_setnum(c) + '</td>' +
 		'<td class="exp">' + me(c.cmc) + '</td>' +
@@ -735,6 +750,7 @@ function create_iface_btns(div, tbl, other_tbls, chkmap) {
 		['overlay', '<span class="kbd">o</span>verM', `Show full card image and rulings when mouse hovering in ${tbl}.`],
 		['cursor_overlay', '<span class="kbd">O</span>verC', `Show full card image and rulings when selected by cursor in ${tbl}.`],
 		['compact', 's<span class="kbd">h</span>ort', `Make ${tbl} compact (display only name and mana cost in header).`],
+		['display_art', 'a<span class="kbd">r</span>t', "Display cards' art crop."],
 	]
 	for(const opt_idx in options) {
 		const opt = options[opt_idx]
@@ -755,7 +771,7 @@ function create_table(div, tblname) {
 	const thead = $('<thead>')
 
 	const head_row = $('<tr>')
-	head_row.append($('<th title="Card Name">Name</th>'))
+	head_row.append($('<th class="art" title="Art Crop">Art</th><th title="Card Name">Name</th>'))
 	for(const def of [
 			['Set Code', 'Set'],
 			['Collector Number', 'Num'],
@@ -783,9 +799,9 @@ function create_interface_for(tbl, other_tbls, chkmap) {
 }
 
 function create_interface() {
-	create_interface_for('T1', ['T2', 'T3'], [1, 1, 1, 0, 0])
-	create_interface_for('T2', ['T1', 'T3'], [0, 1, 1, 0, 1])
-	create_interface_for('T3', ['T1', 'T2'], [0, 1, 1, 0, 1])
+	create_interface_for('T1', ['T2', 'T3'], [1, 1, 1, 0, 0, 1])
+	create_interface_for('T2', ['T1', 'T3'], [0, 1, 1, 0, 1, 0])
+	create_interface_for('T3', ['T1', 'T2'], [0, 1, 1, 0, 1, 0])
 }
 
 function get_cursor(first=true) {
@@ -1018,6 +1034,10 @@ function set_compact(tbln, chkbx) {
 	set_table_prop(tbln, 'compact', chkbx.checked)
 }
 
+function set_display_art(tbln, chkbx) {
+	set_table_prop(tbln, 'display_art', chkbx.checked)
+}
+
 // default sort is: colour, type, cmc, rarity, name
 async function sort_table(tbl, key=[[[4, 'a'], [5, 'a'], [3, 'a'], [7, 'a'], [0, 'a']]]) {
 	return new Promise((resolve, reject) => {
@@ -1101,12 +1121,9 @@ function delete_cards(tbln, which) {
 	update_counter_by(tbln, diff)
 }
 
-async function import_deck() {
-	set_loading('importing deck...')
-
-	const data = document.getElementById('deck').value;
+async function import_deck_work(cardlist) {
 	const deck = new deck_editor.ArrayCardList();
-	const res = await deck.import_(data);
+	const res = await deck.import_(cardlist);
 
 	if(res != '') {
 		alert("Import problems:\n" + res);
@@ -1114,6 +1131,49 @@ async function import_deck() {
 
 	const name = document.getElementById('imp_name').value;
 	await deck_editor.deck_list.add_deck(name, deck);
+}
+
+async function import_deck() {
+	set_loading('importing deck...')
+
+	const data = document.getElementById('deck').value;
+	import_deck_work(data)
+
+	set_loading(null)
+}
+
+function cards_json2line(data) {
+	let rv = ''
+	for(card of data) {
+		let num = card["collector_number"]
+		num = num.replace(/a$/, '')
+		rv += `1 [${card["set"].toUpperCase()}:${num}] ${card["name"]}\n`
+	}
+	return rv
+}
+
+async function scryfall_search() {
+	set_loading('searching scryfall...')
+
+	const query = document.getElementById('deck').value
+	let cards = ''
+	let obj = {}
+	let page = 0
+	let next_page_url = `http://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}`
+	do {
+		obj = await fetch(next_page_url).then((response) => response.json())
+		cards += cards_json2line(obj['data'])
+		page++;
+		set_loading(`found ${obj["total_cards"]} cards, fetched ${page} pages`)
+		if(obj['has_more']) {
+			next_page_url = obj['next_page']
+		} else {
+			next_page_url = null
+		}
+	} while(next_page_url)
+
+	set_loading(`importing ${obj["total_cards"]} cards...`)
+	import_deck_work(cards)
 
 	set_loading(null)
 }
@@ -1180,6 +1240,7 @@ function init_libs() {
 				<textarea rows="4" cols="40" id="deck"></textarea>
 				<input type="text" value="Imported Deck" size="30" id="imp_name" />
 				<input type="button" onclick="import_deck();" value="import" />
+				<input type="button" onclick="scryfall_search();" value="search scryfall" />
 
 				<!-- TODO: implement
 				<input type="text" value="" size="30" id="scryfall_search" />
