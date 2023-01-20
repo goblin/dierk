@@ -793,14 +793,17 @@ function run_diff(tbln, tgt) {
 		}
 	}
 
+	let cntr = 0
 	for(let i = 1; i < tbl.rows.length; i++) {
 		const row = tbl.rows[i]
 		const cardn = row.card['name']
 		if(common[cardn]) {
 			row.classList.add('clicked')
 			common[cardn]--
+			cntr++
 		}
 	}
+	update_counter_to(tbln, cntr)
 
 	set_loading(null)
 }
