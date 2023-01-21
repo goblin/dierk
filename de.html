@@ -388,7 +388,7 @@ nav div#settings_menu.active button#settings_closer {
 
 <div id="loading" class="active">Loading... </div>
 
-<script src="./de_bundle.js?1674240042"></script>
+<script src="./de_bundle.js?1674240050"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdn.rawgit.com/christianbach/tablesorter/master/jquery.tablesorter.min.js"></script>
 <script src="jquery/jquery-ui-1.13.2/jquery-ui.min.js"></script>
@@ -623,10 +623,10 @@ function create_button(text, cb) {
 
 async function export_deck(deck) {
 	const deck_el = document.getElementById('deck');
-	const full = document.getElementById('export_full').checked;
+	const fmt = document.getElementById('export_fmt').value;
 	const showseed = document.getElementById('show_seed').checked;
 
-	deck_el.value = await deck.export_(full, showseed);
+	deck_el.value = await deck.export_(fmt, showseed);
 }
 
 async function load_deck(tbln, deck) {
@@ -1418,7 +1418,11 @@ function init_libs() {
 				<h3>Deck list:</h3>
 				<ul id="decklist"></ul>
 				<input type="button" onclick="deck_from_argseed();" value="new from seed" />
-				<label><input type="checkbox" checked="checked" id="export_full"/>export for xmage</label>
+				<select id="export_fmt">
+					<option value="xmage">export for xmage</option>
+					<option value="mtga">export for MTGA</option>
+					<option value="plain">export plain</option>
+				</select>
 				<label><input type="checkbox" id="show_seed"/>show seed</label>
 				<textarea rows="4" cols="40" id="deck"></textarea>
 				<input type="text" value="Imported Deck" size="30" id="imp_name" />
