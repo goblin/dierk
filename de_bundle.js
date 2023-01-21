@@ -25,28 +25,41 @@ class Card {
 		return ' (' + c.power + '/' + c.toughness + ')';
 	}
 
-	static async from_str(str) {
-		str = str.replace(/^[ \t]*/, '').replace(/[ \t]*$/, '');
-		let match = str.match(/^(\[[A-Za-z0-9:]*\])?[ \t]?(.*)$/);
-
-		if(!match)
-			throw "invalid card string: " + str;
-
-		let id = match[1];
-		let name = match[2];
+	static _parse_str(str) {
+		const mtga_match = str.match(/^(.*) \(([A-Z0-9]*)\) ([0-9]*)$/)
+		if(mtga_match) {
+			return [mtga_match[1], mtga_match[2].toLowerCase(), mtga_match[3]]
+		}
+		const xmage_plain_match = str.match(/^(\[[A-Za-z0-9:]*\])?[ \t]?(.*)$/)
+		if(!xmage_plain_match) {
+			throw "invalid card string: " + str
+		}
+		const id = xmage_plain_match[1]
+		const name = xmage_plain_match[2]
 
 		if(id) {
-			let submatch = id.match(/\[([A-Za-z0-9]*):([0-9]*)\]/);
+			const submatch = id.match(/\[([A-Za-z0-9]*):([0-9]*)\]/)
 			if(!submatch)
 				throw "invalid card setnum: " + str;
 
-			let set = submatch[1].toLowerCase();
+			const set = submatch[1].toLowerCase();
 
 			// TODO: check if it works; for now I think mtgdata doesn't contain leading zeroes
 			//let num = '00' + parseInt(submatch[2]).toString();
 			//num = num.substr(num.length-3, 3);
-			let num = submatch[2]
+			const num = submatch[2]
 
+			return [name, set, num]
+		}
+
+		return [name, null, null]
+	}
+
+	static async from_str(str) {
+		str = str.replace(/^[ \t]*/, '').replace(/[ \t]*$/, '')
+		const [name, set, num] = Card._parse_str(str)
+
+		if(set) {
 			const rv = await mtgdata.lookup_card_by_set_and_num(set, num)
 			if(!rv) {
 				throw 'card not found'
@@ -63,10 +76,10 @@ class Card {
 }
 
 class CardList {
-	async export_(full, showseed) {
-		var res = '';
-		var last;
-		var cnt = 0;
+	async export_(fmt, showseed) {
+		let res = ''
+		let last
+		let cnt = 0
 
 		function flush() {
 			if(last !== undefined && cnt > 0)
@@ -76,8 +89,16 @@ class CardList {
 		}
 
 		await this.for_each(function(c) {
-			var setnum = '[' + Card.fmt_setnum(c, true) + '] ';
-			var name = (full ? setnum: '') + c.name;
+			let setnum_xmage = '[' + Card.fmt_setnum(c, true) + '] ';
+			let setnum_mtga = ` (${c.set.toUpperCase()}) ${Card.fmt_setnum(c, false)}`;
+			let name
+			if(fmt == 'xmage') {
+				name = setnum_xmage + c.name
+			} else if(fmt == 'mtga') {
+				name = c.name + setnum_mtga
+			} else {
+				name = c.name
+			}
 
 			if(last != name)
 				flush();
@@ -252,7 +273,7 @@ class ArrayCardList extends CardList {
 	async store() {
 		return {
 			type: 'list',
-			cards: await this.export_(true, false)
+			cards: await this.export_('xmage', false)
 		}
 	}
 }
